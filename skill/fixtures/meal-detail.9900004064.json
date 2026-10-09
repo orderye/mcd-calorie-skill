@@ -1,0 +1,64 @@
+{
+  "_meta": {
+    "storeCode": "3570190", "orderType": 1, "beType": 1,
+    "fetchedAt": "2026-10-09 23:37:04",
+    "note": "精简自原始响应：剔除 image/modification 内部 key 细节。保留 rounds 名称（权威品类来源）与默认搭配（T4 订单等价样本的构造依据）。"
+  },
+  "code": "9900004064",
+  "name": "精选单人餐三件套",
+  "price": "35",
+  "supportModify": false,
+  "rounds": [
+    {
+      "id": 1, "name": "主食任意选", "quantity": 1, "minQuantity": 1, "maxQuantity": 1,
+      "category": "主食",
+      "choices": [
+        {"code": "1406", "name": "板烧鸡腿堡", "isDefault": 1, "diffPrice": "+ ¥0", "supportModify": true,
+         "modificationSummary": "烤味酱/切块生菜 可选增减"},
+        {"code": "1100", "name": "巨无霸", "isDefault": 0, "diffPrice": "+ ¥2.5", "supportModify": true},
+        {"code": "1440", "name": "麦辣鸡腿汉堡", "isDefault": 0, "diffPrice": "- ¥1", "supportModify": true},
+        {"code": "511781", "name": "培根安格斯厚牛堡", "isDefault": 0, "diffPrice": "+ ¥10.5", "supportModify": true},
+        {"code": "520312", "name": "原味双层深海鳕鱼堡", "isDefault": 0, "diffPrice": "+ ¥1", "supportModify": true}
+      ]
+    },
+    {
+      "id": 2, "name": "选择套餐内小食", "quantity": 1, "minQuantity": 1, "maxQuantity": 1,
+      "category": "小食",
+      "choices": [
+        {"code": "4810", "name": "中薯条", "isDefault": 1, "diffPrice": "+ ¥0", "supportModify": false},
+        {"code": "521983", "name": "5块心形薯饼+韩式辣椒黄油风味酱", "isDefault": 0, "diffPrice": "+ ¥1", "supportModify": false},
+        {"code": "521901", "name": "月下相思扭扭薯", "isDefault": 0, "diffPrice": "+ ¥1.5", "supportModify": false},
+        {"code": "4820", "name": "大薯条", "isDefault": 0, "diffPrice": "+ ¥1.5", "supportModify": false},
+        {"code": "4437", "name": "小杯玉米杯", "isDefault": 0, "diffPrice": "- ¥1.5", "supportModify": false},
+        {"code": "4438", "name": "大杯玉米杯", "isDefault": 0, "diffPrice": "+ ¥1", "supportModify": false}
+      ]
+    },
+    {
+      "id": 3, "name": "选择套餐内饮料", "quantity": 1, "minQuantity": 1, "maxQuantity": 1,
+      "category": "饮品",
+      "choices": [
+        {"code": "3050", "name": "可乐中杯", "isDefault": 1, "diffPrice": "+ ¥0", "supportModify": true,
+         "modificationSummary": "标准/去冰/多冰/少冰（必选其一）"},
+        {"code": "3071", "name": "无糖可口可乐中杯", "isDefault": 0, "diffPrice": "+ ¥0"},
+        {"code": "3060", "name": "雪碧中杯", "isDefault": 0, "diffPrice": "+ ¥0"},
+        {"code": "3100", "name": "可乐大杯", "isDefault": 0, "diffPrice": "+ ¥2"},
+        {"code": "3111", "name": "无糖可口可乐大杯", "isDefault": 0, "diffPrice": "+ ¥2"},
+        {"code": "3110", "name": "雪碧大杯", "isDefault": 0, "diffPrice": "+ ¥2"},
+        {"code": "3505", "name": "锡兰红茶", "isDefault": 0, "diffPrice": "+ ¥1.5"},
+        {"code": "6362", "name": "100%苹果汁", "isDefault": 0, "diffPrice": "+ ¥2"},
+        {"code": "515520", "name": "中杯怡泉+C", "isDefault": 0, "diffPrice": "+ ¥1.5"},
+        {"code": "2430", "name": "【美汁源】“黄金橙橙”", "isDefault": 0, "diffPrice": "+ ¥3"},
+        {"code": "507411", "name": "麦咖啡™冰美式中杯", "isDefault": 0, "diffPrice": "+ ¥9"},
+        {"code": "507409", "name": "麦咖啡™冰奶铁中杯", "isDefault": 0, "diffPrice": "+ ¥11"},
+        {"code": "515945", "name": "热浓浓黑巧中杯", "isDefault": 0, "diffPrice": "+ ¥11",
+         "modificationSummary": "换燕麦奶 +¥2（price:200 分）"}
+      ]
+    }
+  ],
+  "_observations": [
+    "rounds[].name 即权威品类：主食/小食/饮料",
+    "套餐子项 code 与 query-meals 菜单 code 不一致（可乐中杯 3050 vs 菜单可乐 9900008751）→ 匹配必须用名称",
+    "默认搭配 = 板烧鸡腿堡 + 中薯条 + 可乐中杯 → 用作 T4 订单等价样本",
+    "modification 多为减料（去冰/不要生菜）与换料（换燕麦奶 +¥2），与『加料』不同"
+  ]
+}

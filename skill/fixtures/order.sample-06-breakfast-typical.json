@@ -1,0 +1,14 @@
+{
+  "_meta": {
+    "note": "T4 常见订单样本：早餐典型组合（名称均应精确命中营养表）",
+    "sampleId": "sample-06-breakfast-typical",
+    "scene": "早餐 · 典型形态",
+    "expectedDaypart": "早餐"
+  },
+  "orderId": "SAMPLE-20261009-06",
+  "orderProductList": [
+    {"productName": "猪柳蛋麦满分", "quantity": 1},
+    {"productName": "脆薯饼", "quantity": 1},
+    {"productName": "锡兰红茶", "quantity": 1}
+  ]
+}

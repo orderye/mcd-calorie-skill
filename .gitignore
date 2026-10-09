@@ -1,0 +1,12 @@
+# WorkBuddy 工具元数据，非项目源码
+.workbuddy/
+
+# OS / 编辑器噪音
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Python 缓存
+__pycache__/
+*.pyc

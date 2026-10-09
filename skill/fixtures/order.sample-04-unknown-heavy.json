@@ -1,0 +1,15 @@
+{
+  "_meta": {
+    "note": "T4 等价样本：含营养表缺失新品与泛称甜品，必须 100% 触发『热量未知』而非按 0 计算（验收 §9）",
+    "sampleId": "sample-04-unknown-heavy",
+    "scene": "午餐 · 新品 + 泛称甜品 · 考验 UNKNOWN 路径",
+    "expectedDaypart": "午餐"
+  },
+  "orderId": "SAMPLE-20261009-04",
+  "orderProductList": [
+    {"productName": "北非蛋风味猪柳蛋麦满分", "quantity": 1},
+    {"productName": "火腿扒麦满分", "quantity": 1},
+    {"productName": "新地", "quantity": 1},
+    {"productName": "经典麦旋风", "quantity": 1}
+  ]
+}

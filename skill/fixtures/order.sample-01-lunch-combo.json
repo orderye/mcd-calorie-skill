@@ -1,0 +1,17 @@
+{
+  "_meta": {
+    "note": "T4 等价样本：无真实 orderId 可查（无历史订单列表接口），按 PRD §5 的 query-order 结构约定（orderProductList/comboItemList）+ T3 套餐默认搭配构造。★首次拿到真实订单响应后必须校准字段名并回填 fixtures/order.real.*.json",
+    "sampleId": "sample-01-lunch-combo",
+    "scene": "午餐 · 套餐 · 全部可匹配",
+    "expectedDaypart": "午餐"
+  },
+  "orderId": "SAMPLE-20261009-01",
+  "orderProductList": [
+    {"productName": "精选单人餐三件套", "quantity": 1,
+     "comboItemList": [
+       {"productName": "板烧鸡腿堡", "quantity": 1},
+       {"productName": "中薯条", "quantity": 1},
+       {"productName": "可乐中杯", "quantity": 1}
+     ]}
+  ]
+}

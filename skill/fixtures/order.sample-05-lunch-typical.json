@@ -1,0 +1,18 @@
+{
+  "_meta": {
+    "note": "T4 常见订单样本：典型套餐直点（三件套展开）+ 单品加购",
+    "sampleId": "sample-05-lunch-typical",
+    "scene": "午餐 · 典型形态",
+    "expectedDaypart": "午餐"
+  },
+  "orderId": "SAMPLE-20261009-05",
+  "orderProductList": [
+    {"productName": "麦辣鸡腿汉堡三件套", "quantity": 1,
+     "comboItemList": [
+       {"productName": "麦辣鸡腿汉堡", "quantity": 1},
+       {"productName": "中薯条", "quantity": 1},
+       {"productName": "可乐中杯", "quantity": 1}
+     ]},
+    {"productName": "苹果片", "quantity": 1}
+  ]
+}

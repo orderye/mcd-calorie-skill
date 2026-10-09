@@ -1,0 +1,15 @@
+{
+  "_meta": {
+    "note": "T4 等价样本：正餐饱腹组合，含泛称饮品（可乐→中/大杯歧义）与缺部位炸鸡（麦麦脆汁鸡→琵琶腿/带骨里脊歧义），考验去杯型/别名兜底",
+    "sampleId": "sample-03-supper-heavy",
+    "scene": "晚餐 · 单品混点 · 含歧义名称",
+    "expectedDaypart": "晚餐"
+  },
+  "orderId": "SAMPLE-20261009-03",
+  "orderProductList": [
+    {"productName": "巨无霸", "quantity": 1},
+    {"productName": "麦麦脆汁鸡1块", "quantity": 1},
+    {"productName": "薯条", "quantity": 1},
+    {"productName": "可乐", "quantity": 1}
+  ]
+}

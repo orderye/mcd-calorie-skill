@@ -1,0 +1,14 @@
+{
+  "_meta": {
+    "note": "T4 等价样本：早餐单品直购（无套餐），名称均为营养表精确命中项",
+    "sampleId": "sample-02-breakfast-single",
+    "scene": "早餐 · 单品 · 无套餐展开",
+    "expectedDaypart": "早餐"
+  },
+  "orderId": "SAMPLE-20261009-02",
+  "orderProductList": [
+    {"productName": "猪柳麦满分", "quantity": 1},
+    {"productName": "脆薯饼", "quantity": 1},
+    {"productName": "优品豆浆", "quantity": 1}
+  ]
+}

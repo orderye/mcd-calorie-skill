@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>订单热量与套餐推荐 Skill · 实施计划 v1.0</title>
+<style>
+:root{
+  --bg:#f7f7f5; --surface:#ffffff; --line:#e6e4df; --line-soft:#f0eee9;
+  --ink:#1c1b19; --ink-2:#55534e; --ink-3:#8b8880;
+  --accent:#b4451f; --accent-soft:#fdf1ec;
+  --ok:#2f6b46; --ok-soft:#ecf5ef;
+  --warn:#8a5a00; --warn-soft:#fdf5e3;
+  --info:#2b5b8a; --info-soft:#eef4fa;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  font-size:14px; line-height:1.7; -webkit-font-smoothing:antialiased;
+  padding:40px 20px 80px;
+}
+.wrap{max-width:1180px;margin:0 auto}
+
+/* ── 页头 ── */
+header{border-bottom:2px solid var(--ink);padding-bottom:20px;margin-bottom:8px}
+.kicker{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3);font-family:var(--mono)}
+h1{font-size:30px;line-height:1.25;font-weight:650;letter-spacing:-.01em;margin:10px 0 8px}
+.submeta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{
+  font-family:var(--mono);font-size:11.5px;padding:3px 9px;border-radius:3px;
+  background:var(--surface);border:1px solid var(--line);color:var(--ink-2);
+}
+.chip.a{background:var(--accent-soft);border-color:#f0d5c8;color:var(--accent)}
+
+/* ── 分区 ── */
+section{margin-top:44px;scroll-margin-top:20px}
+.sec-head{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--line);padding-bottom:9px;margin-bottom:18px}
+.sec-no{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.1em;flex:none;padding-top:2px}
+h2{font-size:19px;font-weight:640;letter-spacing:-.005em}
+h3{font-size:15px;font-weight:620;margin:26px 0 10px;letter-spacing:-.005em}
+h3:first-child{margin-top:0}
+p{margin:9px 0;color:var(--ink-2)}
+p strong,li strong{color:var(--ink);font-weight:620}
+ul,ol{margin:9px 0 9px 22px;color:var(--ink-2)}
+li{margin:5px 0}
+
+/* ── 卡片网格 ── */
+.grid{display:grid;gap:12px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+.card{
+  background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px 18px;
+}
+.card.kpi{text-align:left}
+.kpi .n{font-family:var(--mono);font-size:26px;font-weight:600;color:var(--accent);line-height:1.1;letter-spacing:-.02em}
+.kpi .l{font-size:12.5px;color:var(--ink-2);margin-top:6px}
+.kpi .d{font-size:11.5px;color:var(--ink-3);margin-top:3px;font-family:var(--mono)}
+.card h4{font-size:14px;font-weight:620;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.tag{
+  font-family:var(--mono);font-size:10px;padding:2px 6px;border-radius:3px;flex:none;letter-spacing:.04em;
+  background:var(--line-soft);color:var(--ink-3);border:1px solid var(--line);
+}
+.tag.p0{background:var(--accent-soft);color:var(--accent);border-color:#f0d5c8}
+.tag.p1{background:var(--warn-soft);color:var(--warn);border-color:#f0e2c0}
+.tag.p2{background:var(--info-soft);color:var(--info);border-color:#d3e2f0}
+.tag.new{background:var(--ok-soft);color:var(--ok);border-color:#cbe3d4}
+
+/* ── 表格 ── */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
+th{
+  text-align:left;font-weight:600;font-size:11.5px;letter-spacing:.05em;color:var(--ink-3);
+  padding:10px 12px;border-bottom:1px solid var(--line);background:#fbfaf8;white-space:nowrap;
+}
+td{padding:10px 12px;border-bottom:1px solid var(--line-soft);vertical-align:top;color:var(--ink-2)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:#fcfbf9}
+td.id{font-family:var(--mono);font-size:11.5px;color:var(--accent);white-space:nowrap;font-weight:600}
+td strong{color:var(--ink)}
+.mono{font-family:var(--mono);font-size:12px}
+.nowrap{white-space:nowrap}
+
+/* ── 提示块 ── */
+.note{
+  border-left:3px solid var(--accent);background:var(--accent-soft);
+  padding:12px 16px;border-radius:0 5px 5px 0;margin:14px 0;font-size:13px;color:var(--ink-2);
+}
+.note.ok{border-color:var(--ok);background:var(--ok-soft)}
+.note.warn{border-color:var(--warn);background:var(--warn-soft)}
+.note.info{border-color:var(--info);background:var(--info-soft)}
+.note .h{font-weight:640;color:var(--ink);display:block;margin-bottom:4px;font-size:13px}
+
+/* ── 代码 ── */
+pre{
+  background:#fbfaf8;border:1px solid var(--line);border-radius:5px;padding:12px 14px;
+  overflow-x:auto;font-family:var(--mono);font-size:12px;line-height:1.65;color:var(--ink-2);margin:10px 0;
+}
+code{font-family:var(--mono);font-size:12px;background:var(--line-soft);padding:1px 5px;border-radius:3px;color:var(--ink)}
+pre code{background:none;padding:0}
+
+/* ── 进度条 ── */
+.bar{height:5px;background:var(--line-soft);border-radius:3px;overflow:hidden;margin-top:8px}
+.bar > i{display:block;height:100%;background:var(--accent)}
+
+/* ── 步骤条 ── */
+.steps{display:flex;flex-wrap:wrap;gap:0;margin:14px 0;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--surface)}
+.step{flex:1 1 150px;padding:12px 14px;border-right:1px solid var(--line);min-width:150px}
+.step:last-child{border-right:none}
+.step .s{font-family:var(--mono);font-size:10px;color:var(--accent);letter-spacing:.08em}
+.step .t{font-size:13px;font-weight:600;margin-top:3px}
+.step .d{font-size:11.5px;color:var(--ink-3);margin-top:3px}
+
+footer{margin-top:56px;padding-top:18px;border-top:1px solid var(--line);font-size:11.5px;color:var(--ink-3);font-family:var(--mono)}
+@media(max-width:640px){
+  body{padding:24px 14px 60px} h1{font-size:23px} .sec-head{flex-direction:column;gap:2px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">Implementation Plan · 参赛作品 · Agent Skill</div>
+  <h1>订单热量与套餐推荐 Skill<br>实施计划</h1>
+  <div class="submeta">
+    <span class="chip a">v1.0</span>
+    <span class="chip">2026-10-09</span>
+    <span class="chip">依据 PRD v0.1 草案</span>
+    <span class="chip">含真实接口勘察结论</span>
+    <span class="chip">33 项任务 · 8 个阶段</span>
+  </div>
+</header>
+
+<!-- ══ S0 执行摘要 ══ -->
+<section id="s0">
+  <div class="sec-head"><span class="sec-no">S0</span><h2>执行摘要</h2></div>
+
+  <p>本计划把 PRD v0.1 拆解为 <strong>8 个阶段、33 项可验收任务</strong>。计划编制前先对麦当劳中国官方 MCP 做了<strong>真实接口勘察</strong>（当前时间 2026-10-09 23:36 GMT+8，样本门店：麦当劳贵阳天一国际餐厅 storeCode <code>3570190</code>，到店自取 beType=1），发现 <strong>PRD 中 5 处关键假设与真实响应不符</strong>，已在 S2 逐条给出修正方案。这些修正会改变推荐引擎与餐段模块的实现路径，建议<strong>先按修正后的方案开发，再回写 PRD</strong>。</p>
+
+  <div class="grid g4" style="margin-top:18px">
+    <div class="card kpi"><div class="n">33</div><div class="l">实施任务</div><div class="d">T1 – T33</div></div>
+    <div class="card kpi"><div class="n">5</div><div class="l">PRD 假设修正</div><div class="d">D1 – D5，见 S2</div></div>
+    <div class="card kpi"><div class="n">2/7</div><div class="l">待确认问题已实测解决</div><div class="d">Q1 图片字段 / Q2 daypart</div></div>
+    <div class="card kpi"><div class="n">P0</div><div class="l">最高优先级</div><div class="d">T6–T13 匹配与估算</div></div>
+  </div>
+
+  <div class="note warn" style="margin-top:18px">
+    <span class="h">⚠ 影响最大的一条修正</span>
+    PRD §5 称 <code>query-meals</code> 返回含 <code>daypart</code> 字段，<strong>实测响应中不存在该字段</strong>。餐段可售性不能用 daypart 过滤，须改用 <code>reservationDate</code> 传入目标餐段时间来取得对应时段的菜单。这条直接决定 F3 推荐引擎的候选来源实现方式。
+  </div>
+
+  <h3>优先级行动列表（先做这三件事）</h3>
+  <ol>
+    <li><strong>T1 营养表勘察</strong> —— 一切热量计算的起点。先 dump 原始响应，确认紧凑字符串的分隔结构与字段单位，再动手写解析器。字段单位未确认前不得产出任何热量数字。</li>
+    <li><strong>T2 + T3 菜单与套餐快照</strong> —— 建立本地 fixture，让后续所有开发脱离网络，且能覆盖 4 个餐段。同时拿到「主食 / 小食 / 饮料」的权威品类来源。</li>
+    <li><strong>T8 + T10 匹配器与匹配率评测</strong> —— 匹配率是 PRD 唯一的量化验收项（≥90%）。先把评测脚本搭起来，之后每次改归一化规则都能立刻看到数字变化。</li>
+  </ol>
+</section>
+
+<!-- ══ S1 接口勘察结论 ══ -->
+<section id="s1">
+  <div class="sec-head"><span class="sec-no">S1</span><h2>接口勘察结论（实测）</h2></div>
+  <p>以下均为本次真实调用返回，非文档推断。样本时间 2026-10-09 23:36:31 GMT+8（夜市时段），门店 <code>3570190</code>。</p>
+
+  <div class="grid g2" style="margin-top:14px">
+    <div class="card">
+      <h4><span class="tag">M-01</span>query-meals 返回结构</h4>
+      <ul>
+        <li>顶层 <code>data.categories[]</code>：分类名 + <code>meals[].code</code> + <code>meals[].tags[]</code></li>
+        <li>顶层 <code>data.meals{}</code>：code → <code>name / image / currentPrice / originalPrice / discountType / canWithOrder / withOrder</code></li>
+        <li><strong>无 daypart 字段</strong>，无「分类 id」</li>
+        <li>分类名示例：<code>鸡肉汉堡/卷</code>、<code>小食甜品/其他</code>、<code>饮品</code>、<code>麦咖啡™</code>、<code>500大卡套餐</code>、<code>蘸酱炸鸡</code>、<code>开心乐园</code></li>
+        <li>返回的是<strong>调用时刻可售</strong>的菜单（23:36 返回夜市菜单，无早餐品）</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4><span class="tag">M-02</span>tags 是可用的结构化信号</h4>
+      <ul>
+        <li><code>"套餐"</code> 标记组合商品（如「板烧鸡腿堡三件套」）</li>
+        <li><code>"单品"</code> 标记可单买的成品（如「巨无霸」「麦辣鸡腿汉堡」）</li>
+        <li>其余为营销标签：<code>上新</code>、<code>爆款</code>、<code>麦金卡</code>、<code>100%纯牛肉</code>、<code>冰淇淋</code>、<code>冷饮</code>/<code>热饮</code></li>
+        <li><strong>用途</strong>：拼装组合时，主食位只取 <code>单品</code>，避免推到已含小食饮料的套餐造成重复计算</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4><span class="tag">M-03</span>query-meal-detail 的 rounds 名称 = 权威品类</h4>
+      <pre style="margin-top:6px"><code>rounds[].name 实测值：
+  1. "主食任意选"
+  2. "选择套餐内小食"
+  3. "选择套餐内饮料"</code></pre>
+      <ul>
+        <li>每个 round 含 <code>choices[].code/name/diffPrice/isDefault/supportModify/modification</code></li>
+        <li>可用套餐默认搭配（<code>isDefault=1</code>）反查<strong>单品 → 品类</strong>映射，比名称关键词可靠得多</li>
+        <li><strong>无 daypart 字段</strong>（与 query-meals 一致）</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4><span class="tag">M-04</span>code 空间不一致，名称才是主键</h4>
+      <ul>
+        <li>菜单中「可乐」code = <code>9900008751</code></li>
+        <li>套餐内子项「可乐中杯」code = <code>3050</code>，「可乐大杯」= <code>3100</code></li>
+        <li>菜单中「鲜萃咖啡」= <code>520689</code>，套餐内「大杯鲜萃咖啡」= <code>520688</code></li>
+        <li><strong>结论</strong>：订单/套餐子项与营养表的匹配<strong>必须以名称为主键</strong>，code 仅作辅助校验</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4><span class="tag">M-05</span>门店餐段时段是逐店真实的</h4>
+      <pre style="margin-top:6px"><code>3570122 贵阳北站  早餐(06:44-10:15) 午餐(10:44-14:15)
+                   下午茶(14:44-16:45) 夜市(17:14-20:46)
+3570190 天一国际  宵夜(22:14-23:59) 早餐(07:14-10:15)
+                   午餐(10:44-14:15) 下午茶(14:44-16:45)
+                   夜市(17:14-21:45)
+3570165 金融城    早餐(05:14-10:15) … 夜市(17:14-21:45)
+                   宵夜(00:00-04:45, 22:14-23:59)</code></pre>
+      <ul>
+        <li>各店早餐开始时间差异显著（05:14 / 06:44 / 07:14 / 08:14）</li>
+        <li>存在 <strong>PRD 未定义的第五餐段「宵夜」</strong>（22:14 起）</li>
+        <li><code>now-time-info</code> 返回 <code>formatted / datetime / timezone / dayOfWeek</code>，时区 GMT+08:00</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4><span class="tag">M-06</span>候选池含非食品与边界品</h4>
+      <ul>
+        <li><strong>非食品</strong>：「“葱不求人”按摩捶痒痒挠」¥14.9（玩具，无热量）</li>
+        <li><strong>单卖蘸酱</strong>：「韩式烟熏芝士风味酱」¥3、「日式鲜磨山葵酱」¥3</li>
+        <li><strong>特调 modification</strong>：去冰/多冰/少冰、不要生菜/酸黄瓜/洋葱、换燕麦奶（<code>price:200</code>）</li>
+        <li>官方已有 <code>500大卡套餐</code> 分类，可作推荐结果的交叉校验参考</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ══ S2 PRD 修正 ══ -->
+<section id="s2">
+  <div class="sec-head"><span class="sec-no">S2</span><h2>对 PRD v0.1 的关键修正</h2></div>
+  <p>编号 D1–D7，均基于 S1 实测。<strong>D1–D3 为阻塞性修正</strong>，不采纳会直接导致功能不可用。</p>
+
+  <div class="tbl-wrap" style="margin-top:14px">
+    <table>
+      <thead><tr><th style="width:52px">编号</th><th style="width:150px">PRD 原假设</th><th>实测情况</th><th style="width:230px">修正方案</th><th style="width:56px">影响</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="id">D1</td>
+          <td>§5：<code>query-meals</code> 返回含 <code>daypart</code>，可按其过滤餐段</td>
+          <td>响应中<strong>完全没有 daypart 字段</strong>；菜单本身即「当前时刻可售」</td>
+          <td>用 <code>reservationDate</code>（格式 <code>yyyy-MM-dd HH:mm</code>）传入目标餐段内的时刻，取该餐段菜单。见 T17</td>
+          <td><span class="tag p0">阻塞</span></td>
+        </tr>
+        <tr>
+          <td class="id">D2</td>
+          <td>§6/F2：餐段为固定时段（早餐 06:00–10:29 等）</td>
+          <td>各店真实时段差异大，且存在第五餐段<strong>宵夜</strong>（约 22:14 起）；早餐最早 05:14 开始</td>
+          <td>解析门店 <code>reservationTimeOptions</code> 文本得到逐店时段表；固定值仅作兜底。宵夜并入「晚餐」档位或单列，需在 T15 决策</td>
+          <td><span class="tag p0">阻塞</span></td>
+        </tr>
+        <tr>
+          <td class="id">D3</td>
+          <td>§6：品类（主食/小食/饮品）用名称关键词规则归类 + 模型补充</td>
+          <td>已有权威来源：① <code>categories[].name</code> ② 套餐 <code>rounds[].name</code> 直接写「主食任意选 / 小食 / 饮料」</td>
+          <td>改为三级：分类名 → 套餐 round 反查 → 关键词+模型兜底。命中率与可维护性大幅提升</td>
+          <td><span class="tag p0">阻塞</span></td>
+        </tr>
+        <tr>
+          <td class="id">D4</td>
+          <td>§6 组合规则：主食 + 小食 + 饮品自由拼</td>
+          <td>候选池里 <code>tags</code> 含「套餐」的是组合商品，放主食位会与「+小食+饮品」重复计算</td>
+          <td>主食位只取 <code>tags</code> 含「单品」者；另剔除玩具、单卖蘸酱等非食品</td>
+          <td><span class="tag p1">高</span></td>
+        </tr>
+        <tr>
+          <td class="id">D5</td>
+          <td>§12 待确认：<code>query-meals</code> / <code>query-meal-detail</code> 是否带图片字段</td>
+          <td><strong>两处都有</strong> <code>image</code>（<code>menu-img.mcd.cn/.../MS_{code}_320.png</code> 及 <code>_600.png</code>）</td>
+          <td>已解答。但依 PRD §8 合规要求，<strong>一律不使用</strong>，演示页用自绘占位</td>
+          <td><span class="tag new">已解决</span></td>
+        </tr>
+        <tr>
+          <td class="id">D6</td>
+          <td>§5 接口映射：隐含可用 code 关联数据</td>
+          <td>同一商品在菜单与套餐子项中 code 不同（可乐 <code>9900008751</code> vs <code>3050/3100</code>）</td>
+          <td>匹配主键统一为<strong>归一化名称</strong>；code 仅在同一来源内部使用</td>
+          <td><span class="tag p1">高</span></td>
+        </tr>
+        <tr>
+          <td class="id">D7</td>
+          <td>§F1：加料热量不计入</td>
+          <td>实测 <code>modification</code> 多为<strong>减料/换料</strong>（去冰、不要生菜、换燕麦奶 +¥2），与「加料」性质不同</td>
+          <td>区分两类：加料（热量不计，会低估）／减料换料（沿用基础值，会高估）。文案分别说明方向</td>
+          <td><span class="tag p2">中</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note info">
+    <span class="h">📌 建议同步回写 PRD</span>
+    D1–D7 建议在 T33 之前一并更新进 PRD v0.2，尤其是 §5 接口映射（删除 daypart 描述）、§6 组合规则（加入 tags 过滤与非食品剔除）、§12 待确认（Q1/Q2 划掉）。参赛时 PRD 与实现不一致会被扣分。
+  </div>
+</section>
+
+<!-- ══ S3 架构 ══ -->
+<section id="s3">
+  <div class="sec-head"><span class="sec-no">S3</span><h2>技术架构与模块拆分</h2></div>
+
+  <p>Skill 本体以 <strong>SKILL.md + 一组无第三方依赖的 Python 脚本</strong>交付，在支持 MCP 的客户端里通过对话触发。所有外部数据经缓存层，避免触发 600 次/分钟的限流。</p>
+
+  <pre><code>┌─ 对话层 ─────────────────────────────────────────────┐
+│  SKILL.md：触发词 / 工作流 / 输出模板 / 边界免责      │
+└──────────────────────┬───────────────────────────────┘
+                       ↓
+┌─ 编排层（Skill 决策逻辑，写在 SKILL.md 内）──────────┐
+│  意图识别 → 取门店 → 定餐段 → 取菜单 → 算/推 → 报价 │
+└──────────────────────┬───────────────────────────────┘
+                       ↓
+┌─ 计算层（Python 脚本，纯本地、无网络）───────────────┐
+│  nutrition.parse   营养表解析 + 单位归一             │
+│  name.normalize    名称归一化（去 poolN / 加料 / 杯型）│
+│  matcher           四级匹配 + UNKNOWN 保护           │
+│  daypart.resolve   时段表解析 + 餐段判定             │
+│  category.resolve  三级品类归类 + 缓存               │
+│  combo.enumerate   组合枚举 → 档位筛选 → 四种排序    │
+│  order.expand      订单展开 + 加料剥离 + 热量合计    │
+└──────────────────────┬───────────────────────────────┘
+                       ↓
+┌─ 数据层（缓存 / fixture）────────────────────────────┐
+│  cache/nutrition.json   ≥24h                        │
+│  cache/meals.{store}.{daypart}.json  10min          │
+│  cache/category.json    长期                        │
+│  fixtures/*.json        离线快照，供开发与评测        │
+└──────────────────────────────────────────────────────┘</code></pre>
+
+  <h3>模块 ↔ 任务 ↔ PRD 功能 对应关系</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:150px">模块</th><th style="width:80px">任务</th><th style="width:80px">PRD 功能</th><th>职责与关键约束</th></tr></thead>
+      <tbody>
+        <tr><td><strong>nutrition.parse</strong></td><td class="id">T1, T6</td><td class="mono">F1</td><td>解析紧凑格式字符串为记录数组；单位归一；异常值（<code>—</code>/<code>≤</code>/<code>微量</code>）容错。<strong>解析失败即中止，不得凭记忆补数</strong></td></tr>
+        <tr><td><strong>name.normalize</strong></td><td class="id">T7</td><td class="mono">F1</td><td>去 <code>-poolN</code>、去「加……(加)」、去装饰符【】「」、全半角统一、空白压缩</td></tr>
+        <tr><td><strong>matcher</strong></td><td class="id">T8–T10</td><td class="mono">F1</td><td>精确 → 归一化 → 别名表 → 去杯型 → 模糊(≥0.85)。未命中返回 <code>UNKNOWN</code>，<strong>绝不返回 0</strong></td></tr>
+        <tr><td><strong>order.expand</strong></td><td class="id">T11–T14</td><td class="mono">F1</td><td>套餐按 <code>comboItemList</code> 展开；加料剥离并单独告知；合计与档位对比结论</td></tr>
+        <tr><td><strong>daypart.resolve</strong></td><td class="id">T15–T17</td><td class="mono">F2</td><td>门店时段表优先，固定值兜底；用户显式指定最优先；输出目标时刻供 <code>reservationDate</code> 使用</td></tr>
+        <tr><td><strong>category.resolve</strong></td><td class="id">T18</td><td class="mono">F3</td><td>三级归类（分类名 → round 反查 → 关键词+模型），结果落缓存</td></tr>
+        <tr><td><strong>combo.enumerate</strong></td><td class="id">T19–T22</td><td class="mono">F3</td><td>候选过滤 → 组合枚举 → ±12% 筛选 → 四选一排序 → Top 3–4</td></tr>
+        <tr><td><strong>suggest.replace</strong></td><td class="id">T23–T24</td><td class="mono">F4</td><td>超标切「标准」档；输出热量差与价格差</td></tr>
+        <tr><td><strong>pricing</strong></td><td class="id">T25–T27</td><td class="mono">F6/F7</td><td>优惠券标注（不参与排序）→ 报价展示 → <strong>确认闸门</strong> → 下单</td></tr>
+        <tr><td><strong>演示页</strong></td><td class="id">T32</td><td class="mono">§10</td><td>单文件 HTML、全模拟数据、两标签页；猪柳麦满分数值取自官方文档示例</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══ S4 阶段与任务 ══ -->
+<section id="s4">
+  <div class="sec-head"><span class="sec-no">S4</span><h2>实施阶段与任务分解</h2></div>
+
+  <div class="steps">
+    <div class="step"><div class="s">阶段 0</div><div class="t">勘察与快照</div><div class="d">T1–T5</div></div>
+    <div class="step"><div class="s">阶段 1</div><div class="t">营养与匹配</div><div class="d">T6–T10</div></div>
+    <div class="step"><div class="s">阶段 2</div><div class="t">订单估算</div><div class="d">T11–T14</div></div>
+    <div class="step"><div class="s">阶段 3</div><div class="t">餐段可售</div><div class="d">T15–T17</div></div>
+    <div class="step"><div class="s">阶段 4</div><div class="t">推荐引擎</div><div class="d">T18–T22</div></div>
+    <div class="step"><div class="s">阶段 5</div><div class="t">替换建议</div><div class="d">T23–T24</div></div>
+    <div class="step"><div class="s">阶段 6</div><div class="t">价格与下单</div><div class="d">T25–T27</div></div>
+    <div class="step"><div class="s">阶段 7</div><div class="t">封装与交付</div><div class="d">T28–T33</div></div>
+  </div>
+
+  <!-- 阶段 0 -->
+  <h3>阶段 0 · 接口勘察与数据快照（T1–T5）</h3>
+  <p>目标：把「不确定」变成「有 fixture 可验证」，后续所有开发离线进行。</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:52px">任务</th><th style="width:200px">内容</th><th>验收产出</th><th style="width:60px">优先级</th></tr></thead>
+      <tbody>
+        <tr><td class="id">T1</td><td><strong>营养表勘察</strong><br>调用 <code>list-nutrition-foods</code> 全量 dump</td><td><code>fixtures/nutrition.raw.txt</code> + <code>docs/nutrition-schema.md</code>：确认分隔符结构、条目数、<code>energyKj/energyKcal/protein/fat/carbohydrate/sodium/calcium</code> 各自单位、是否含杯型条目（中杯/大杯）、是否含加料条目（酱/糖/奶油球）</td><td><span class="tag p0">P0</span></td></tr>
+        <tr><td class="id">T2</td><td><strong>菜单快照</strong><br>对 2 家门店、2 种渠道 × 4 个餐段抓 <code>query-meals</code></td><td><code>fixtures/meals.{store}.{orderType}.{daypart}.json</code>。验证 <code>reservationDate</code> 能否切出早餐菜单（关键验证 D1 修正）</td><td><span class="tag p0">P0</span></td></tr>
+        <tr><td class="id">T3</td><td><strong>套餐详情快照</strong><br>Top 20 套餐调 <code>query-meal-detail</code></td><td><code>fixtures/meal-detail.*.json</code> + <code>docs/rounds-category.md</code>：round 名 → 品类映射表、<code>isDefault</code> 默认搭配、<code>diffPrice</code> 价差</td><td><span class="tag p0">P0</span></td></tr>
+        <tr><td class="id">T4</td><td><strong>订单样本采集</strong><br>≥3 笔真实订单</td><td><code>fixtures/order.*.json</code>：须覆盖 早餐 / 正餐 / 含套餐 / 含加料特调 四种形态。若无可下真实单，用 <code>query-meal-detail</code> 默认搭配手工构造等价样本</td><td><span class="tag p0">P0</span></td></tr>
+        <tr><td class="id">T5</td><td><strong>门店参数链路验证</strong></td><td><code>docs/store-chain.md</code>：<code>query-nearby-stores</code>(beType=1/5) 与 <code>delivery-query-addresses</code>→<code>delivery-query-stores</code> 的 <code>storeCode/beCode</code> 取值路径、空结果与失败分支</td><td><span class="tag p1">P1</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 阶段 1 -->
+  <h3>阶段 1 · 营养数据与名称匹配（T6–T10）<span class="tag p0" style="margin-left:8px">核心</span></h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:52px">任务</th><th style="width:200px">内容</th><th>验收产出</th><th style="width:60px">优先级</th></tr></thead>
+      <tbody>
+        <tr><td class="id">T6</td><td><strong>营养表解析器</strong><br><code>nutrition.parse(raw)</code></td><td>输出结构化 <code>records[]</code>；数值解析容错；单位统一为 kcal / g / mg；异常值显式标记 <code>null</code> 而非 0</td><td><span class="tag p0">P0</span></td></tr>
+        <tr><td class="id">T7</td><td><strong>名称归一化</strong><br><code>name.normalize()</code></td><td>规则集 + 单测：去 <code>-pool\d+</code>、去「加…(加)」、去【】「」与全角括号内容、全半角统一、空格压缩。须能处理「中薯条 / 大薯条 / 可乐中杯 / 可乐大杯」的杯型差异</td><td><span class="tag p0">P0</span></td></tr>
+        <tr><td class="id">T8</td><td><strong>四级匹配器</strong><br><code>matcher.match()</code></td><td>精确 → 归一化精确 → 别名表 → 去杯型 → 模糊(阈值 0.85)。返回 <code>{hit, kcal, protein, fat, carb, sodium, method}</code>；未命中恒为 <code>UNKNOWN</code></td><td><span class="tag p0">P0</span></td></tr>
+        <tr><td class="id">T9</td><td><strong>别名表维护</strong><br><code>data/alias.json</code></td><td>Top 100 SKU 的 订单名 ↔ 营养表名 ↔ 菜单名 三向映射。基于 T1/T3/T4 实测差异逐条补齐</td><td><span class="tag p0">P0</span></td></tr>
+        <tr><td class="id">T10</td><td><strong>匹配率评测脚本</strong></td><td><code>tools/eval_match.py</code>：跑 T4 样本，输出命中率、各级命中分布、未命中清单。<strong>目标 ≥90%</strong>（PRD §9）。未命中项 100% 标记「热量未知」</td><td><span class="tag p0">P0</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <span class="h">匹配策略必须处理的三处名称漂移</span>
+    ① 杯型：<code>可乐</code> / <code>可乐中杯</code> / <code>可乐大杯</code>／<code>中薯条</code>／<code>大薯条</code>　② 套餐子项 vs 菜单项 code 不同名略同　③ 促销品名带活动前缀（如「“我就喜欢”鸡薯双全盒」）。去杯型后再匹配是提升命中率性价比最高的一步。
+  </div>
+
+  <!-- 阶段 2 -->
+  <h3>阶段 2 · 订单热量估算（T11–T14）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:52px">任务</th><th style="width:200px">内容</th><th>验收产出</th><th style="width:60px">优先级</th></tr></thead>
+      <tbody>
+        <tr><td class="id">T11</td><td><strong>订单展开</strong></td><td><code>orderProductList</code> 遍历；有 <code>comboItemList</code> 则展开为组成单品，否则按商品本身</td><td><span class="tag p0">P0</span></td></tr>
+        <tr><td class="id">T12</td><td><strong>加料/特调剥离</strong></td><td>区分「加料」（热量不计，会低估）与「减料换料」（沿用基础值，会高估，见 D7）；单独成组并在结论中告知方向</td><td><span class="tag p0">P0</span></td></tr>
+        <tr><td class="id">T13</td><td><strong>合计与档位对比</strong></td><td>逐项热量表 + 整单合计 + 餐段判定 + 档位结论（偏高/偏低/合适 + 具体 kcal 差值）</td><td><span class="tag p0">P0</span></td></tr>
+        <tr><td class="id">T14</td><td><strong>未知项处理</strong></td><td>未匹配项单列；合计文案自动切换为「<strong>≥ N kcal</strong>（实际会更高）」，禁止给出确定值</td><td><span class="tag p0">P0</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 阶段 3 -->
+  <h3>阶段 3 · 餐段识别与可售范围（T15–T17）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:52px">任务</th><th style="width:200px">内容</th><th>验收产出</th><th style="width:60px">优先级</th></tr></thead>
+      <tbody>
+        <tr><td class="id">T15</td><td><strong>餐段时钟</strong></td><td><code>now-time-info</code> → 当前时刻 → 餐段；<strong>用户显式指定最优先</strong>。需决策：宵夜（约 22:14 起）并入晚餐档还是单列第五档</td><td><span class="tag p0">P0</span></td></tr>
+        <tr><td class="id">T16</td><td><strong>门店时段表解析</strong></td><td>正则解析 <code>reservationTimeOptions</code> 的「早餐(07:14至10:15)，午餐(…)」文本 → 逐店时段表。解析失败回退 PRD 固定值（06:00–10:29 / 10:30–15:29 / 15:30–17:59 / 18:00 起）</td><td><span class="tag p0">P0</span></td></tr>
+        <tr><td class="id">T17</td><td><strong>按餐段取菜单</strong><span class="tag new">替代 daypart</span></td><td>由目标餐段取代表时刻 → 作为 <code>reservationDate</code> 传入 <code>query-meals</code> → 得到该餐段可售菜单。<strong>T2 必须先验证此路可行</strong>，否则回退方案：直接用当前时刻菜单 + 名称关键词过滤餐段特征品</td><td><span class="tag p0">P0</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 阶段 4 -->
+  <h3>阶段 4 · 品类归类与推荐引擎（T18–T22）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:52px">任务</th><th style="width:200px">内容</th><th>验收产出</th><th style="width:60px">优先级</th></tr></thead>
+      <tbody>
+        <tr><td class="id">T18</td><td><strong>三级品类归类</strong></td><td>① <code>categories[].name</code>（汉堡/小食甜品/饮品/麦咖啡…）② 套餐 <code>rounds[].name</code> 反查（主食/小食/饮料）③ 关键词 + 模型补标。结果落 <code>cache/category.json</code></td><td><span class="tag p0">P0</span></td></tr>
+        <tr><td class="id">T19</td><td><strong>候选过滤</strong></td><td>剔除：非食品（玩具）、单卖蘸酱、<code>tags</code> 含「套餐」的组合品（主食位）、营养表无记录者。<strong>PRD §9 要求 100% 推荐来自当前可售结果</strong></td><td><span class="tag p0">P0</span></td></tr>
+        <tr><td class="id">T20</td><td><strong>组合枚举</strong></td><td>早/午/晚：1 主食 + 0~1 小食 + 0~1 饮品　随便吃吃：1~3 件（小食/甜品/饮品，饮品 ≤1）。注意组合爆炸，需按品类分桶后剪枝</td><td><span class="tag p0">P0</span></td></tr>
+        <tr><td class="id">T21</td><td><strong>档位筛选</strong></td><td><code>|total − target| ≤ 12% × target</code>。无解时提示换档位，<strong>不放宽筛选范围</strong>（PRD §6 硬约束）</td><td><span class="tag p0">P0</span></td></tr>
+        <tr><td class="id">T22</td><td><strong>排序与展示</strong></td><td>四选一：最接近档位 / 蛋白质更高 / 钠更低 / 价格更低。每组输出 热量·蛋白质·脂肪·碳水·钠·参考价，Top 3–4。已读订单时附「较本单 ±kcal」</td><td><span class="tag p0">P0</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 阶段 5 -->
+  <h3>阶段 5 · 替换建议（T23–T24）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:52px">任务</th><th style="width:200px">内容</th><th>验收产出</th><th style="width:60px">优先级</th></tr></thead>
+      <tbody>
+        <tr><td class="id">T23</td><td><strong>触发规则</strong></td><td>本单 &gt; 该餐段「标准」档 → 切标准档给替换方案；否则用最接近档位</td><td><span class="tag p1">P1</span></td></tr>
+        <tr><td class="id">T24</td><td><strong>差异输出</strong></td><td>替换组合 + 少多少 kcal + 价格差（用 <code>currentPrice</code>／<code>diffPrice</code>）</td><td><span class="tag p1">P1</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 阶段 6 -->
+  <h3>阶段 6 · 优惠券、报价与下单（T25–T27）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:52px">任务</th><th style="width:200px">内容</th><th>验收产出</th><th style="width:60px">优先级</th></tr></thead>
+      <tbody>
+        <tr><td class="id">T25</td><td><strong>优惠券接入</strong></td><td><code>query-store-coupons</code>；推荐卡标注「有可用券」，<strong>不参与热量排序</strong></td><td><span class="tag p1">P1</span></td></tr>
+        <tr><td class="id">T26</td><td><strong>报价与确认闸门</strong></td><td><code>calculate-price</code> → 展示金额 → <strong>等待用户明确确认</strong>。未确认不得调用 <code>create-order</code>（PRD §9 硬性 100%）</td><td><span class="tag p1">P1</span></td></tr>
+        <tr><td class="id">T27</td><td><strong>下单与错误处理</strong></td><td><code>create-order</code> → 返回支付链接交由用户自付。401 提示检查 Token；429 指数退避重试</td><td><span class="tag p2">P2</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 阶段 7 -->
+  <h3>阶段 7 · Skill 封装与参赛交付（T28–T33）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:52px">任务</th><th style="width:200px">内容</th><th>验收产出</th><th style="width:60px">优先级</th></tr></thead>
+      <tbody>
+        <tr><td class="id">T28</td><td><strong>SKILL.md 定稿</strong></td><td>frontmatter（name/description）、触发词、分步工作流、工具清单、输出模板、边界与免责声明</td><td><span class="tag p0">P0</span></td></tr>
+        <tr><td class="id">T29</td><td><strong>脚本资产整理</strong></td><td>7 个模块落地为无第三方依赖的 Python 单文件，附 <code>--help</code> 与示例调用</td><td><span class="tag p0">P0</span></td></tr>
+        <tr><td class="id">T30</td><td><strong>限流与缓存</strong></td><td>营养表缓存 ≥24h；菜单按 <code>storeCode+daypart</code> 缓存 10min；429 指数退避。应对 600 次/分钟限制</td><td><span class="tag p1">P1</span></td></tr>
+        <tr><td class="id">T31</td><td><strong>端到端用例集</strong></td><td>PRD §3 五个场景逐一跑通并留痕（截图/日志）</td><td><span class="tag p0">P0</span></td></tr>
+        <tr><td class="id">T32</td><td><strong>演示页</strong></td><td>单文件 HTML、全模拟数据、两标签页（演示 / Skill 设计）；右侧记录工具调用轨迹；猪柳麦满分数值取官方文档示例；显著标注「模拟」</td><td><span class="tag p1">P1</span></td></tr>
+        <tr><td class="id">T33</td><td><strong>材料整理与合规自检</strong></td><td>参赛材料打包；回写 PRD v0.2（D1–D7）；合规清单逐条打勾（无商标/无官方图片/Token 不入日志与演示页/金额确认/无医疗结论）</td><td><span class="tag p0">P0</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══ S5 里程碑 ══ -->
+<section id="s5">
+  <div class="sec-head"><span class="sec-no">S5</span><h2>里程碑与 PRD 验收对照</h2></div>
+  <p>PRD §11 列了 5 个里程碑，此处映射到任务编号，并补上「完成判据」——没有判据的里程碑无法验收。</p>
+
+  <div class="tbl-wrap" style="margin-top:14px">
+    <table>
+      <thead><tr><th style="width:52px">里程碑</th><th style="width:180px">PRD §11 原文</th><th style="width:110px">对应任务</th><th>完成判据</th></tr></thead>
+      <tbody>
+        <tr><td class="id">M1</td><td>营养表解析与名称映射表</td><td class="mono">T1, T6–T10</td><td>解析出 ≥ 全部条目且无 <code>null</code> 单位；T10 评测命中率 ≥90%</td></tr>
+        <tr><td class="id">M2</td><td>订单热量估算与档位对比</td><td class="mono">T11–T14</td><td>3 笔样本订单逐项可追溯；未知项 100% 标注；合计文案含「≥」</td></tr>
+        <tr><td class="id">M3</td><td>推荐引擎：枚举 / 筛选 / 排序</td><td class="mono">T18–T22</td><td>四餐段 × 三档位 × 四排序 均出结果；100% 组合落在 ±12% 内</td></tr>
+        <tr><td class="id">M4</td><td>接入 query-meals、优惠券、价格</td><td class="mono">T2, T17, T25–T27</td><td>推荐商品 100% 来自当前可售结果；券标注不影响排序</td></tr>
+        <tr><td class="id">M5</td><td>下单确认流程与 SKILL.md 定稿</td><td class="mono">T26–T28, T31–T33</td><td>100% 下单发生在确认之后；五场景端到端留痕；合规清单全绿</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>PRD §9 验收标准 → 验证方式</h3>
+  <div class="grid g2">
+    <div class="card"><h4>命中率 ≥90%</h4><p style="font-size:13px">由 <code>T10 tools/eval_match.py</code> 自动输出，附未命中清单。样本需 ≥3 笔订单 × 平均 6 个品项。</p></div>
+    <div class="card"><h4>组合热量在 ±12% 内</h4><p style="font-size:13px">推荐引擎输出前做断言校验，越界组合直接丢弃而非放宽。M3 全矩阵回归。</p></div>
+    <div class="card"><h4>推荐来自当前可售</h4><p style="font-size:13px">候选集入口只接受 <code>query-meals</code> 返回值，代码层禁止其他来源。T19 加来源标记便于审计。</p></div>
+    <div class="card"><h4>100% 确认后下单</h4><p style="font-size:13px"><code>create-order</code> 调用点前设单一闸门函数，T31 用例集中逐条验证。</p></div>
+  </div>
+</section>
+
+<!-- ══ S6 风险 ══ -->
+<section id="s6">
+  <div class="sec-head"><span class="sec-no">S6</span><h2>风险与对策</h2></div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th style="width:52px">编号</th><th style="width:230px">风险</th><th style="width:60px">等级</th><th>对策</th><th style="width:110px">触发任务</th></tr></thead>
+      <tbody>
+        <tr><td class="id">R1</td><td><code>reservationDate</code> 无法切出历史餐段菜单（D1 修正方案失效）</td><td><span class="tag p0">高</span></td><td>T2 优先验证。回退方案：用当前时刻菜单 + 名称特征过滤；或改为「仅在对应餐段营业时间内提供服务」的诚实降级</td><td class="mono">T2 / T17</td></tr>
+        <tr><td class="id">R2</td><td>营养表不含杯型/加料条目，中杯大杯同热量</td><td><span class="tag p0">高</span></td><td>T1 确认。若缺失，建立杯型系数表并在结论中标注「杯型未区分，实际可能更高」</td><td class="mono">T1 / T7</td></tr>
+        <tr><td class="id">R3</td><td>名称匹配率达不到 90%</td><td><span class="tag p0">高</span></td><td>T10 尽早量化。低于阈值时优先补 T9 别名表而非降低阈值；阈值 0.85 只用于兜底，不得上调</td><td class="mono">T9 / T10</td></tr>
+        <tr><td class="id">R4</td><td>组合枚举爆炸导致响应慢</td><td><span class="tag p1">中</span></td><td>按品类分桶后剪枝：先按目标热量区间预筛单品，再做笛卡尔积；候选 ≤200 时全枚举</td><td class="mono">T20</td></tr>
+        <tr><td class="id">R5</td><td>触发 429 限流（600 次/分钟）</td><td><span class="tag p1">中</span></td><td>T30 缓存 + 退避；营养表为一次性全量，菜单按店+餐段缓存 10min</td><td class="mono">T30</td></tr>
+        <tr><td class="id">R6</td><td>合规风险：误用官方图片 / 给出减重结论</td><td><span class="tag p0">高</span></td><td>T33 清单化自检；SKILL.md 内置免责模板；输出层加敏感词拦截（减重、减肥、建议摄入量等）</td><td class="mono">T28 / T33</td></tr>
+        <tr><td class="id">R7</td><td>比赛提交形式与评审标准不明</td><td><span class="tag p1">中</span></td><td>T33 前务必确认；在此之前保持「SKILL.md 自包含 + 演示页单文件 HTML」的双形态，适配多数要求</td><td class="mono">T33</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══ S7 待确认问题 ══ -->
+<section id="s7">
+  <div class="sec-head"><span class="sec-no">S7</span><h2>待确认问题（更新版）</h2></div>
+  <p>PRD §12 原有 7 条，本次勘察已实测解决 2 条，其余 5 条保留并指定验证任务。</p>
+  <div class="tbl-wrap" style="margin-top:14px">
+    <table>
+      <thead><tr><th style="width:52px">编号</th><th style="width:290px">问题</th><th style="width:88px">状态</th><th>结论 / 验证方式</th></tr></thead>
+      <tbody>
+        <tr><td class="id">Q1</td><td><code>query-meals</code> / <code>query-meal-detail</code> 是否带图片字段</td><td><span class="tag new">已解决</span></td><td><strong>两处都有</strong>：<code>MS_{code}_320.png</code>（列表）与 <code>_600.png</code>（详情）。依 PRD §8 一律不使用</td></tr>
+        <tr><td class="id">Q2</td><td><code>daypart</code> 数字各自代表哪个餐段</td><td><span class="tag new">已解决</span></td><td><strong>响应中无此字段</strong>，问题不成立。改用 <code>reservationDate</code> 切餐段（D1）</td></tr>
+        <tr><td class="id">Q3</td><td>营养表各字段单位</td><td><span class="tag p0">待验证</span></td><td>由 T1 dump 后确认。重点核对 sodium（mg）、calcium（mg）、energyKcal（kcal/份 vs /100g）</td></tr>
+        <tr><td class="id">Q4</td><td>加料与杯型热量能否从营养表取得</td><td><span class="tag p0">待验证</span></td><td>T1。若营养表有杯型条目则直接匹配；无则建系数表并显式标注</td></tr>
+        <tr><td class="id">Q5</td><td>是否存在餐品历史订单的查询方式</td><td><span class="tag p1">待验证</span></td><td>现有工具集中无列表接口，<code>query-order</code> 需 orderId。确认后决定「无订单号」分支的文案</td></tr>
+        <tr><td class="id">Q6</td><td>比赛对 Skill 的提交形式与评审标准</td><td><span class="tag p1">待确认</span></td><td>T33 前确认。影响交付物形态（是否需要独立仓库 / README / 视频）</td></tr>
+        <tr><td class="id">Q7</td><td>匹配率与推荐质量需真实数据验证</td><td><span class="tag p0">待验证</span></td><td>由 T4 采集样本 + T10 评测脚本量化，M1 里程碑判据</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══ S8 下一步 ══ -->
+<section id="s8">
+  <div class="sec-head"><span class="sec-no">S8</span><h2>下一步行动</h2></div>
+  <div class="grid g3">
+    <div class="card">
+      <h4><span class="tag p0">立即</span>开跑 T1</h4>
+      <p style="font-size:13px">调 <code>list-nutrition-foods</code> 全量 dump，确认分隔符与单位。这是唯一阻塞所有热量计算的前置项，做完才能动 T6。</p>
+    </div>
+    <div class="card">
+      <h4><span class="tag p0">立即</span>验证 T17 路线</h4>
+      <p style="font-size:13px">用 <code>reservationDate</code> 传明早 08:00，看能否拿到早餐菜单。这条通了，餐段推荐才有解；不通就要启用 R1 回退方案。</p>
+    </div>
+    <div class="card">
+      <h4><span class="tag p1">本周</span>建 fixture 仓库</h4>
+      <p style="font-size:13px">T2–T5 一次性把菜单、套餐、订单、门店链路快照做全。之后开发全程离线，不受限流与营业时间影响。</p>
+    </div>
+    <div class="card">
+      <h4><span class="tag p1">决策</span>宵夜档归属</h4>
+      <p style="font-size:13px">实测存在第五餐段「宵夜」（约 22:14 起）。需定：并入晚餐档位（500/750/1000）还是单列。影响 T15 与演示页。</p>
+    </div>
+    <div class="card">
+      <h4><span class="tag p1">并行</span>回写 PRD v0.2</h4>
+      <p style="font-size:13px">把 D1–D7 更新进 §5 / §6 / §12，划掉 Q1、Q2。避免评审时 PRD 与实现互相打架。</p>
+    </div>
+    <div class="card">
+      <h4><span class="tag p2">提前</span>确认比赛规则</h4>
+      <p style="font-size:13px">Q6。提交形式决定 T32 演示页做成单文件 HTML 还是需要独立部署，越早确认越省返工。</p>
+    </div>
+  </div>
+
+  <div class="note ok" style="margin-top:18px">
+    <span class="h">✅ 开工建议顺序</span>
+    T1 → T2（顺带验证 D1）→ T3 → T4 → T6 → T7 → T8 → T10 → T11–T14 → T15–T17 → T18–T22 → T23–T27 → T28–T33。
+    阶段 0 全部完成后再写任何计算代码，可以避免在错误的响应结构上反复返工。
+  </div>
+</section>
+
+<footer>
+  订单热量与套餐推荐 Skill · 实施计划 v1.0 · 2026-10-09 北京时间 · 依据 PRD v0.1 草案 + 真实 MCP 接口勘察（样本门店 3570190）
+</footer>
+
+</div>
+</body>
+</html>
