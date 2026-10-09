@@ -1,0 +1,275 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 794" font-family="-apple-system,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif">
+  <!-- 热麦卡路里 · 演示页首屏静态重绘（模拟数据）· 纯 SVG，无 JS / 无外部资源 -->
+  <rect x="0" y="0" width="1080" height="794" fill="#0F0C07"/>
+
+  <!-- ══════════ 左侧：手机模型 ══════════ -->
+  <!-- 机身中框 -->
+  <rect x="58" y="12" width="356" height="770" rx="56" fill="#1C1A18" stroke="#6E675C" stroke-width="2.5"/>
+  <!-- 侧键 -->
+  <rect x="54" y="200" width="4" height="38" rx="2" fill="#55504A"/>
+  <rect x="54" y="252" width="4" height="62" rx="2" fill="#55504A"/>
+  <rect x="414" y="230" width="4" height="80" rx="2" fill="#55504A"/>
+  <!-- 屏幕黑边 + 屏幕 -->
+  <rect x="66" y="20" width="340" height="754" rx="48" fill="#050404"/>
+  <rect x="74" y="28" width="324" height="738" rx="40" fill="#0D0B07"/>
+
+  <!-- 状态栏 -->
+  <text x="100" y="58" font-size="13" font-weight="600" fill="#D8CDBA">03:20</text>
+  <text x="374" y="58" font-size="11" fill="#D8CDBA" text-anchor="end">100%</text>
+  <rect x="196" y="40" width="84" height="26" rx="13" fill="#000"/>
+  <circle cx="262" cy="53" r="5" fill="#0E141C" stroke="#1E2A38"/>
+
+  <!-- 门店头部 -->
+  <text x="96" y="92" font-size="15" font-weight="700" fill="#F0E8D8">热麦餐厅·陆家嘴中心店</text>
+  <text x="376" y="92" font-size="11" fill="#F0A64B" text-anchor="end">切换门店</text>
+  <text x="96" y="110" font-size="10.5" fill="#8D8272">距你 480m · 营业中 · 取餐预计 12 分钟</text>
+
+  <!-- 取餐方式切换 -->
+  <rect x="92" y="126" width="288" height="32" rx="10" fill="#171310" stroke="#2A241B"/>
+  <rect x="96" y="130" width="138" height="24" rx="7" fill="#F0A64B" fill-opacity="0.13" stroke="#B97F33"/>
+  <text x="165" y="146" font-size="11.5" fill="#F0A64B" text-anchor="middle" font-weight="600">到店取餐</text>
+  <text x="305" y="146" font-size="11.5" fill="#8D8272" text-anchor="middle">外送</text>
+
+  <!-- 左侧品类栏 -->
+  <line x1="170" y1="180" x2="170" y2="700" stroke="#221C13"/>
+  <g font-size="10.5" fill="#A99C87">
+    <text x="88" y="200">人气卖</text>
+    <text x="88" y="237" fill="#F0A64B" font-weight="600">精选单人餐</text>
+    <text x="88" y="274">鸡肉汉堡/卷</text>
+    <text x="88" y="311">小食拼盘/多</text>
+    <text x="88" y="348">随心配1+1</text>
+    <text x="88" y="385">巨无霸鳕鱼肉堡</text>
+    <text x="88" y="422">安格斯MAX厚牛堡</text>
+    <text x="88" y="459">炸鸡</text>
+    <text x="88" y="496">大堡口福单人餐</text>
+    <text x="88" y="533">小食配餐/其他</text>
+    <text x="88" y="570">开心乐园</text>
+    <text x="88" y="607">麦咖啡™</text>
+    <text x="88" y="644">500大卡套餐</text>
+    <text x="88" y="681">饮品</text>
+  </g>
+  <g font-size="9.5" fill="#6E6455" text-anchor="end">
+    <text x="156" y="200">9</text>
+    <text x="156" y="237" fill="#F0A64B">3</text>
+    <text x="156" y="274">14</text>
+    <text x="156" y="311">6</text>
+    <text x="156" y="348">2</text>
+    <text x="156" y="385">19</text>
+    <text x="156" y="422">5</text>
+    <text x="156" y="459">7</text>
+    <text x="156" y="496">1</text>
+    <text x="156" y="533">14</text>
+    <text x="156" y="570">2</text>
+    <text x="156" y="607">9</text>
+    <text x="156" y="644">6</text>
+    <text x="156" y="681">10</text>
+  </g>
+  <!-- 选中态高亮条 -->
+  <rect x="80" y="225" width="3" height="20" rx="1.5" fill="#F0A64B"/>
+
+  <!-- 套餐卡片 ×3 -->
+  <!-- 卡片 1 -->
+  <g>
+    <rect x="178" y="176" width="212" height="138" rx="12" fill="#1B1610" stroke="#2E271D"/>
+    <rect x="188" y="188" width="40" height="40" rx="8" fill="#2A2013" stroke="#3E3120"/>
+    <text x="208" y="205" font-size="9" fill="#C99B54" text-anchor="middle">套</text>
+    <text x="208" y="218" font-size="9" fill="#C99B54" text-anchor="middle">餐</text>
+    <text x="234" y="200" font-size="11.5" font-weight="700" fill="#F0E8D8">人气超值四件套餐随心选</text>
+    <rect x="234" y="207" width="74" height="16" rx="4" fill="#2A2013" stroke="#8A6A33"/>
+    <text x="271" y="218.5" font-size="8" fill="#F0A64B" text-anchor="middle">套餐·4 轮可选</text>
+    <rect x="312" y="207" width="42" height="16" rx="4" fill="#221C13" stroke="#332B1F"/>
+    <text x="333" y="218.5" font-size="8" fill="#A99C87" text-anchor="middle">麦金卡</text>
+    <rect x="234" y="229" width="92" height="16" rx="4" fill="#221C13" stroke="#332B1F"/>
+    <text x="238" y="240.5" font-size="8" fill="#C9BCA4">默认约 1091 千卡</text>
+    <text x="234" y="262" font-size="8.8" fill="#8D8272">默认搭配：麦辣鸡腿汉堡 + 中</text>
+    <text x="234" y="273" font-size="8.8" fill="#8D8272">薯条 + 麦乐鸡 4 块 + 可乐中杯</text>
+    <text x="234" y="284" font-size="8.8" fill="#8D8272">· 金拱起量可降约 614 千卡</text>
+    <text x="188" y="300" font-size="13.5" font-weight="700" fill="#F0E8D8">¥28.00</text>
+    <text x="244" y="300" font-size="8.5" fill="#6E6455">¥31.0</text>
+    <line x1="243" y1="297" x2="266" y2="297" stroke="#6E6455"/>
+    <circle cx="374" cy="293" r="12" fill="#F0A64B"/>
+    <text x="374" y="298" font-size="15" font-weight="700" fill="#201505" text-anchor="middle">+</text>
+  </g>
+  <!-- 卡片 2 -->
+  <g>
+    <rect x="178" y="322" width="212" height="138" rx="12" fill="#1B1610" stroke="#2E271D"/>
+    <rect x="188" y="334" width="40" height="40" rx="8" fill="#2A2013" stroke="#3E3120"/>
+    <text x="208" y="351" font-size="9" fill="#C99B54" text-anchor="middle">套</text>
+    <text x="208" y="364" font-size="9" fill="#C99B54" text-anchor="middle">餐</text>
+    <text x="234" y="346" font-size="11.5" font-weight="700" fill="#F0E8D8">安格斯厚牛堡四件套餐随心选</text>
+    <rect x="234" y="353" width="74" height="16" rx="4" fill="#2A2013" stroke="#8A6A33"/>
+    <text x="271" y="364.5" font-size="8" fill="#F0A64B" text-anchor="middle">套餐·4 轮可选</text>
+    <rect x="312" y="353" width="42" height="16" rx="4" fill="#221C13" stroke="#332B1F"/>
+    <text x="333" y="364.5" font-size="8" fill="#A99C87" text-anchor="middle">麦金卡</text>
+    <rect x="234" y="375" width="92" height="16" rx="4" fill="#221C13" stroke="#332B1F"/>
+    <text x="238" y="386.5" font-size="8" fill="#C9BCA4">默认约 1302 千卡</text>
+    <text x="234" y="408" font-size="8.8" fill="#8D8272">默认搭配：芝士培根安格斯 +</text>
+    <text x="234" y="419" font-size="8.8" fill="#8D8272">中薯条 + 麦乐鸡 4 块 + 可乐</text>
+    <text x="234" y="430" font-size="8.8" fill="#8D8272">中杯 · 全换轻可降约 919 千卡</text>
+    <text x="188" y="446" font-size="13.5" font-weight="700" fill="#F0E8D8">¥37.00</text>
+    <text x="244" y="446" font-size="8.5" fill="#6E6455">¥45.0</text>
+    <line x1="243" y1="443" x2="266" y2="443" stroke="#6E6455"/>
+    <circle cx="374" cy="439" r="12" fill="#F0A64B"/>
+    <text x="374" y="444" font-size="15" font-weight="700" fill="#201505" text-anchor="middle">+</text>
+  </g>
+  <!-- 卡片 3 -->
+  <g>
+    <rect x="178" y="468" width="212" height="138" rx="12" fill="#1B1610" stroke="#2E271D"/>
+    <rect x="188" y="480" width="40" height="40" rx="8" fill="#2A2013" stroke="#3E3120"/>
+    <text x="208" y="497" font-size="9" fill="#C99B54" text-anchor="middle">套</text>
+    <text x="208" y="510" font-size="9" fill="#C99B54" text-anchor="middle">餐</text>
+    <text x="234" y="492" font-size="11.5" font-weight="700" fill="#F0E8D8">鱼牛汉堡四件套餐随心选</text>
+    <rect x="234" y="499" width="74" height="16" rx="4" fill="#2A2013" stroke="#8A6A33"/>
+    <text x="271" y="510.5" font-size="8" fill="#F0A64B" text-anchor="middle">套餐·4 轮可选</text>
+    <rect x="312" y="499" width="42" height="16" rx="4" fill="#221C13" stroke="#332B1F"/>
+    <text x="333" y="510.5" font-size="8" fill="#A99C87" text-anchor="middle">麦金卡</text>
+    <rect x="234" y="521" width="92" height="16" rx="4" fill="#221C13" stroke="#332B1F"/>
+    <text x="238" y="532.5" font-size="8" fill="#C9BCA4">默认约 1119 千卡</text>
+    <text x="234" y="554" font-size="8.8" fill="#8D8272">默认搭配：巨无霸 + 中薯条 +</text>
+    <text x="234" y="565" font-size="8.8" fill="#8D8272">麦乐鸡 4 块 + 可乐中杯 · 全</text>
+    <text x="234" y="576" font-size="8.8" fill="#8D8272">换轻可降约 665 千卡</text>
+    <text x="188" y="592" font-size="13.5" font-weight="700" fill="#F0E8D8">¥32.00</text>
+    <text x="244" y="592" font-size="8.5" fill="#6E6455">¥39.0</text>
+    <line x1="243" y1="589" x2="266" y2="589" stroke="#6E6455"/>
+    <circle cx="374" cy="585" r="12" fill="#F0A64B"/>
+    <text x="374" y="590" font-size="15" font-weight="700" fill="#201505" text-anchor="middle">+</text>
+  </g>
+
+  <!-- 底部结算栏 -->
+  <path d="M74,700 L398,700 L398,726 Q398,766 358,766 L114,766 Q74,766 74,726 Z" fill="#14100B"/>
+  <circle cx="102" cy="733" r="15" fill="#221C13" stroke="#3A3226"/>
+  <rect x="96" y="730" width="12" height="10" rx="2" fill="none" stroke="#C9BCA4" stroke-width="1.2"/>
+  <path d="M98,730 Q102,723 106,730" fill="none" stroke="#C9BCA4" stroke-width="1.2"/>
+  <text x="128" y="731" font-size="14" font-weight="700" fill="#F0E8D8">¥0.00</text>
+  <text x="128" y="748" font-size="9.5" fill="#6F95C9">● 本单约 0 千卡</text>
+  <rect x="318" y="716" width="64" height="34" rx="17" fill="#241E15" stroke="#3A3226"/>
+  <text x="350" y="737" font-size="12" fill="#8D8272" text-anchor="middle">去结算</text>
+
+  <!-- ══════════ 右侧：06 热量估算与档位对比 ══════════ -->
+  <rect x="462" y="30" width="26" height="16" rx="4" fill="none" stroke="#B97F33"/>
+  <text x="475" y="42" font-size="9.5" fill="#F0A64B" text-anchor="middle">06</text>
+  <text x="498" y="42" font-size="13" font-weight="700" fill="#EDE4D3">热量估算与档位对比</text>
+  <text x="975" y="42" font-size="9.5" fill="#6E6455" text-anchor="end" font-family="ui-monospace,Menlo,monospace">F1-F2·P0</text>
+
+  <!-- 餐段 Tabs -->
+  <g font-size="11.5" text-anchor="middle">
+    <rect x="462" y="58" width="97" height="38" rx="10" fill="#1B1610" stroke="#2A241B"/>
+    <text x="510.5" y="81" fill="#A99C87">早餐</text>
+    <rect x="566" y="58" width="97" height="38" rx="10" fill="#1B1610" stroke="#2A241B"/>
+    <text x="614.5" y="81" fill="#A99C87">午餐</text>
+    <rect x="670" y="58" width="97" height="38" rx="10" fill="#1B1610" stroke="#2A241B"/>
+    <text x="718.5" y="81" fill="#A99C87">随便吃吃</text>
+    <rect x="774" y="58" width="97" height="38" rx="10" fill="#1B1610" stroke="#2A241B"/>
+    <text x="822.5" y="81" fill="#A99C87">晚餐</text>
+    <rect x="878" y="58" width="97" height="38" rx="10" fill="#F0A64B" fill-opacity="0.10" stroke="#B97F33"/>
+    <text x="926.5" y="81" fill="#F0A64B" font-weight="700">宵夜</text>
+  </g>
+
+  <!-- 大数字 + 状态 -->
+  <text x="468" y="162" font-size="48" fill="#EDE4D3" font-family="Georgia,'Songti SC',serif">0</text>
+  <text x="502" y="158" font-size="12" fill="#8D8272">千卡</text>
+  <rect x="462" y="172" width="54" height="20" rx="6" fill="#241E15" stroke="#332B1F"/>
+  <text x="489" y="185" font-size="9.5" fill="#A99C87" text-anchor="middle">未选餐</text>
+
+  <!-- 档位刻度尺 -->
+  <line x1="462" y1="232" x2="975" y2="232" stroke="#2A241B" stroke-width="2"/>
+  <g stroke="#3A342A">
+    <line x1="475" y1="227" x2="475" y2="237"/><line x1="525" y1="227" x2="525" y2="237"/>
+    <line x1="575" y1="227" x2="575" y2="237"/><line x1="625" y1="227" x2="625" y2="237"/>
+    <line x1="725" y1="227" x2="725" y2="237"/><line x1="775" y1="227" x2="775" y2="237"/>
+    <line x1="825" y1="227" x2="825" y2="237"/><line x1="925" y1="227" x2="925" y2="237"/>
+    <line x1="975" y1="227" x2="975" y2="237"/>
+  </g>
+  <rect x="642" y="222" width="36" height="20" rx="3" fill="#F0A64B" fill-opacity="0.12" stroke="#B97F33"/>
+  <g stroke="#8D8272">
+    <line x1="660" y1="224" x2="660" y2="240"/>
+    <line x1="790" y1="224" x2="790" y2="240"/>
+    <line x1="880" y1="224" x2="880" y2="240"/>
+  </g>
+  <g font-size="10" fill="#A99C87" text-anchor="middle">
+    <text x="660" y="254">轻量 300</text>
+    <text x="790" y="254">标准 450</text>
+    <text x="880" y="254">吃饱 600</text>
+  </g>
+
+  <!-- 已选餐品表 -->
+  <text x="462" y="290" font-size="11" fill="#8D8272">已选餐品</text>
+  <text x="800" y="290" font-size="11" fill="#8D8272" text-anchor="middle">数量</text>
+  <text x="975" y="290" font-size="11" fill="#8D8272" text-anchor="end">热量</text>
+  <line x1="462" y1="298" x2="975" y2="298" stroke="#2A241B"/>
+  <text x="462" y="324" font-size="11" fill="#6E6455">尚未选择餐品</text>
+  <line x1="462" y1="342" x2="975" y2="342" stroke="#221C13"/>
+
+  <!-- ══════════ 右侧：07 目标场景预设 ══════════ -->
+  <rect x="462" y="384" width="26" height="16" rx="4" fill="none" stroke="#B97F33"/>
+  <text x="475" y="396" font-size="9.5" fill="#F0A64B" text-anchor="middle">07</text>
+  <text x="498" y="396" font-size="13" font-weight="700" fill="#EDE4D3">目标场景预设</text>
+  <text x="975" y="396" font-size="9.5" fill="#6E6455" text-anchor="end" font-family="ui-monospace,Menlo,monospace">F8 · 13 个场景</text>
+
+  <!-- 组 1：热量与体型 -->
+  <text x="462" y="426" font-size="10" fill="#8D8272">热量与体型</text>
+  <g>
+    <rect x="462" y="436" width="77" height="30" rx="8" fill="#1B1610" stroke="#2A241B"/>
+    <text x="474" y="455" font-size="11" fill="#D8CDBA">减脂</text>
+    <rect x="504" y="444" width="25" height="14" rx="3" fill="#241E15"/>
+    <text x="516.5" y="454" font-size="8.5" fill="#8D8272" text-anchor="middle">轻量</text>
+    <rect x="549" y="436" width="77" height="30" rx="8" fill="#1B1610" stroke="#2A241B"/>
+    <text x="561" y="455" font-size="11" fill="#D8CDBA">增重</text>
+    <rect x="591" y="444" width="25" height="14" rx="3" fill="#241E15"/>
+    <text x="603.5" y="454" font-size="8.5" fill="#8D8272" text-anchor="middle">吃饱</text>
+    <rect x="636" y="436" width="88" height="30" rx="8" fill="#1B1610" stroke="#2A241B"/>
+    <text x="648" y="455" font-size="11" fill="#D8CDBA">练后餐</text>
+    <rect x="689" y="444" width="25" height="14" rx="3" fill="#241E15"/>
+    <text x="701.5" y="454" font-size="8.5" fill="#8D8272" text-anchor="middle">标准</text>
+    <rect x="734" y="436" width="88" height="30" rx="8" fill="#1B1610" stroke="#2A241B"/>
+    <text x="746" y="455" font-size="11" fill="#D8CDBA">放纵餐</text>
+    <rect x="787" y="444" width="25" height="14" rx="3" fill="#241E15"/>
+    <text x="799.5" y="454" font-size="8.5" fill="#8D8272" text-anchor="middle">吃饱</text>
+  </g>
+
+  <!-- 组 2：单一营养素管控 -->
+  <text x="462" y="494" font-size="10" fill="#8D8272">单一营养素管控</text>
+  <g>
+    <rect x="462" y="504" width="99" height="30" rx="8" fill="#1B1610" stroke="#2A241B"/>
+    <text x="474" y="523" font-size="11" fill="#D8CDBA">低钠控盐</text>
+    <rect x="526" y="512" width="25" height="14" rx="3" fill="#241E15"/>
+    <text x="538.5" y="522" font-size="8.5" fill="#8D8272" text-anchor="middle">轻量</text>
+    <rect x="571" y="504" width="110" height="30" rx="8" fill="#1B1610" stroke="#2A241B"/>
+    <text x="583" y="523" font-size="11" fill="#D8CDBA">高蛋白增肌</text>
+    <rect x="646" y="512" width="25" height="14" rx="3" fill="#241E15"/>
+    <text x="658.5" y="522" font-size="8.5" fill="#8D8272" text-anchor="middle">标准</text>
+    <rect x="691" y="504" width="110" height="30" rx="8" fill="#1B1610" stroke="#2A241B"/>
+    <text x="703" y="523" font-size="11" fill="#D8CDBA">低碳低碳水</text>
+    <rect x="766" y="512" width="25" height="14" rx="3" fill="#241E15"/>
+    <text x="778.5" y="522" font-size="8.5" fill="#8D8272" text-anchor="middle">轻量</text>
+    <rect x="811" y="504" width="99" height="30" rx="8" fill="#1B1610" stroke="#2A241B"/>
+    <text x="823" y="523" font-size="11" fill="#D8CDBA">低脂清淡</text>
+    <rect x="875" y="512" width="25" height="14" rx="3" fill="#241E15"/>
+    <text x="887.5" y="522" font-size="8.5" fill="#8D8272" text-anchor="middle">轻量</text>
+  </g>
+
+  <!-- 组 3：结构 / 人群 / 场景 -->
+  <text x="462" y="562" font-size="10" fill="#8D8272">结构 / 人群 / 场景</text>
+  <g>
+    <rect x="462" y="572" width="121" height="30" rx="8" fill="#1B1610" stroke="#2A241B"/>
+    <text x="474" y="591" font-size="11" fill="#D8CDBA">素食/蛋奶素</text>
+    <rect x="548" y="580" width="25" height="14" rx="3" fill="#241E15"/>
+    <text x="560.5" y="590" font-size="8.5" fill="#8D8272" text-anchor="middle">轻量</text>
+    <rect x="593" y="572" width="121" height="30" rx="8" fill="#1B1610" stroke="#2A241B"/>
+    <text x="605" y="591" font-size="11" fill="#D8CDBA">儿童/小份量</text>
+    <rect x="679" y="580" width="25" height="14" rx="3" fill="#241E15"/>
+    <text x="691.5" y="590" font-size="8.5" fill="#8D8272" text-anchor="middle">轻量</text>
+    <rect x="724" y="572" width="121" height="30" rx="8" fill="#1B1610" stroke="#2A241B"/>
+    <text x="736" y="591" font-size="11" fill="#D8CDBA">热量预算日控</text>
+    <rect x="810" y="580" width="25" height="14" rx="3" fill="#241E15"/>
+    <text x="822.5" y="590" font-size="8.5" fill="#8D8272" text-anchor="middle">标准</text>
+    <rect x="855" y="572" width="110" height="30" rx="8" fill="#1B1610" stroke="#2A241B"/>
+    <text x="867" y="591" font-size="11" fill="#D8CDBA">过敏原规避</text>
+    <rect x="930" y="580" width="25" height="14" rx="3" fill="#241E15"/>
+    <text x="942.5" y="590" font-size="8.5" fill="#8D8272" text-anchor="middle">标准</text>
+    <rect x="462" y="612" width="121" height="30" rx="8" fill="#1B1610" stroke="#2A241B"/>
+    <text x="474" y="631" font-size="11" fill="#D8CDBA">性价比/省钱</text>
+    <rect x="548" y="620" width="25" height="14" rx="3" fill="#241E15"/>
+    <text x="560.5" y="630" font-size="8.5" fill="#8D8272" text-anchor="middle">标准</text>
+  </g>
+</svg>

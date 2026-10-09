@@ -16,6 +16,12 @@
 
 > 本项目为参赛作品形态，**非麦当劳官方产品**；餐品信息、价格及供应状态以麦当劳官方渠道实时结果为准。热量为估算参考，不构成医学、减重或疾病饮食建议。
 
+<div align="center">
+  <img src="assets/demo-first-screen.svg" alt="点餐流程演示页 · 首屏（模拟数据）" width="820">
+  <br>
+  <sub>▲ 演示页首屏（模拟数据 · 纯代码 SVG 静态重绘，无 JS / 无外部资源）· <a href="https://orderye.github.io/mcd-calorie-skill/%E7%82%B9%E9%A4%90%E9%A1%B5.html">在线交互版点餐页 →</a></sub>
+</div>
+
 ---
 
 ## 目录
@@ -342,7 +348,7 @@ python skill/tools/eval_match.py
 │   ├── scripts/                    # 本地计算脚本（Python 3.10+，无第三方依赖）
 │   └── tools/eval_match.py         # 名称匹配率评测
 ├── cover/                          # 封面源（HTML 排版 + 渲染脚本 + 官方金拱门矢量）
-├── assets/                         # Logo 与品牌素材（金拱门 SVG / 深浅底版本）
+├── assets/                         # Logo 与品牌素材（金拱门 SVG / 深浅底版本 / README 首屏预览 SVG）
 ├── README.md                       # 本文件
 ├── 架构拓扑.txt                     # ASCII 架构拓扑源文件
 ├── CONTEST_DECLARATION.md          # 参赛声明（原创性 / 合规性 / 敏感信息）
