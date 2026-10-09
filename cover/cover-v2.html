@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>热麦卡路里 · 封面 v2</title>
+<style>
+  :root {
+    --bg: #DB0007;            /* 官方 logo 红底（官方方块版标志原色）*/
+    --bg-soft: #C10601;
+    --gold: #FFC72C;          /* 官方品牌金 */
+    --gold-deep: #F5A623;
+    --accent: #FFC72C;
+    --text: #FFFFFF;
+    --muted: rgba(255, 255, 255, 0.70);
+    --line: rgba(255, 255, 255, 0.24);
+    --track: rgba(0, 0, 0, 0.26);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1600px; height: 900px; overflow: hidden; }
+  body {
+    font-family: "PingFang SC", "HarmonyOS Sans SC", "Microsoft YaHei", sans-serif;
+    background:
+      radial-gradient(760px 640px at 300px 400px, rgba(255, 214, 90, 0.28), transparent 66%),
+      radial-gradient(1000px 560px at 1300px 880px, rgba(74, 0, 0, 0.34), transparent 72%),
+      var(--bg);
+    color: var(--text);
+    position: relative;
+  }
+  .stage {
+    width: 1600px; height: 900px;
+    padding: 84px 96px 64px;
+    display: flex; flex-direction: column;
+  }
+  .main {
+    flex: 1;
+    display: flex; align-items: center;
+    gap: 84px;
+  }
+  /* ---- 左：金拱门 M ---- */
+  .mark {
+    width: 430px; flex: none;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .mark svg { width: 396px; height: 346px; filter: drop-shadow(0 16px 42px rgba(88, 0, 0, 0.42)); }
+  /* ---- 右：标题区 ---- */
+  .copy { flex: 1; min-width: 0; }
+  .eyebrow {
+    display: flex; align-items: center; gap: 14px;
+    font-family: "Futura", "Avenir Next", sans-serif;
+    font-size: 22px; font-weight: 500;
+    letter-spacing: 7px; color: var(--accent);
+    margin-bottom: 26px;
+  }
+  .eyebrow::before {
+    content: ""; width: 14px; height: 14px;
+    background: var(--accent); border-radius: 3px; flex: none;
+  }
+  h1 {
+    font-size: 168px; font-weight: 700;
+    letter-spacing: 8px; line-height: 1.06;
+    color: var(--text);
+    text-shadow: 0 10px 40px rgba(90, 0, 0, 0.35);
+    margin-left: -6px;
+  }
+  .subtitle {
+    margin-top: 22px;
+    font-family: "Futura", "Avenir Next", sans-serif;
+    font-size: 27px; font-weight: 500;
+    letter-spacing: 8.5px; color: var(--muted);
+  }
+  /* ---- 卡路里刻度 ---- */
+  .scale { margin-top: 62px; width: 700px; }
+  .scale-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .scale-label {
+    font-size: 22px; color: var(--muted); letter-spacing: 4px;
+  }
+  .scale-label b { color: var(--text); font-weight: 600; margin-right: 12px; }
+  .scale-value {
+    font-family: "Futura", "Avenir Next", sans-serif;
+    font-size: 34px; font-weight: 700; color: var(--accent);
+    letter-spacing: 1px;
+  }
+  .scale-value span { font-size: 20px; font-weight: 500; color: var(--muted); margin-left: 6px; }
+  .track {
+    position: relative; height: 12px; border-radius: 6px;
+    background: var(--track);
+  }
+  .fill {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 55%;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #FFE27A, var(--gold));
+  }
+  .marker {
+    position: absolute; left: 55%; top: 50%;
+    width: 26px; height: 26px; border-radius: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--accent);
+    border: 5px solid #DB0007;
+    box-shadow: 0 0 0 3px var(--accent), 0 6px 18px rgba(120, 40, 0, 0.35);
+  }
+  .ticks {
+    position: relative; height: 34px; margin-top: 12px;
+    font-family: "Futura", "Avenir Next", sans-serif;
+    font-size: 19px; color: var(--muted); letter-spacing: 1px;
+  }
+  .ticks i { position: absolute; font-style: normal; transform: translateX(-50%); }
+  .ticks i:first-child { transform: none; }
+  .ticks i:last-child { transform: translateX(-100%); }
+  /* ---- 底部 ---- */
+  .footer {
+    border-top: 1px solid var(--line);
+    padding-top: 26px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .footer .left { font-size: 22px; color: var(--muted); letter-spacing: 3px; }
+  .footer .right {
+    font-family: "Futura", "Avenir Next", sans-serif;
+    font-size: 20px; font-weight: 600; color: var(--gold);
+    letter-spacing: 5px;
+  }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="main">
+      <div class="mark">
+        <svg viewBox="0 0 272.7 238.5" xmlns="http://www.w3.org/2000/svg">
+          <!-- 官方金拱门原图 path（Wikimedia Commons, Public domain）-->
+          <path fill="#FFC72C" d="m195.8 17.933c23.3 0 42.2 98.3 42.2 219.7h34c0-130.7-34.3-236.5-76.3-236.5-24 0-45.2 31.7-59.2 81.5-14-49.8-35.2-81.5-59-81.5-42 0-76.2 105.7-76.2 236.4h34c0-121.4 18.7-219.6 42-219.6s42.2 90.8 42.2 202.8h33.8c0-112 19-202.8 42.3-202.8"/>
+        </svg>
+      </div>
+      <div class="copy">
+        <div class="eyebrow">MCDONALD'S ORDER</div>
+        <h1>热麦卡路里</h1>
+        <div class="subtitle">CALORIE ESTIMATOR · AGENT SKILL</div>
+        <div class="scale">
+          <div class="scale-head">
+            <div class="scale-label"><b>热量刻度</b>CALORIE SCALE · KCAL</div>
+            <div class="scale-value">≈ 550 <span>kcal / 套餐</span></div>
+          </div>
+          <div class="track">
+            <div class="fill"></div>
+            <div class="marker"></div>
+          </div>
+          <div class="ticks">
+            <i style="left:0%">0</i>
+            <i style="left:25%">250</i>
+            <i style="left:50%">500</i>
+            <i style="left:75%">750</i>
+            <i style="left:100%">1000</i>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <div class="left">麦当劳点餐热量估算 · 让每一餐都算得清</div>
+      <div class="right">HOT &amp; FRESH · EST. 2026</div>
+    </div>
+  </div>
+</body>
+</html>

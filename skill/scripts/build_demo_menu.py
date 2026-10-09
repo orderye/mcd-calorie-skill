@@ -59,18 +59,18 @@ registry = {}
 for DP, fn in DP_FILES.items():
     snap = load_snapshot(fn, DP)
     for code, e in snap.items():
-        tgt = registry.setdefault(code, {"name": e["name"], "tags": [], "cats": {}, "price": {}, "orig": {}})
+        tgt = registry.setdefault(code, {"name": e["name"], "tags": [], "cats": [], "price": {}, "orig": {}})
         tgt["name"] = e["name"]
-        tgt["cats"][DP] = e["cat"]
+        if e["cat"] and e["cat"] not in tgt["cats"]:
+            tgt["cats"].append(e["cat"])
         tgt["price"][DP] = e["price"][DP]
         tgt["orig"][DP] = e["orig"][DP]
         for t in e["tags"]:
             if t not in tgt["tags"]:
                 tgt["tags"].append(t)
-# 下午茶复用午餐
+# 下午茶复用午餐（实测逐条一致）
 for code, e in list(registry.items()):
-    if "午餐" in e["cats"]:
-        e["cats"]["随便吃吃"] = e["cats"]["午餐"]
+    if "午餐" in e["price"]:
         e["price"]["随便吃吃"] = e["price"]["午餐"]
         e["orig"]["随便吃吃"] = e["orig"]["午餐"]
 
@@ -87,6 +87,17 @@ ALIAS = json.load(open(os.path.join(BASE, "data", "alias.json"), encoding="utf-8
 ALIAS_MAP = ALIAS.get("mappings", {})
 ALIAS_DEF = ALIAS.get("defaults", {})
 
+def norm_name(s):
+    """归一化：去空格、全角括号转半角、剥离括号内规格说明。"""
+    s = s.replace(" ", "").replace("（", "(").replace("）", ")")
+    s = re.sub(r"\([^)]*\)", "", s)
+    return s
+
+# 归一化索引：仅当归一化后唯一命中才采用，避免把「冰/热」「中/大杯」猜成某一规格
+NORM_IDX = {}
+for n in NUTRI_SRC:
+    NORM_IDX.setdefault(norm_name(n), []).append(n)
+
 def resolve_nutri(name):
     if name in NUTRI_SRC:
         return name
@@ -94,6 +105,16 @@ def resolve_nutri(name):
         return ALIAS_MAP[name]
     if name in ALIAS_DEF and ALIAS_DEF[name] in NUTRI_SRC:
         return ALIAS_DEF[name]
+    # 剥离品牌前缀后重试（如「麦咖啡™热美式中杯」→「热美式中杯」）
+    stripped = name.replace("麦咖啡™", "")
+    if stripped != name and stripped in NUTRI_SRC:
+        return stripped
+    cands = NORM_IDX.get(norm_name(name), [])
+    if len(cands) == 1:
+        return cands[0]
+    cands2 = NORM_IDX.get(norm_name(stripped), [])
+    if len(cands2) == 1:
+        return cands2[0]
     return None
 
 # ────────────────────────────── 3. 角色分类 ──────────────────────────────
@@ -115,9 +136,9 @@ def classify(name, cats, tags):
         return "非食品"
     if any(k in name for k in COMBO_KW):
         return "套餐"
-    if any(c in COMBO_CATS for c in cats.values()):
+    if any(c in COMBO_CATS for c in cats):
         return "套餐"
-    if any(c in DRINK_CATS for c in cats.values()):
+    if any(c in DRINK_CATS for c in cats):
         return "饮品"
     if any(k in name for k in DESSERT_KW):
         return "甜品"
@@ -128,7 +149,7 @@ def classify(name, cats, tags):
     if any(k in name for k in SNACK_KW):
         return "小食"
     # 分类兜底
-    joined = " ".join(cats.values())
+    joined = " ".join(cats)
     if any(k in joined for k in ["小食", "甜品"]):
         return "小食"
     if "汉堡" in joined or "堡" in joined:
@@ -201,7 +222,7 @@ for code, e in registry.items():
     role = classify(name, e["cats"], e["tags"])
     if role in ("非食品",):
         continue
-    dps = [d for d in ["早餐", "午餐", "随便吃吃", "晚餐", "宵夜"] if d in e["cats"]]
+    dps = [d for d in ["早餐", "午餐", "随便吃吃", "晚餐", "宵夜"] if d in e["price"]]
     if not dps:
         continue
     rn = resolve_nutri(name)
@@ -212,9 +233,7 @@ for code, e in registry.items():
         unknown.append(name)
     price = {d: round(e["price"][d], 2) for d in dps}
     orig = {d: round(e["orig"][d], 2) for d in dps if e["orig"][d] > e["price"][d]}
-    # 展示分类：取该商品在最多餐段里出现的分类
-    cat = e["cats"][dps[0]]
-    item = {"n": name, "role": role, "cat": cat, "dp": dps, "p": price}
+    item = {"n": name, "role": role, "c": e["cats"], "dp": dps, "p": price}
     if orig:
         item["o"] = orig
     if e["tags"]:
@@ -232,7 +251,7 @@ def sort_key(it):
     dps = it["dp"]
     primary = "午餐" if "午餐" in dps else dps[0]
     try:
-        ci = CAT_ORDER[primary].index(it["cat"])
+        ci = min(CAT_ORDER[primary].index(c) for c in it["c"] if c in CAT_ORDER[primary])
     except ValueError:
         ci = 99
     return (list(["早餐", "午餐", "随便吃吃", "晚餐", "宵夜"]).index(primary), ci, it["n"])
@@ -259,7 +278,8 @@ def emit_menu():
     out = ["const MENU = ["]
     rows = []
     for it in menu:
-        f = ["n:" + js_str(it["n"]), "role:" + js_str(it["role"]), "cat:" + js_str(it["cat"]),
+        f = ["n:" + js_str(it["n"]), "role:" + js_str(it["role"]),
+             "c:[" + ",".join(js_str(c) for c in it["c"]) + "],"
              "dp:[" + ",".join(js_str(d) for d in it["dp"]) + "]",
              "p:{" + ",".join('%s:%s' % (js_str(d), js_num(v)) for d, v in it["p"].items()) + "}"]
         if it.get("o"):
@@ -272,6 +292,15 @@ def emit_menu():
         rows.append("  {" + ",".join(f) + "}")
     out.append(",\n".join(rows))
     out.append("];")
+    return "\n".join(out)
+
+def emit_cats():
+    out = ["const CATS = {"]
+    blocks = []
+    for d in ["早餐", "午餐", "随便吃吃", "晚餐", "宵夜"]:
+        blocks.append("  %s:[%s]" % (js_str(d), ",".join(js_str(c) for c in CAT_ORDER[d])))
+    out.append(",\n".join(blocks))
+    out.append("};")
     return "\n".join(out)
 
 def emit_rounds():
@@ -323,5 +352,6 @@ if __name__ == "__main__":
             print("  %s: %d" % (d, sum(1 for i in menu if d in i["dp"])))
         print("\n各餐段分类:", {d: CAT_ORDER[d] for d in CAT_ORDER})
     else:
-        key = {"nutri": emit_nutri, "menu": emit_menu, "rounds": emit_rounds, "mods": emit_mods}[mode]
+        key = {"nutri": emit_nutri, "menu": emit_menu, "rounds": emit_rounds,
+               "mods": emit_mods, "cats": emit_cats}[mode]
         print(key())

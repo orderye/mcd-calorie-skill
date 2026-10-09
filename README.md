@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="cover/cover-v2-1600.png" alt="热麦卡路里 · CALORIE ESTIMATOR · AGENT SKILL" width="820">
+</div>
+
 # 热麦卡路里
 
 > 麦当劳订单热量估算与餐段档位套餐推荐 · Agent Skill · 麦当劳程序员节创意开发大赛参赛作品
@@ -187,6 +191,7 @@ python skill/scripts/mcd_combo.py \
 │   ├── scripts/                    # 本地计算脚本（Python 3.10+，无第三方依赖）
 │   └── tools/eval_match.py         # 匹配率评测（常见订单集 ≥90% 验收）
 ├── README.md                       # 项目介绍、安装、示例、目标用户
+├── cover/                          # 封面源（HTML 排版 + 渲染脚本 + 官方金拱门矢量）
 ├── 架构拓扑.txt                     # ASCII 架构拓扑源文件
 ├── CONTEST_DECLARATION.md          # 参赛声明（原创性/合规性/敏感信息）
 ├── MCP_INTEGRATION.md              # 实际使用的 MCP Server / Tool / 流程 / 价值
