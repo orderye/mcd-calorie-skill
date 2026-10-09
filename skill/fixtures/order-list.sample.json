@@ -1,0 +1,113 @@
+{
+  "_meta": {
+    "source": "order-list（官方历史订单查询，1.0.6 起可用）",
+    "fetchedAt": "2026-10-10 00:45:32",
+    "traceId": "624dcad43a55e4fc40d497af78080a28",
+    "deidentified": "★ 已脱敏：去除 orderId / storeCode / storeName / beCode，门店以「门店A/B/C」代称；保留 createTime（餐段判定必需）、商品与组成、实付金额（复算价格差必需）。脱敏前的原始响应不入库。",
+    "purpose": "① 作为 PRD 场景 5「昨天那单偏高，要更轻的替换方案」的真实测试集；② 验证 order-list 与 query-order 的 orderProductList/comboItemList 结构一致，复盘链路可复用 mcd_order 的展开与匹配逻辑。",
+    "orderCount": 8,
+    "span": "2025-10-11 ~ 2026-03-20"
+  },
+  "list": [
+    {
+      "orderId": "ORDER-01", "orderType": "1", "beType": "1", "createTime": "2026-03-20 18:32:42",
+      "store": "门店A", "orderStatus": "订单已完成", "realTotalAmount": "69.9",
+      "orderProductList": [
+        {"productCode": "9900012064", "productName": "三层肉霸堡大堡口福三件套", "quantity": 1,
+         "comboItemList": [{"productCode": "521341", "name": "德克萨斯风味三层肉霸堡", "quantity": 1},
+                           {"productCode": "514782", "name": "脆脆薯条", "quantity": 1},
+                           {"productCode": "3050", "name": "可乐中杯", "quantity": 1}]},
+        {"productCode": "9900008754", "productName": "麦旋风", "quantity": 2,
+         "comboItemList": [{"productCode": "1217", "name": "奥利奥麦旋风", "quantity": 1}]},
+        {"productCode": "9900008754", "productName": "麦旋风", "quantity": 1,
+         "comboItemList": [{"productCode": "4900", "name": "草莓麦旋风", "quantity": 1}]}
+      ]
+    },
+    {
+      "orderId": "ORDER-02", "orderType": "1", "beType": "1", "createTime": "2026-03-20 18:30:46",
+      "store": "门店A", "orderStatus": "订单已完成", "realTotalAmount": "53.8",
+      "orderProductList": [
+        {"productCode": "9900008842", "productName": "麦麦脆汁鸡任选", "quantity": 1,
+         "comboItemList": [{"productCode": "505416", "name": "麦麦脆汁鸡-琵琶腿", "quantity": 1}]},
+        {"productCode": "9900013261", "productName": "大堡口福三件套", "quantity": 1,
+         "comboItemList": [{"productCode": "521341", "name": "德克萨斯风味三层肉霸堡", "quantity": 1},
+                           {"productCode": "4820", "name": "大薯条", "quantity": 1},
+                           {"productCode": "3071", "name": "无糖可口可乐中杯", "quantity": 1}]}
+      ]
+    },
+    {
+      "orderId": "ORDER-03", "orderType": "1", "beType": "1", "createTime": "2025-12-18 19:01:31",
+      "store": "门店B", "orderStatus": "订单已完成", "realTotalAmount": "12.5",
+      "orderProductList": [
+        {"productCode": "9900008745", "productName": "新地", "quantity": 1,
+         "comboItemList": [{"productCode": "4410", "name": "朱古力新地", "quantity": 1}]}
+      ]
+    },
+    {
+      "orderId": "ORDER-04", "orderType": "1", "beType": "1", "createTime": "2025-12-18 18:58:47",
+      "store": "门店B", "orderStatus": "订单已完成", "realTotalAmount": "50.8",
+      "orderProductList": [
+        {"productCode": "9900011788", "productName": "爆脆星星堡三件套", "quantity": 1,
+         "comboItemList": [{"productCode": "521289", "name": "爆脆星星堡", "quantity": 1},
+                           {"productCode": "4810", "name": "中薯条", "quantity": 1},
+                           {"productCode": "3110", "name": "雪碧大杯", "quantity": 1}]},
+        {"productCode": "9900008754", "productName": "麦旋风", "quantity": 1,
+         "comboItemList": [{"productCode": "1217", "name": "奥利奥麦旋风", "quantity": 1}]},
+        {"productCode": "9900001182", "productName": "精选超值随心配", "quantity": 1,
+         "comboItemList": [{"productCode": "1401", "name": "麦乐鸡5块", "quantity": 1},
+                           {"productCode": "3071", "name": "无糖可口可乐中杯", "quantity": 1}]}
+      ]
+    },
+    {
+      "orderId": "ORDER-05", "orderType": "1", "beType": "1", "createTime": "2025-12-18 18:54:09",
+      "store": "门店B", "orderStatus": "订单已完成", "realTotalAmount": "44.9",
+      "orderProductList": [
+        {"productCode": "1600", "productName": "麦香鱼", "quantity": 1, "comboItemList": []},
+        {"productCode": "9900011799", "productName": "BFF爆脆星星盘", "quantity": 1,
+         "comboItemList": [{"productCode": "521291", "name": "爆脆星星盐酥风味脆汁鸡", "quantity": 1},
+                           {"productCode": "520450", "name": "薄皮焦香V翅 ", "quantity": 1},
+                           {"productCode": "516013", "name": "麦辣鸡翅-2块", "quantity": 1},
+                           {"productCode": "516016", "name": "脆脆薯条", "quantity": 1}]}
+      ]
+    },
+    {
+      "orderId": "ORDER-06", "orderType": "1", "beType": "1", "createTime": "2025-11-22 18:34:19",
+      "store": "门店A", "orderStatus": "订单已完成", "realTotalAmount": "35.5",
+      "orderProductList": [
+        {"productCode": "9900010110", "productName": "鱼牛汉堡四件套随心选", "quantity": 1,
+         "comboItemList": [{"productCode": "1106", "name": "培根蔬萃双层牛堡", "quantity": 1},
+                           {"productCode": "4810", "name": "中薯条", "quantity": 1},
+                           {"productCode": "1700", "name": "麦辣鸡翅-2块", "quantity": 1},
+                           {"productCode": "3111", "name": "无糖可口可乐大杯", "quantity": 1}]},
+        {"productCode": "515837", "productName": "圆筒冰淇淋", "quantity": 1, "comboItemList": []}
+      ]
+    },
+    {
+      "orderId": "ORDER-07", "orderType": "1", "beType": "1", "createTime": "2025-11-22 18:28:34",
+      "store": "门店A", "orderStatus": "订单已完成", "realTotalAmount": "92.9",
+      "orderProductList": [
+        {"productCode": "9900011646", "productName": "四个大鸡腿炸鸡盒", "quantity": 1,
+         "comboItemList": [{"productCode": "516012", "name": "麦麦脆汁鸡-琵琶腿", "quantity": 1},
+                           {"productCode": "516017", "name": "麦麦脆汁鸡-带骨里脊", "quantity": 2},
+                           {"productCode": "520740", "name": "蜜汁BBQ风味薄皮脆汁鸡-琵琶腿", "quantity": 1}]},
+        {"productCode": "9900010110", "productName": "鱼牛汉堡四件套随心选", "quantity": 1,
+         "comboItemList": [{"productCode": "1106", "name": "培根蔬萃双层牛堡", "quantity": 1},
+                           {"productCode": "514782", "name": "脆脆薯条", "quantity": 1},
+                           {"productCode": "520445", "name": "薄皮焦香V翅", "quantity": 1},
+                           {"productCode": "2430", "name": "【美汁源】“黄金橙橙”", "quantity": 1}]}
+      ]
+    },
+    {
+      "orderId": "ORDER-08", "orderType": "1", "beType": "1", "createTime": "2025-10-11 13:26:14",
+      "store": "门店C", "orderStatus": "订单已完成", "realTotalAmount": "55.5",
+      "orderProductList": [
+        {"productCode": "9900005425", "productName": "脆汁鸡大套餐", "quantity": 1,
+         "comboItemList": [{"productCode": "505416", "name": "麦麦脆汁鸡-琵琶腿", "quantity": 1},
+                           {"productCode": "507165", "name": "麦麦脆汁鸡-带骨里脊", "quantity": 1},
+                           {"productCode": "4820", "name": "大薯条", "quantity": 1},
+                           {"productCode": "2430", "name": "【美汁源】“黄金橙橙”", "quantity": 1}]},
+        {"productCode": "1217", "productName": "奥利奥麦旋风", "quantity": 1, "comboItemList": []}
+      ]
+    }
+  ]
+}

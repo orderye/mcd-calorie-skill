@@ -1,0 +1,5896 @@
+{
+ "_meta": {
+  "generatedAt": "2026-10-10 00:42:51",
+  "sources": [
+   "meals.3570190.dinein.breakfast.json",
+   "meals.3570190.dinein.lunch.json",
+   "meals.3570190.dinein.night.json",
+   "meal-detail.9900004064.json"
+  ],
+  "note": "图片字段不落盘（合规）。本目录用于离线匹配与兜底；推荐候选必须取自当次 query-meals 实时结果。",
+  "daypartMenus": {
+   "早餐": [
+    "meals.3570190.dinein.breakfast.json"
+   ],
+   "午餐": [
+    "meals.3570190.dinein.lunch.json"
+   ],
+   "晚餐": [
+    "meals.3570190.dinein.night.json"
+   ]
+  }
+ },
+ "stores": {
+  "3570190": {
+   "storeName": "麦当劳贵阳天一国际餐厅",
+   "dayparts": [
+    "早餐",
+    "午餐",
+    "晚餐"
+   ],
+   "orderType": 1,
+   "beType": 1,
+   "categoryNames": [
+    "人气热卖",
+    "超值早餐",
+    "6折起\n早餐卡专区",
+    "厚松饼堡\n系列",
+    "麦满分系列",
+    "麦咖啡™",
+    "炒双蛋堡\n系列",
+    "早安营养卷",
+    "一早现磨",
+    "小食甜品\n/其他",
+    "饮品",
+    "精选单人餐",
+    "鸡肉汉堡\n/卷",
+    "小食拼盘\n/多人餐",
+    "蘸酱炸鸡",
+    "随心配\n1+1",
+    "大堡口福\n单人餐",
+    "巨无霸\n牛鱼肉堡",
+    "安格斯MAX\n厚牛堡",
+    "炸鸡",
+    "开心乐园",
+    "500\n大卡套餐"
+   ]
+  }
+ },
+ "products": {
+  "9900016524": {
+   "name": "厚松饼猪柳蛋堡三件套",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "人气热卖"
+   ],
+   "tags": [
+    "早餐卡专享价"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "17.94",
+     "originalPrice": "29.9",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900003458": {
+   "name": "猪柳蛋麦满分套餐",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "人气热卖",
+    "6折起\n早餐卡专区",
+    "麦满分系列"
+   ],
+   "tags": [
+    "早餐卡专享价",
+    "三件套",
+    "人气产品"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "15.6",
+     "originalPrice": "26",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900011872": {
+   "name": "芝芝火腿扒堡组合",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "人气热卖",
+    "超值早餐"
+   ],
+   "tags": [
+    "人气产品",
+    "超值早餐"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "9.9",
+     "originalPrice": "9.9",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900013221": {
+   "name": "一早现磨 超值二件套",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "人气热卖",
+    "一早现磨"
+   ],
+   "tags": [
+    "金奖豆",
+    "现磨"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "14.9",
+     "originalPrice": "29",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "507409": {
+   "name": "麦咖啡™奶铁",
+   "dayparts": [
+    "早餐",
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "人气热卖",
+    "麦咖啡™",
+    "饮品"
+   ],
+   "tags": [
+    "更奶更浓",
+    "限定特惠",
+    "冷饮"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "13.9",
+     "originalPrice": "21",
+     "discountType": "促销优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    },
+    "午餐": {
+     "price": "9.9",
+     "originalPrice": "21",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "13.9",
+     "originalPrice": "21",
+     "discountType": "促销优惠",
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "9900011873": {
+   "name": "芝芝火腿扒堡套餐",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "人气热卖",
+    "超值早餐"
+   ],
+   "tags": [
+    "早餐卡专享价"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "11.4",
+     "originalPrice": "19",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900015605": {
+   "name": "东南亚风味椰香鸡扒堡套餐",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "超值早餐"
+   ],
+   "tags": [
+    "早餐卡专享价"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "11.4",
+     "originalPrice": "19",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900015604": {
+   "name": "东南亚风味椰香鸡扒堡组合",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "超值早餐"
+   ],
+   "tags": [
+    "超值早餐"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "9.9",
+     "originalPrice": "9.9",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "521315": {
+   "name": "芝芝火腿扒堡",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "超值早餐"
+   ],
+   "tags": [
+    "人气产品"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "13",
+     "originalPrice": "13",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "521885": {
+   "name": "东南亚风味椰香鸡扒堡",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "超值早餐"
+   ],
+   "tags": [
+    "新品上市"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "13",
+     "originalPrice": "13",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "9900012729": {
+   "name": "脆香油条组合",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "6折起\n早餐卡专区"
+   ],
+   "tags": [],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "6.6",
+     "originalPrice": "11",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900003432": {
+   "name": "吉士蛋麦满分组合",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "6折起\n早餐卡专区",
+    "麦满分系列"
+   ],
+   "tags": [
+    "二件套"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "7.5",
+     "originalPrice": "12.5",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900003493": {
+   "name": "原味板烧鸡腿麦满分组合",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "6折起\n早餐卡专区",
+    "麦满分系列"
+   ],
+   "tags": [
+    "二件套"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "11.1",
+     "originalPrice": "18.5",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900003451": {
+   "name": "大脆鸡扒麦满分套餐",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "6折起\n早餐卡专区",
+    "麦满分系列"
+   ],
+   "tags": [
+    "三件套"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "10.8",
+     "originalPrice": "18",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900003428": {
+   "name": "火腿扒早安营养卷组合",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "6折起\n早餐卡专区",
+    "早安营养卷"
+   ],
+   "tags": [
+    "二件套"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "11.4",
+     "originalPrice": "19",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900003424": {
+   "name": "原味板烧鸡腿炒双蛋堡组合",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "6折起\n早餐卡专区",
+    "炒双蛋堡\n系列"
+   ],
+   "tags": [
+    "二件套"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "13.2",
+     "originalPrice": "22",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900016171": {
+   "name": "枫糖风味厚松饼猪柳蛋堡套餐",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "厚松饼堡\n系列"
+   ],
+   "tags": [
+    "三件套",
+    "早餐卡专享价"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "17.94",
+     "originalPrice": "29.9",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900016176": {
+   "name": "枫糖风味厚松饼猪柳堡套餐",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "厚松饼堡\n系列"
+   ],
+   "tags": [
+    "三件套",
+    "咸甜美味"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "15.54",
+     "originalPrice": "25.9",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900016143": {
+   "name": "枫糖风味厚松饼猪柳蛋堡组合",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "厚松饼堡\n系列"
+   ],
+   "tags": [
+    "二件套",
+    "咸甜美味"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "15.3",
+     "originalPrice": "25.5",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900016144": {
+   "name": "枫糖风味厚松饼猪柳堡组合",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "厚松饼堡\n系列"
+   ],
+   "tags": [
+    "二件套",
+    "咸甜美味"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "12.9",
+     "originalPrice": "21.5",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "521989": {
+   "name": "枫糖风味厚松饼猪柳蛋堡",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "厚松饼堡\n系列"
+   ],
+   "tags": [
+    "单品",
+    "咸甜美味"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "22",
+     "originalPrice": "22",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "521990": {
+   "name": "枫糖风味厚松饼猪柳堡",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "厚松饼堡\n系列"
+   ],
+   "tags": [
+    "单品",
+    "咸甜美味"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "18",
+     "originalPrice": "18",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "9900014835": {
+   "name": "北非蛋风味猪柳蛋麦满分套餐",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "麦满分系列"
+   ],
+   "tags": [
+    "三件套",
+    "早餐卡专享价"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "18",
+     "originalPrice": "30",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900014833": {
+   "name": "北非蛋风味脆鸡排麦满分套餐",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "麦满分系列"
+   ],
+   "tags": [
+    "三件套",
+    "早餐卡专享价"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "17.1",
+     "originalPrice": "28.5",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900014829": {
+   "name": "北非蛋风味麦满分套餐",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "麦满分系列"
+   ],
+   "tags": [
+    "三件套",
+    "早餐卡专享价"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "15.6",
+     "originalPrice": "26",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900003457": {
+   "name": "原味板烧鸡腿麦满分套餐",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "麦满分系列"
+   ],
+   "tags": [
+    "三件套",
+    "早餐卡专享价"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "13.8",
+     "originalPrice": "23",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900003459": {
+   "name": "双层原味板烧鸡腿麦满分套餐",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "麦满分系列"
+   ],
+   "tags": [
+    "三件套"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "16.2",
+     "originalPrice": "27",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900003449": {
+   "name": "火腿扒麦满分套餐",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "麦满分系列"
+   ],
+   "tags": [
+    "三件套"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "10.8",
+     "originalPrice": "18",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900003453": {
+   "name": "吉士蛋麦满分套餐",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "麦满分系列"
+   ],
+   "tags": [
+    "三件套"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "10.2",
+     "originalPrice": "17",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900003454": {
+   "name": "猪柳麦满分套餐",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "麦满分系列"
+   ],
+   "tags": [
+    "三件套"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "13.2",
+     "originalPrice": "22",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900013411": {
+   "name": "精选麦满分套餐",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "麦满分系列"
+   ],
+   "tags": [
+    "麦金卡同享"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "15.6",
+     "originalPrice": "26",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900014830": {
+   "name": "北非蛋风味猪柳蛋麦满分组合",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "麦满分系列"
+   ],
+   "tags": [
+    "二件套",
+    "人气回归（图片）"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "15.3",
+     "originalPrice": "25.5",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900014826": {
+   "name": "北非蛋风味脆鸡排麦满分组合",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "麦满分系列"
+   ],
+   "tags": [
+    "二件套",
+    "新品上市（图片）"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "14.4",
+     "originalPrice": "24",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900014820": {
+   "name": "北非蛋风味麦满分组合",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "麦满分系列"
+   ],
+   "tags": [
+    "二件套",
+    "人气回归（图片）"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "12.9",
+     "originalPrice": "21.5",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900003491": {
+   "name": "猪柳蛋麦满分组合",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "麦满分系列"
+   ],
+   "tags": [
+    "二件套",
+    "人气产品"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "12.9",
+     "originalPrice": "21.5",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900003431": {
+   "name": "大脆鸡扒麦满分组合",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "麦满分系列"
+   ],
+   "tags": [
+    "二件套"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "8.1",
+     "originalPrice": "13.5",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900003504": {
+   "name": "双层原味板烧鸡腿麦满分组合",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "麦满分系列"
+   ],
+   "tags": [
+    "二件套"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "13.5",
+     "originalPrice": "22.5",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900011708": {
+   "name": "火腿扒麦满分组合",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "麦满分系列"
+   ],
+   "tags": [
+    "二件套"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "8.1",
+     "originalPrice": "13.5",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900003423": {
+   "name": "猪柳麦满分组合",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "麦满分系列"
+   ],
+   "tags": [
+    "二件套"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "10.5",
+     "originalPrice": "17.5",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "521735": {
+   "name": "北非蛋风味猪柳蛋麦满分",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "麦满分系列"
+   ],
+   "tags": [
+    "单品",
+    "人气回归（图片）"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "22",
+     "originalPrice": "22",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "521736": {
+   "name": "北非蛋风味脆鸡排麦满分",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "麦满分系列"
+   ],
+   "tags": [
+    "单品",
+    "新品上市（图片）"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "20.5",
+     "originalPrice": "20.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "521734": {
+   "name": "北非蛋风味麦满分",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "麦满分系列"
+   ],
+   "tags": [
+    "单品",
+    "人气回归（图片）"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "18",
+     "originalPrice": "18",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "5022": {
+   "name": "猪柳蛋麦满分",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "麦满分系列"
+   ],
+   "tags": [
+    "单品",
+    "人气产品"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "18",
+     "originalPrice": "18",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "6800": {
+   "name": "原味板烧鸡腿麦满分",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "麦满分系列"
+   ],
+   "tags": [
+    "单品"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "15",
+     "originalPrice": "15",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "5889": {
+   "name": "大脆鸡扒麦满分",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "麦满分系列"
+   ],
+   "tags": [
+    "单品"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "11",
+     "originalPrice": "11",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "4989": {
+   "name": "双层原味板烧鸡腿麦满分",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "麦满分系列"
+   ],
+   "tags": [
+    "单品"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "19",
+     "originalPrice": "19",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "1254": {
+   "name": "火腿扒麦满分",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "麦满分系列"
+   ],
+   "tags": [
+    "单品"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "11",
+     "originalPrice": "11",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "5888": {
+   "name": "吉士蛋麦满分",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "麦满分系列"
+   ],
+   "tags": [
+    "单品"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "10",
+     "originalPrice": "10",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "5024": {
+   "name": "猪柳麦满分",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "麦满分系列"
+   ],
+   "tags": [
+    "单品"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "14",
+     "originalPrice": "14",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "520830": {
+   "name": "双层猪柳蛋麦满分",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "麦满分系列"
+   ],
+   "tags": [
+    "单品"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "21",
+     "originalPrice": "21",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "515946": {
+   "name": "浓浓黑巧（冰/热）",
+   "dayparts": [
+    "早餐",
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "麦咖啡™"
+   ],
+   "tags": [
+    "限定特惠",
+    "浓浓黑巧"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "13.9",
+     "originalPrice": "21",
+     "discountType": "促销优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    },
+    "午餐": {
+     "price": "21",
+     "originalPrice": "21",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "13.9",
+     "originalPrice": "21",
+     "discountType": "促销优惠",
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "515955": {
+   "name": "浓浓燕麦黑巧（冰/热）",
+   "dayparts": [
+    "早餐",
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "麦咖啡™"
+   ],
+   "tags": [
+    "限定特惠",
+    "浓浓黑巧"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "15.9",
+     "originalPrice": "23",
+     "discountType": "促销优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    },
+    "午餐": {
+     "price": "23",
+     "originalPrice": "23",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "15.9",
+     "originalPrice": "23",
+     "discountType": "促销优惠",
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "507411": {
+   "name": "麦咖啡™美式",
+   "dayparts": [
+    "早餐",
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "麦咖啡™",
+    "饮品",
+    "人气热卖"
+   ],
+   "tags": [
+    "限定特惠",
+    "冷饮"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "11.9",
+     "originalPrice": "19",
+     "discountType": "促销优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    },
+    "午餐": {
+     "price": "9.9",
+     "originalPrice": "19",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "11.9",
+     "originalPrice": "19",
+     "discountType": "促销优惠",
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "510479": {
+   "name": "燕麦奶铁",
+   "dayparts": [
+    "早餐",
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "麦咖啡™"
+   ],
+   "tags": [
+    "麦咖啡™咖啡"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "9.9",
+     "originalPrice": "23",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    },
+    "午餐": {
+     "price": "9.9",
+     "originalPrice": "23",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "9.9",
+     "originalPrice": "23",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "514851": {
+   "name": "咖啡阿芙佳朵",
+   "dayparts": [
+    "早餐",
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "麦咖啡™",
+    "小食甜品\n/其他"
+   ],
+   "tags": [
+    "麦咖啡™咖啡",
+    "冰淇淋"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "15",
+     "originalPrice": "15",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    },
+    "午餐": {
+     "price": "15",
+     "originalPrice": "15",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "15",
+     "originalPrice": "15",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "520689": {
+   "name": "鲜萃咖啡",
+   "dayparts": [
+    "早餐",
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "麦咖啡™",
+    "饮品"
+   ],
+   "tags": [
+    "麦咖啡™咖啡",
+    "鲜萃咖啡",
+    "热饮"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "9.5",
+     "originalPrice": "9.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    },
+    "午餐": {
+     "price": "9.5",
+     "originalPrice": "9.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "9.5",
+     "originalPrice": "9.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "507394": {
+   "name": "牛奶",
+   "dayparts": [
+    "早餐",
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "麦咖啡™",
+    "饮品"
+   ],
+   "tags": [
+    "其他",
+    "热饮"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "19",
+     "originalPrice": "19",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    },
+    "午餐": {
+     "price": "19",
+     "originalPrice": "19",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "19",
+     "originalPrice": "19",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "510488": {
+   "name": "燕麦奶",
+   "dayparts": [
+    "早餐",
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "麦咖啡™"
+   ],
+   "tags": [
+    "其他"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "21",
+     "originalPrice": "21",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    },
+    "午餐": {
+     "price": "21",
+     "originalPrice": "21",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "21",
+     "originalPrice": "21",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "9900003466": {
+   "name": "原味板烧鸡腿炒双蛋堡套餐",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "炒双蛋堡\n系列"
+   ],
+   "tags": [
+    "三件套"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "15.9",
+     "originalPrice": "26.5",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900003465": {
+   "name": "猪柳炒双蛋堡套餐",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "炒双蛋堡\n系列"
+   ],
+   "tags": [
+    "三件套"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "15.9",
+     "originalPrice": "26.5",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900003425": {
+   "name": "猪柳炒双蛋堡组合",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "炒双蛋堡\n系列"
+   ],
+   "tags": [
+    "二件套"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "13.2",
+     "originalPrice": "22",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "514700": {
+   "name": "原味板烧鸡腿炒双蛋堡",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "炒双蛋堡\n系列"
+   ],
+   "tags": [
+    "单品"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "18.5",
+     "originalPrice": "18.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "502773": {
+   "name": "猪柳炒双蛋堡",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "炒双蛋堡\n系列"
+   ],
+   "tags": [
+    "单品"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "18.5",
+     "originalPrice": "18.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "9900003468": {
+   "name": "火腿扒早安营养卷套餐",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "早安营养卷"
+   ],
+   "tags": [
+    "三件套"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "14.1",
+     "originalPrice": "23.5",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900003469": {
+   "name": "图林根香肠早安营养卷套餐",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "早安营养卷"
+   ],
+   "tags": [
+    "三件套"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "14.7",
+     "originalPrice": "24.5",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900003429": {
+   "name": "图林根香肠早安营养卷组合",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "早安营养卷"
+   ],
+   "tags": [
+    "二件套"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "12",
+     "originalPrice": "20",
+     "discountType": "随单购早餐卡优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "513112": {
+   "name": "火腿扒早安营养卷",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "早安营养卷"
+   ],
+   "tags": [
+    "单品"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "15.5",
+     "originalPrice": "15.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "513113": {
+   "name": "图林根香肠早安营养卷",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "早安营养卷"
+   ],
+   "tags": [
+    "单品"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "16.5",
+     "originalPrice": "16.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "521950": {
+   "name": "蓝莓爆爆珠麦旋风",
+   "dayparts": [
+    "早餐",
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "小食甜品\n/其他",
+    "人气热卖"
+   ],
+   "tags": [
+    "上新",
+    "蓝莓"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "15.5",
+     "originalPrice": "15.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    },
+    "午餐": {
+     "price": "15.5",
+     "originalPrice": "15.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "15.5",
+     "originalPrice": "15.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "521951": {
+   "name": "灰焰圆筒",
+   "dayparts": [
+    "早餐",
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "小食甜品\n/其他"
+   ],
+   "tags": [
+    "上新",
+    "灰焰"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "5",
+     "originalPrice": "5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    },
+    "午餐": {
+     "price": "5",
+     "originalPrice": "5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "5",
+     "originalPrice": "5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "521917": {
+   "name": "泷愿成真麦旋风——大米风味",
+   "dayparts": [
+    "早餐",
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "小食甜品\n/其他"
+   ],
+   "tags": [
+    "上新",
+    "快乐旋开吃"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "15.5",
+     "originalPrice": "15.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    },
+    "午餐": {
+     "price": "15.5",
+     "originalPrice": "15.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "15.5",
+     "originalPrice": "15.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "4825": {
+   "name": "脆薯饼",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "小食甜品\n/其他"
+   ],
+   "tags": [
+    "小食"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "8.5",
+     "originalPrice": "8.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "505235": {
+   "name": "德式图林根香肠",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "小食甜品\n/其他"
+   ],
+   "tags": [
+    "小食"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "9.5",
+     "originalPrice": "9.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "2631": {
+   "name": "脆香油条",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "小食甜品\n/其他"
+   ],
+   "tags": [
+    "小食"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "8.5",
+     "originalPrice": "8.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "4437": {
+   "name": "玉米杯",
+   "dayparts": [
+    "早餐",
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "小食甜品\n/其他"
+   ],
+   "tags": [
+    "小食"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "13",
+     "originalPrice": "13",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    },
+    "午餐": {
+     "price": "13",
+     "originalPrice": "13",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "13",
+     "originalPrice": "13",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "9900003728": {
+   "name": "脆香油条豆浆组合",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "小食甜品\n/其他"
+   ],
+   "tags": [
+    "小食"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "17.5",
+     "originalPrice": "17.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900008752": {
+   "name": "派",
+   "dayparts": [
+    "早餐",
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "小食甜品\n/其他"
+   ],
+   "tags": [
+    "派",
+    "第二份优惠"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "8.5",
+     "originalPrice": "8.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    },
+    "午餐": {
+     "price": "8.5",
+     "originalPrice": "8.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "8.5",
+     "originalPrice": "8.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "9900008754": {
+   "name": "经典麦旋风",
+   "dayparts": [
+    "早餐",
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "小食甜品\n/其他"
+   ],
+   "tags": [
+    "冰淇淋"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "14.5",
+     "originalPrice": "14.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    },
+    "午餐": {
+     "price": "14.5",
+     "originalPrice": "14.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "14.5",
+     "originalPrice": "14.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "515837": {
+   "name": "圆筒冰淇淋",
+   "dayparts": [
+    "早餐",
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "小食甜品\n/其他"
+   ],
+   "tags": [
+    "冰淇淋"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "5",
+     "originalPrice": "5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    },
+    "午餐": {
+     "price": "5",
+     "originalPrice": "5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "5",
+     "originalPrice": "5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "9900008745": {
+   "name": "新地",
+   "dayparts": [
+    "早餐",
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "小食甜品\n/其他"
+   ],
+   "tags": [
+    "冰淇淋"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "12",
+     "originalPrice": "12",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    },
+    "午餐": {
+     "price": "12",
+     "originalPrice": "12",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "12",
+     "originalPrice": "12",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "521817": {
+   "name": "【美汁源】“多汁柠柠”",
+   "dayparts": [
+    "早餐",
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "饮品"
+   ],
+   "tags": [
+    "上新",
+    "清爽上新"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "12",
+     "originalPrice": "12",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    },
+    "午餐": {
+     "price": "12",
+     "originalPrice": "12",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "12",
+     "originalPrice": "12",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "1088": {
+   "name": "优品豆浆",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "饮品"
+   ],
+   "tags": [
+    "热饮"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "9.5",
+     "originalPrice": "9.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "507328": {
+   "name": "麦咖啡™热奶铁中杯",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "饮品"
+   ],
+   "tags": [
+    "热饮",
+    "更奶更浓"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "13.9",
+     "originalPrice": "21",
+     "discountType": "促销优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "507368": {
+   "name": "麦咖啡™热美式中杯",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "饮品"
+   ],
+   "tags": [
+    "热饮"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "11.9",
+     "originalPrice": "19",
+     "discountType": "促销优惠",
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "3505": {
+   "name": "锡兰红茶",
+   "dayparts": [
+    "早餐",
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "饮品"
+   ],
+   "tags": [
+    "热饮"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "11.5",
+     "originalPrice": "11.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    },
+    "午餐": {
+     "price": "11.5",
+     "originalPrice": "11.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "11.5",
+     "originalPrice": "11.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "2430": {
+   "name": "【美汁源】“黄金橙橙”",
+   "dayparts": [
+    "早餐",
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "饮品"
+   ],
+   "tags": [
+    "冷饮"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "13",
+     "originalPrice": "13",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    },
+    "午餐": {
+     "price": "13",
+     "originalPrice": "13",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "13",
+     "originalPrice": "13",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "6362": {
+   "name": "100% 苹果汁(盒装)",
+   "dayparts": [
+    "早餐",
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "饮品"
+   ],
+   "tags": [
+    "冷饮"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "12",
+     "originalPrice": "12",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    },
+    "午餐": {
+     "price": "12",
+     "originalPrice": "12",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "12",
+     "originalPrice": "12",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "510041": {
+   "name": "冰牛奶中杯",
+   "dayparts": [
+    "早餐"
+   ],
+   "categories": [
+    "饮品"
+   ],
+   "tags": [
+    "冷饮"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "19",
+     "originalPrice": "19",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "515280": {
+   "name": "阳光柠檬红茶",
+   "dayparts": [
+    "早餐",
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "饮品"
+   ],
+   "tags": [
+    "冷饮"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "9.5",
+     "originalPrice": "9.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    },
+    "午餐": {
+     "price": "9.5",
+     "originalPrice": "9.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "9.5",
+     "originalPrice": "9.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "515520": {
+   "name": "怡泉+C",
+   "dayparts": [
+    "早餐",
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "饮品"
+   ],
+   "tags": [
+    "冷饮"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "11.5",
+     "originalPrice": "11.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    },
+    "午餐": {
+     "price": "11.5",
+     "originalPrice": "11.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "11.5",
+     "originalPrice": "11.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "3010": {
+   "name": "雪碧",
+   "dayparts": [
+    "早餐",
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "饮品"
+   ],
+   "tags": [
+    "冷饮"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "9.5",
+     "originalPrice": "9.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    },
+    "午餐": {
+     "price": "9.5",
+     "originalPrice": "9.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "9.5",
+     "originalPrice": "9.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "9900008751": {
+   "name": "可乐",
+   "dayparts": [
+    "早餐",
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "饮品"
+   ],
+   "tags": [
+    "冷饮"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "早餐": {
+     "price": "9.5",
+     "originalPrice": "9.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.breakfast.json"
+    },
+    "午餐": {
+     "price": "9.5",
+     "originalPrice": "9.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "9.5",
+     "originalPrice": "9.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "9900016076": {
+   "name": "“我就喜欢”鸡薯双全盒",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "人气热卖",
+    "小食拼盘\n/多人餐"
+   ],
+   "tags": [
+    "心形薯饼同款比心",
+    "上新"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "15.9",
+     "originalPrice": "30",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "15.9",
+     "originalPrice": "30",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "9900016075": {
+   "name": "龙焰芝士棒鸡腿堡三件套",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "人气热卖",
+    "鸡肉汉堡\n/卷"
+   ],
+   "tags": [
+    "浓郁奶香拉丝芝士",
+    "上新"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "29.9",
+     "originalPrice": "52",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "29.9",
+     "originalPrice": "52",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900016073": {
+   "name": "龙焰鸡腿堡三件套",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "人气热卖",
+    "鸡肉汉堡\n/卷"
+   ],
+   "tags": [
+    "韩式辣椒黄油风味",
+    "上新"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "26.9",
+     "originalPrice": "49",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "26.9",
+     "originalPrice": "49",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900016077": {
+   "name": "蘸酱炸鸡",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "人气热卖"
+   ],
+   "tags": [
+    "韩式芝士风味酱上新"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "11.9",
+     "originalPrice": "17.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "11.9",
+     "originalPrice": "17.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "9900011056": {
+   "name": "全明星双人分享餐八件套",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "人气热卖",
+    "小食拼盘\n/多人餐"
+   ],
+   "tags": [
+    "麦金卡"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "49.9",
+     "originalPrice": "116.5",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "49.9",
+     "originalPrice": "116.5",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900004064": {
+   "name": "精选单人餐三件套",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "人气热卖",
+    "精选单人餐"
+   ],
+   "tags": [
+    "爆款",
+    "经典精选"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "35",
+     "originalPrice": "47.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "35",
+     "originalPrice": "47.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900004236": {
+   "name": "人气超值四件套随心选",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "精选单人餐"
+   ],
+   "tags": [
+    "麦金卡"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "28",
+     "originalPrice": "58",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "28",
+     "originalPrice": "58",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900010110": {
+   "name": "鱼牛汉堡四件套随心选",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "精选单人餐"
+   ],
+   "tags": [
+    "麦金卡"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "32",
+     "originalPrice": "59.5",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "32",
+     "originalPrice": "59.5",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900006957": {
+   "name": "安格斯厚牛堡四件套随心选",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "精选单人餐"
+   ],
+   "tags": [
+    "麦金卡"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "37",
+     "originalPrice": "66.5",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "37",
+     "originalPrice": "66.5",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "521953": {
+   "name": "龙焰芝士棒鸡腿堡",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "鸡肉汉堡\n/卷"
+   ],
+   "tags": [
+    "上新",
+    "浓郁奶香拉丝芝士"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "27.5",
+     "originalPrice": "27.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "27.5",
+     "originalPrice": "27.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "521952": {
+   "name": "龙焰鸡腿堡",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "鸡肉汉堡\n/卷"
+   ],
+   "tags": [
+    "上新",
+    "韩式辣椒黄油风味"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "24.5",
+     "originalPrice": "24.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "24.5",
+     "originalPrice": "24.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "9900016310": {
+   "name": "龙焰芝士棒鸡腿堡四件套",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "鸡肉汉堡\n/卷"
+   ],
+   "tags": [
+    "麦金卡"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "32",
+     "originalPrice": "58",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "32",
+     "originalPrice": "58",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900016309": {
+   "name": "龙焰鸡腿堡四件套",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "鸡肉汉堡\n/卷"
+   ],
+   "tags": [
+    "麦金卡"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "29",
+     "originalPrice": "58",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "29",
+     "originalPrice": "58",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900000891": {
+   "name": "麦辣鸡腿堡四件套",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "鸡肉汉堡\n/卷"
+   ],
+   "tags": [
+    "麦金卡"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "28",
+     "originalPrice": "58",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "28",
+     "originalPrice": "58",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900000890": {
+   "name": "板烧鸡腿堡四件套",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "鸡肉汉堡\n/卷"
+   ],
+   "tags": [
+    "麦金卡"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "28",
+     "originalPrice": "58",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "28",
+     "originalPrice": "58",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900005462": {
+   "name": "板烧鸡腿堡三件套",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "鸡肉汉堡\n/卷"
+   ],
+   "tags": [
+    "套餐",
+    "新升级",
+    "更多汁"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "35",
+     "originalPrice": "48.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "35",
+     "originalPrice": "48.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900005456": {
+   "name": "麦辣鸡腿汉堡三件套",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "鸡肉汉堡\n/卷"
+   ],
+   "tags": [
+    "套餐",
+    "立省10.5元起"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "34",
+     "originalPrice": "47.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "34",
+     "originalPrice": "47.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900005453": {
+   "name": "麦香鸡套餐",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "鸡肉汉堡\n/卷"
+   ],
+   "tags": [
+    "套餐",
+    "立省10.5元起"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "27.5",
+     "originalPrice": "41",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "27.5",
+     "originalPrice": "41",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "1440": {
+   "name": "麦辣鸡腿汉堡",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "鸡肉汉堡\n/卷"
+   ],
+   "tags": [
+    "单品",
+    "人气经典",
+    "外酥里嫩"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "23",
+     "originalPrice": "23",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "23",
+     "originalPrice": "23",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "1406": {
+   "name": "板烧鸡腿堡",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "鸡肉汉堡\n/卷"
+   ],
+   "tags": [
+    "单品",
+    "板烧滋滋",
+    "多汁惹味"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "24",
+     "originalPrice": "24",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "24",
+     "originalPrice": "24",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "1450": {
+   "name": "麦香鸡",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "鸡肉汉堡\n/卷"
+   ],
+   "tags": [
+    "单品"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "16.5",
+     "originalPrice": "16.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "16.5",
+     "originalPrice": "16.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "9900008746": {
+   "name": "鸡肉堡单品精选",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "鸡肉汉堡\n/卷"
+   ],
+   "tags": [
+    "单品",
+    "人气"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "24",
+     "originalPrice": "24",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "24",
+     "originalPrice": "24",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "9900015726": {
+   "name": "韩式甜辣酱鸡块8块",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "小食拼盘\n/多人餐"
+   ],
+   "tags": [
+    "上新",
+    "韩式风味"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "19.9",
+     "originalPrice": "31",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "19.9",
+     "originalPrice": "31",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "9900006332": {
+   "name": "薄皮V翅双拼十翅",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "小食拼盘\n/多人餐"
+   ],
+   "tags": [
+    "小食拼盘",
+    "超值"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "49.9",
+     "originalPrice": "74.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "49.9",
+     "originalPrice": "74.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900015730": {
+   "name": "BFF四宫格小食盘",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "小食拼盘\n/多人餐"
+   ],
+   "tags": [
+    "小食拼盘",
+    "随心拼"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "40.3",
+     "originalPrice": "54.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "40.3",
+     "originalPrice": "54.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "9900004066": {
+   "name": "堡堡随心拼（7件任选）",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "小食拼盘\n/多人餐"
+   ],
+   "tags": [
+    "小食拼盘",
+    "万种组合"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "73",
+     "originalPrice": "103",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "73",
+     "originalPrice": "103",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900005321": {
+   "name": "BFF四宫格小食盘双人餐",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "小食拼盘\n/多人餐"
+   ],
+   "tags": [
+    "麦金卡"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "62.9",
+     "originalPrice": "124.5",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "62.9",
+     "originalPrice": "124.5",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900016078": {
+   "name": "蘸酱麦麦脆汁鸡",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "蘸酱炸鸡"
+   ],
+   "tags": [
+    "蘸酱炸鸡",
+    "韩式芝士风味酱上新"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "11.9",
+     "originalPrice": "18",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "11.9",
+     "originalPrice": "18",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "9900016096": {
+   "name": "蘸酱韩式甜辣酱鸡块",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "蘸酱炸鸡"
+   ],
+   "tags": [
+    "蘸酱炸鸡",
+    "韩式芝士风味酱上新"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "11.9",
+     "originalPrice": "18.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "11.9",
+     "originalPrice": "18.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "9900015729": {
+   "name": "蘸酱BFF四宫格小食盘",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "蘸酱炸鸡"
+   ],
+   "tags": [
+    "蘸酱炸鸡",
+    "蘸酱炸鸡新吃法"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "43.3",
+     "originalPrice": "57.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "43.3",
+     "originalPrice": "57.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "521966": {
+   "name": "韩式烟熏芝士风味酱",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "蘸酱炸鸡",
+    "炸鸡"
+   ],
+   "tags": [
+    "蘸酱",
+    "韩式风味",
+    "浓郁芝香"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "3",
+     "originalPrice": "3",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "3",
+     "originalPrice": "3",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "521799": {
+   "name": "日式鲜磨山葵酱",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "蘸酱炸鸡",
+    "炸鸡"
+   ],
+   "tags": [
+    "蘸酱",
+    "优选高原山葵"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "3",
+     "originalPrice": "3",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "3",
+     "originalPrice": "3",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "9900013304": {
+   "name": "人气经典随心配",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "随心配\n1+1"
+   ],
+   "tags": [
+    "超值百种组合随心配"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "14.9",
+     "originalPrice": "14.9",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "14.9",
+     "originalPrice": "14.9",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900015568": {
+   "name": "精选超值随心配",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "随心配\n1+1"
+   ],
+   "tags": [
+    "超值百种组合随心配"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "13.9",
+     "originalPrice": "13.9",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "13.9",
+     "originalPrice": "13.9",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900015602": {
+   "name": "大堡口福三件套",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "大堡口福\n单人餐"
+   ],
+   "tags": [
+    "大口吃肉好快乐"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "22.9",
+     "originalPrice": "48.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "22.9",
+     "originalPrice": "48.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900000888": {
+   "name": "巨无霸四件套",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "巨无霸\n牛鱼肉堡"
+   ],
+   "tags": [
+    "麦金卡"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "32",
+     "originalPrice": "59.5",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "32",
+     "originalPrice": "59.5",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900000886": {
+   "name": "不素之霸双层牛堡四件套",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "巨无霸\n牛鱼肉堡"
+   ],
+   "tags": [
+    "麦金卡"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "32",
+     "originalPrice": "59.5",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "32",
+     "originalPrice": "59.5",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900000885": {
+   "name": "培根蔬萃双层牛堡四件套",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "巨无霸\n牛鱼肉堡"
+   ],
+   "tags": [
+    "麦金卡"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "32",
+     "originalPrice": "59.5",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "32",
+     "originalPrice": "59.5",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900000893": {
+   "name": "双层深海鳕鱼堡四件套",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "巨无霸\n牛鱼肉堡"
+   ],
+   "tags": [
+    "麦金卡"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "32",
+     "originalPrice": "59.5",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "32",
+     "originalPrice": "59.5",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900005411": {
+   "name": "不素之霸双层牛堡三件套",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "巨无霸\n牛鱼肉堡"
+   ],
+   "tags": [
+    "套餐",
+    "100%纯牛肉"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "37.5",
+     "originalPrice": "51",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "37.5",
+     "originalPrice": "51",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900005466": {
+   "name": "巨无霸三件套",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "巨无霸\n牛鱼肉堡"
+   ],
+   "tags": [
+    "套餐",
+    "100%纯牛肉"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "37.5",
+     "originalPrice": "51",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "37.5",
+     "originalPrice": "51",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900005468": {
+   "name": "培根蔬萃双层牛堡三件套",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "巨无霸\n牛鱼肉堡"
+   ],
+   "tags": [
+    "套餐",
+    "100%纯牛肉"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "35.5",
+     "originalPrice": "49",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "35.5",
+     "originalPrice": "49",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900005413": {
+   "name": "双层深海鳕鱼堡三件套",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "巨无霸\n牛鱼肉堡"
+   ],
+   "tags": [
+    "套餐",
+    "麦香鱼系列"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "36",
+     "originalPrice": "49.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "36",
+     "originalPrice": "49.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900005460": {
+   "name": "麦香鱼套餐",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "巨无霸\n牛鱼肉堡"
+   ],
+   "tags": [
+    "套餐",
+    "麦香鱼系列"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "33",
+     "originalPrice": "46.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "33",
+     "originalPrice": "46.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900005464": {
+   "name": "双层吉士汉堡套餐",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "巨无霸\n牛鱼肉堡"
+   ],
+   "tags": [
+    "套餐",
+    "100%纯牛肉"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "33.5",
+     "originalPrice": "47",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "33.5",
+     "originalPrice": "47",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900005449": {
+   "name": "吉士汉堡包套餐",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "巨无霸\n牛鱼肉堡"
+   ],
+   "tags": [
+    "套餐",
+    "100%纯牛肉"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "26",
+     "originalPrice": "39.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "26",
+     "originalPrice": "39.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "1100": {
+   "name": "巨无霸",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "巨无霸\n牛鱼肉堡"
+   ],
+   "tags": [
+    "单品",
+    "100%纯牛肉"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "26.5",
+     "originalPrice": "26.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "26.5",
+     "originalPrice": "26.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "9900003586": {
+   "name": "双层深海鳕鱼堡",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "巨无霸\n牛鱼肉堡"
+   ],
+   "tags": [
+    "单品",
+    "麦香鱼系列"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "25",
+     "originalPrice": "25",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "25",
+     "originalPrice": "25",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "1600": {
+   "name": "麦香鱼",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "巨无霸\n牛鱼肉堡"
+   ],
+   "tags": [
+    "单品",
+    "麦香鱼系列"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "22",
+     "originalPrice": "22",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "22",
+     "originalPrice": "22",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "4648": {
+   "name": "不素之霸双层牛堡",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "巨无霸\n牛鱼肉堡"
+   ],
+   "tags": [
+    "单品",
+    "100%纯牛肉"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "26.5",
+     "originalPrice": "26.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "26.5",
+     "originalPrice": "26.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "1106": {
+   "name": "培根蔬萃双层牛堡",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "巨无霸\n牛鱼肉堡"
+   ],
+   "tags": [
+    "单品",
+    "100%纯牛肉"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "24.5",
+     "originalPrice": "24.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "24.5",
+     "originalPrice": "24.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "1120": {
+   "name": "双层吉士汉堡",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "巨无霸\n牛鱼肉堡"
+   ],
+   "tags": [
+    "单品",
+    "100%纯牛肉"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "22.5",
+     "originalPrice": "22.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "22.5",
+     "originalPrice": "22.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "521316": {
+   "name": "高达吉士双牛堡",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "巨无霸\n牛鱼肉堡"
+   ],
+   "tags": [
+    "单品",
+    "100%纯牛肉",
+    "人气"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "22.5",
+     "originalPrice": "22.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "22.5",
+     "originalPrice": "22.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "9900008747": {
+   "name": "牛肉堡单品精选",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "巨无霸\n牛鱼肉堡"
+   ],
+   "tags": [
+    "单品",
+    "100%纯牛肉"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "14",
+     "originalPrice": "14",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "14",
+     "originalPrice": "14",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "9900000881": {
+   "name": "培根安格斯厚牛堡四件套",
+   "dayparts": [
+    "午餐"
+   ],
+   "categories": [
+    "安格斯MAX\n厚牛堡"
+   ],
+   "tags": [
+    "麦金卡"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "37",
+     "originalPrice": "66.5",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.lunch.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900000882": {
+   "name": "芝士安格斯厚牛堡四件套",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "安格斯MAX\n厚牛堡"
+   ],
+   "tags": [
+    "麦金卡"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "37",
+     "originalPrice": "66.5",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "37",
+     "originalPrice": "66.5",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900005428": {
+   "name": "培根安格斯厚牛堡三件套",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "安格斯MAX\n厚牛堡"
+   ],
+   "tags": [
+    "套餐",
+    "100%安格斯牛肉"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "45.5",
+     "originalPrice": "59",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "45.5",
+     "originalPrice": "59",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900005430": {
+   "name": "芝士安格斯厚牛堡三件套",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "安格斯MAX\n厚牛堡"
+   ],
+   "tags": [
+    "套餐",
+    "100%安格斯牛肉"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "42.5",
+     "originalPrice": "56",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "42.5",
+     "originalPrice": "56",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "511781": {
+   "name": "培根安格斯厚牛堡",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "安格斯MAX\n厚牛堡"
+   ],
+   "tags": [
+    "单品",
+    "100%安格斯牛肉"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "34.5",
+     "originalPrice": "34.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "34.5",
+     "originalPrice": "34.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "511782": {
+   "name": "芝士安格斯厚牛堡",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "安格斯MAX\n厚牛堡"
+   ],
+   "tags": [
+    "单品",
+    "100%安格斯牛肉"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "31.5",
+     "originalPrice": "31.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "31.5",
+     "originalPrice": "31.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "9900005451": {
+   "name": "麦辣鸡翅4块套餐",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "炸鸡"
+   ],
+   "tags": [
+    "套餐",
+    "立省10.5元起"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "36.5",
+     "originalPrice": "50",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "36.5",
+     "originalPrice": "50",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900004835": {
+   "name": "麦乐鸡套餐",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "炸鸡"
+   ],
+   "tags": [
+    "套餐",
+    "立省10.5元起"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "25.5",
+     "originalPrice": "39",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "25.5",
+     "originalPrice": "39",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "1700": {
+   "name": "麦辣鸡翅",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "炸鸡"
+   ],
+   "tags": [
+    "单品",
+    "黄金酥脆",
+    "鲜嫩多汁"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "14.5",
+     "originalPrice": "14.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "14.5",
+     "originalPrice": "14.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "520445": {
+   "name": "薄皮焦香V翅",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "炸鸡"
+   ],
+   "tags": [
+    "单品",
+    "人气"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "15.5",
+     "originalPrice": "15.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "15.5",
+     "originalPrice": "15.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "1401": {
+   "name": "麦乐鸡",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "炸鸡"
+   ],
+   "tags": [
+    "单品",
+    "人气"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "14.5",
+     "originalPrice": "14.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "14.5",
+     "originalPrice": "14.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "521156": {
+   "name": "那么大鸡排（椒盐风味）",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "炸鸡"
+   ],
+   "tags": [
+    "单品"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "14",
+     "originalPrice": "14",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "14",
+     "originalPrice": "14",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "9900005432": {
+   "name": "麦麦脆汁鸡1块",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "炸鸡"
+   ],
+   "tags": [
+    "单品"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "15",
+     "originalPrice": "15",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "15",
+     "originalPrice": "15",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "521986": {
+   "name": "马苏里拉拉丝芝士条",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "小食甜品\n/其他"
+   ],
+   "tags": [
+    "上新",
+    "趁热拉丝",
+    "奶香醇厚"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "16",
+     "originalPrice": "16",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "11",
+     "originalPrice": "16",
+     "discountType": "促销优惠",
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "9900016082": {
+   "name": "心形薯饼5块",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "小食甜品\n/其他"
+   ],
+   "tags": [
+    "上新",
+    "口口酥脆",
+    "含一份蘸酱"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "15.5",
+     "originalPrice": "15.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "15.5",
+     "originalPrice": "15.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "521906": {
+   "name": "玫瑰红糖糍粑风味派",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "小食甜品\n/其他"
+   ],
+   "tags": [
+    "上新",
+    "玫瑰花香"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "10",
+     "originalPrice": "10",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "5",
+     "originalPrice": "10",
+     "discountType": "促销优惠",
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "521901": {
+   "name": "月下相思扭扭薯",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "小食甜品\n/其他"
+   ],
+   "tags": [
+    "上新",
+    "口口酥脆",
+    "薯香十足"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "16",
+     "originalPrice": "16",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "16",
+     "originalPrice": "16",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "521741": {
+   "name": "脆薯饼",
+   "dayparts": [
+    "午餐"
+   ],
+   "categories": [
+    "小食甜品\n/其他"
+   ],
+   "tags": [
+    "小食"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "8.5",
+     "originalPrice": "8.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "4810": {
+   "name": "薯条",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "小食甜品\n/其他"
+   ],
+   "tags": [
+    "小食"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "14.5",
+     "originalPrice": "14.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "14.5",
+     "originalPrice": "14.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "6102": {
+   "name": "苹果片",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "小食甜品\n/其他"
+   ],
+   "tags": [
+    "小食"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "7",
+     "originalPrice": "7",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "7",
+     "originalPrice": "7",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "9900016057": {
+   "name": "汉堡开心乐园餐",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "开心乐园"
+   ],
+   "tags": [
+    "童年童款"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "23.5",
+     "originalPrice": "23.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "23.5",
+     "originalPrice": "23.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900016058": {
+   "name": "鱼排堡开心乐园餐",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "开心乐园"
+   ],
+   "tags": [
+    "童年童款"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "24",
+     "originalPrice": "24",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "24",
+     "originalPrice": "24",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900011128": {
+   "name": "“堡”你欢乐套餐",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "500\n大卡套餐"
+   ],
+   "tags": [
+    "粉丝之选"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "28",
+     "originalPrice": "43",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "28",
+     "originalPrice": "43",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900011121": {
+   "name": "“苹”水相“鱼”套餐",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "500\n大卡套餐"
+   ],
+   "tags": [
+    "粉丝之选"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "36",
+     "originalPrice": "53.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "36",
+     "originalPrice": "53.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900011126": {
+   "name": "酥脆无双套餐",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "500\n大卡套餐"
+   ],
+   "tags": [],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "20.5",
+     "originalPrice": "20.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "20.5",
+     "originalPrice": "20.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900011123": {
+   "name": "“辣”么快乐套餐",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "500\n大卡套餐"
+   ],
+   "tags": [],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "24",
+     "originalPrice": "36.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "24",
+     "originalPrice": "36.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900009245": {
+   "name": "牛气满满套餐",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "500\n大卡套餐"
+   ],
+   "tags": [],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "34",
+     "originalPrice": "47.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "34",
+     "originalPrice": "47.5",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900009242": {
+   "name": "“苹板”支撑Pro套餐",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "500\n大卡套餐"
+   ],
+   "tags": [],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "39.5",
+     "originalPrice": "54",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "39.5",
+     "originalPrice": "54",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900015852": {
+   "name": "举杯邀月柚桂茶",
+   "dayparts": [
+    "午餐",
+    "晚餐"
+   ],
+   "categories": [
+    "饮品"
+   ],
+   "tags": [
+    "上新",
+    "第二份半价",
+    "馥郁香气"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "午餐": {
+     "price": "13",
+     "originalPrice": "13",
+     "discountType": null,
+     "file": "meals.3570190.dinein.lunch.json"
+    },
+    "晚餐": {
+     "price": "13",
+     "originalPrice": "13",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "9900016311": {
+   "name": "龙焰美味四件套",
+   "dayparts": [
+    "晚餐"
+   ],
+   "categories": [
+    "人气热卖"
+   ],
+   "tags": [],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "晚餐": {
+     "price": "29",
+     "originalPrice": "58",
+     "discountType": "随单购麦金卡优惠",
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "9900003537": {
+   "name": "学生专享汉堡小食随心选",
+   "dayparts": [
+    "晚餐"
+   ],
+   "categories": [
+    "鸡肉汉堡\n/卷"
+   ],
+   "tags": [
+    "套餐"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "晚餐": {
+     "price": "28",
+     "originalPrice": "28",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  },
+  "521914": {
+   "name": "“葱不求人“按摩捶痒痒挠",
+   "dayparts": [
+    "晚餐"
+   ],
+   "categories": [
+    "小食甜品\n/其他"
+   ],
+   "tags": [
+    "上新",
+    "既可捶背",
+    "又可挠痒"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "晚餐": {
+     "price": "14.9",
+     "originalPrice": "14.9",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": false,
+   "hasImage": false
+  },
+  "9900003538": {
+   "name": "学生专享饮品随心选",
+   "dayparts": [
+    "晚餐"
+   ],
+   "categories": [
+    "饮品"
+   ],
+   "tags": [
+    "冷饮"
+   ],
+   "stores": [
+    "3570190"
+   ],
+   "prices": {
+    "晚餐": {
+     "price": "10",
+     "originalPrice": "10",
+     "discountType": null,
+     "file": "meals.3570190.dinein.night.json"
+    }
+   },
+   "isCombo": true,
+   "hasImage": false
+  }
+ },
+ "comboDetails": {
+  "9900004064": {
+   "name": "精选单人餐三件套",
+   "price": "35",
+   "supportModify": false,
+   "rounds": [
+    {
+     "name": "主食任意选",
+     "category": "主食",
+     "quantity": 1,
+     "choices": [
+      {
+       "code": "1406",
+       "name": "板烧鸡腿堡",
+       "isDefault": 1,
+       "diffPrice": "+ ¥0",
+       "supportModify": true
+      },
+      {
+       "code": "1100",
+       "name": "巨无霸",
+       "isDefault": 0,
+       "diffPrice": "+ ¥2.5",
+       "supportModify": true
+      },
+      {
+       "code": "1440",
+       "name": "麦辣鸡腿汉堡",
+       "isDefault": 0,
+       "diffPrice": "- ¥1",
+       "supportModify": true
+      },
+      {
+       "code": "511781",
+       "name": "培根安格斯厚牛堡",
+       "isDefault": 0,
+       "diffPrice": "+ ¥10.5",
+       "supportModify": true
+      },
+      {
+       "code": "520312",
+       "name": "原味双层深海鳕鱼堡",
+       "isDefault": 0,
+       "diffPrice": "+ ¥1",
+       "supportModify": true
+      }
+     ]
+    },
+    {
+     "name": "选择套餐内小食",
+     "category": "小食",
+     "quantity": 1,
+     "choices": [
+      {
+       "code": "4810",
+       "name": "中薯条",
+       "isDefault": 1,
+       "diffPrice": "+ ¥0",
+       "supportModify": false
+      },
+      {
+       "code": "521983",
+       "name": "5块心形薯饼+韩式辣椒黄油风味酱",
+       "isDefault": 0,
+       "diffPrice": "+ ¥1",
+       "supportModify": false
+      },
+      {
+       "code": "521901",
+       "name": "月下相思扭扭薯",
+       "isDefault": 0,
+       "diffPrice": "+ ¥1.5",
+       "supportModify": false
+      },
+      {
+       "code": "4820",
+       "name": "大薯条",
+       "isDefault": 0,
+       "diffPrice": "+ ¥1.5",
+       "supportModify": false
+      },
+      {
+       "code": "4437",
+       "name": "小杯玉米杯",
+       "isDefault": 0,
+       "diffPrice": "- ¥1.5",
+       "supportModify": false
+      },
+      {
+       "code": "4438",
+       "name": "大杯玉米杯",
+       "isDefault": 0,
+       "diffPrice": "+ ¥1",
+       "supportModify": false
+      }
+     ]
+    },
+    {
+     "name": "选择套餐内饮料",
+     "category": "饮品",
+     "quantity": 1,
+     "choices": [
+      {
+       "code": "3050",
+       "name": "可乐中杯",
+       "isDefault": 1,
+       "diffPrice": "+ ¥0",
+       "supportModify": true
+      },
+      {
+       "code": "3071",
+       "name": "无糖可口可乐中杯",
+       "isDefault": 0,
+       "diffPrice": "+ ¥0",
+       "supportModify": null
+      },
+      {
+       "code": "3060",
+       "name": "雪碧中杯",
+       "isDefault": 0,
+       "diffPrice": "+ ¥0",
+       "supportModify": null
+      },
+      {
+       "code": "3100",
+       "name": "可乐大杯",
+       "isDefault": 0,
+       "diffPrice": "+ ¥2",
+       "supportModify": null
+      },
+      {
+       "code": "3111",
+       "name": "无糖可口可乐大杯",
+       "isDefault": 0,
+       "diffPrice": "+ ¥2",
+       "supportModify": null
+      },
+      {
+       "code": "3110",
+       "name": "雪碧大杯",
+       "isDefault": 0,
+       "diffPrice": "+ ¥2",
+       "supportModify": null
+      },
+      {
+       "code": "3505",
+       "name": "锡兰红茶",
+       "isDefault": 0,
+       "diffPrice": "+ ¥1.5",
+       "supportModify": null
+      },
+      {
+       "code": "6362",
+       "name": "100%苹果汁",
+       "isDefault": 0,
+       "diffPrice": "+ ¥2",
+       "supportModify": null
+      },
+      {
+       "code": "515520",
+       "name": "中杯怡泉+C",
+       "isDefault": 0,
+       "diffPrice": "+ ¥1.5",
+       "supportModify": null
+      },
+      {
+       "code": "2430",
+       "name": "【美汁源】“黄金橙橙”",
+       "isDefault": 0,
+       "diffPrice": "+ ¥3",
+       "supportModify": null
+      },
+      {
+       "code": "507411",
+       "name": "麦咖啡™冰美式中杯",
+       "isDefault": 0,
+       "diffPrice": "+ ¥9",
+       "supportModify": null
+      },
+      {
+       "code": "507409",
+       "name": "麦咖啡™冰奶铁中杯",
+       "isDefault": 0,
+       "diffPrice": "+ ¥11",
+       "supportModify": null
+      },
+      {
+       "code": "515945",
+       "name": "热浓浓黑巧中杯",
+       "isDefault": 0,
+       "diffPrice": "+ ¥11",
+       "supportModify": null
+      }
+     ]
+    }
+   ],
+   "source": "meal-detail.9900004064.json"
+  }
+ },
+ "stats": {
+  "snapshotCount": 3,
+  "productCount": 179,
+  "comboCount": 89,
+  "singleCount": 90,
+  "dayparts": [
+   "午餐",
+   "早餐",
+   "晚餐"
+  ],
+  "categoryCountByStore": {
+   "3570190": 22
+  },
+  "danglingRefs": [
+   {
+    "file": "meals.3570190.dinein.night.json",
+    "code": "9900000881",
+    "category": "安格斯MAX\n厚牛堡"
+   }
+  ],
+  "priceDiffs": [
+   {
+    "code": "507409",
+    "name": "麦咖啡™奶铁",
+    "prices": {
+     "早餐": "13.9",
+     "午餐": "9.9",
+     "晚餐": "13.9"
+    }
+   },
+   {
+    "code": "515946",
+    "name": "浓浓黑巧（冰/热）",
+    "prices": {
+     "早餐": "13.9",
+     "午餐": "21",
+     "晚餐": "13.9"
+    }
+   },
+   {
+    "code": "515955",
+    "name": "浓浓燕麦黑巧（冰/热）",
+    "prices": {
+     "早餐": "15.9",
+     "午餐": "23",
+     "晚餐": "15.9"
+    }
+   },
+   {
+    "code": "507411",
+    "name": "麦咖啡™美式",
+    "prices": {
+     "早餐": "11.9",
+     "午餐": "9.9",
+     "晚餐": "11.9"
+    }
+   },
+   {
+    "code": "521986",
+    "name": "马苏里拉拉丝芝士条",
+    "prices": {
+     "午餐": "16",
+     "晚餐": "11"
+    }
+   },
+   {
+    "code": "521906",
+    "name": "玫瑰红糖糍粑风味派",
+    "prices": {
+     "午餐": "10",
+     "晚餐": "5"
+    }
+   }
+  ],
+  "nutritionCoverage": {
+   "hit": 60,
+   "ambiguous": 13,
+   "unknown": 106
+  },
+  "nutritionCoverageByKind": {
+   "单品": {
+    "hit": 40,
+    "ambiguous": 13,
+    "unknown": 37
+   },
+   "套餐": {
+    "hit": 20,
+    "ambiguous": 0,
+    "unknown": 69
+   }
+  },
+  "nutritionMiss": [
+   "BFF四宫格小食盘",
+   "“我就喜欢”鸡薯双全盒",
+   "“葱不求人“按摩捶痒痒挠",
+   "【美汁源】“多汁柠柠”",
+   "东南亚风味椰香鸡扒堡",
+   "举杯邀月柚桂茶",
+   "北非蛋风味猪柳蛋麦满分",
+   "北非蛋风味脆鸡排麦满分",
+   "北非蛋风味麦满分",
+   "吉士蛋麦满分",
+   "心形薯饼5块",
+   "日式鲜磨山葵酱",
+   "月下相思扭扭薯",
+   "枫糖风味厚松饼猪柳堡",
+   "枫糖风味厚松饼猪柳蛋堡",
+   "泷愿成真麦旋风——大米风味",
+   "浓浓燕麦黑巧（冰/热）",
+   "灰焰圆筒",
+   "燕麦奶",
+   "燕麦奶铁",
+   "牛肉堡单品精选",
+   "玫瑰红糖糍粑风味派",
+   "经典麦旋风",
+   "芝芝火腿扒堡",
+   "蓝莓爆爆珠麦旋风",
+   "蘸酱BFF四宫格小食盘",
+   "蘸酱炸鸡",
+   "蘸酱韩式甜辣酱鸡块",
+   "蘸酱麦麦脆汁鸡",
+   "韩式烟熏芝士风味酱",
+   "韩式甜辣酱鸡块8块",
+   "马苏里拉拉丝芝士条",
+   "高达吉士双牛堡",
+   "鸡肉堡单品精选",
+   "麦咖啡™美式",
+   "龙焰芝士棒鸡腿堡",
+   "龙焰鸡腿堡"
+  ],
+  "comboDetailCount": 1
+ }
+}

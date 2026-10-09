@@ -1,0 +1,24 @@
+{
+  "_meta": {
+    "storeCode": "3570190",
+    "storeName": "麦当劳贵阳天一国际餐厅",
+    "orderType": 1,
+    "beType": 1,
+    "reservationDate": "2026-10-10 16:00",
+    "fetchedAt": "2026-10-10 00:45:04",
+    "traceId": "3f6a543609cf9e0c0b244559ed856b6a",
+    "kind": "diff",
+    "serverDaypart": "下午茶（传 reservationDate=16:00 实测）",
+    "note": "★ 差异记录，非完整菜单。16:00 返回与 12:00 午餐菜单**逐条一致**（分类、条目、价格全同），仅多出 2 个「学生专享」条目。→ 结论：该门店下午茶与午餐共用同一套菜单，不单独出「随便吃吃」菜单。本文件只记差异，聚合脚本按 kind=diff 跳过（避免把 2 项当成一份完整菜单）。"
+  },
+  "diffs": {
+    "added": [
+      {"code": "9900003537", "name": "学生专享汉堡小食随心选", "price": "28", "originalPrice": "28",
+       "category": "鸡肉汉堡\n/卷"},
+      {"code": "9900003538", "name": "学生专享饮品随心选", "price": "10", "originalPrice": "10",
+       "category": "饮品"}
+    ],
+    "removed": [],
+    "changed": []
+  }
+}
