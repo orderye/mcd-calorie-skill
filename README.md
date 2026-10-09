@@ -82,7 +82,7 @@ python skill/scripts/mcd_combo.py \
 
 ## 🖥 演示
 
-前端演示页（模拟数据，完整流程展示）：https://claude.ai/artifact/C4dHM3FEP6ANK2pDarsjR4
+前端演示页（模拟数据，完整流程展示）：见仓库内 [`实施计划.html`](实施计划.html)。
 
 ## 📌 备注
 

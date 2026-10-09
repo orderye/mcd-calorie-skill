@@ -1,5 +1,5 @@
 订单热量与套餐推荐 Skill PRD
-版本 v0.1 草案，2026-10-09。依据麦当劳中国官方 MCP 服务（M-China/mcd-mcp-server）的接口文档编写。参赛作品形态为 Agent Skill，另配一个前端演示页：https://claude.ai/artifact/C4dHM3FEP6ANK2pDarsjR4
+版本 v0.1 草案，2026-10-09。依据麦当劳中国官方 MCP 服务（M-China/mcd-mcp-server）的接口文档编写。参赛作品形态为 Agent Skill，配套前端演示页见《实施计划.html》。
 1. 背景与目标
 用户点麦当劳时，常常不知道一单有多少热量，也不清楚早餐、午餐、下午加餐、晚餐各吃到什么程度合适。官方 MCP 已提供营养表、订单查询、门店菜单、优惠券和下单工具，但缺少把它们串起来的流程。
 目标：
