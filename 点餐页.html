@@ -2,223 +2,486 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
 <title>热麦卡路里 · 点餐流程演示（模拟数据）</title>
 <style>
-  :root{
-    --bg:#0b0d11; --app:#14171d; --card:#1b1f28; --card-2:#222732;
-    --line:#2a303c; --txt:#eceff5; --txt-2:#9aa3b2; --txt-3:#6b7484;
-    --amber:#f0a63c; --amber-bg:#33290f; --red:#e5534b; --green:#3fb27f; --blue:#4c8dff;
-  }
-  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  body{background:var(--bg);color:var(--txt);font-family:-apple-system,"PingFang SC","Helvetica Neue","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.55}
-  .page{max-width:1180px;margin:0 auto;padding:26px 18px 60px}
+/* ══════════════════════════════════════════════════════════════
+   热感仪表 / Thermal Instrument
+   设计主张：热量即色彩。页面的强调色不是固定的品牌色，而是由
+   「本单热量 ÷ 当前餐段标准档」驱动的连续色阶——冷青（不足）
+   → 绿（合理）→ 琥珀 → 赤（偏高）。品牌琥珀只留给主行动按钮。
+   ══════════════════════════════════════════════════════════════ */
 
-  /* 01 页头 */
-  .head{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-bottom:16px;border-bottom:1px solid var(--line);margin-bottom:22px}
-  h1{font-size:20px;font-weight:700}
-  h1 span{font-size:11px;color:var(--amber);border:1px solid var(--amber);border-radius:4px;padding:1px 6px;margin-left:8px;vertical-align:middle;font-weight:500}
-  .head .sub{color:var(--txt-2);font-size:12.5px;margin-top:3px}
-  .head .clock{color:var(--txt-3);font-size:12.5px;text-align:right}
+@property --heat-h { syntax:"<number>"; inherits:true; initial-value:158 }
 
-  /* 02 舞台 */
-  .stage{display:flex;gap:22px;align-items:flex-start}
-  @media(max-width:980px){.stage{flex-direction:column;align-items:center}.side{width:100%;position:static!important}}
-  .side{flex:1;max-width:520px;position:sticky;top:22px}
+:root{
+  /* —— 暖调中性面（带品牌色温，非中性灰/纯黑）—— */
+  --surf-0: oklch(13.5% 0.010 62);
+  --surf-1: oklch(17.0% 0.011 62);
+  --surf-2: oklch(20.5% 0.012 62);
+  --surf-3: oklch(25.0% 0.013 62);
+  --line:   oklch(30% 0.012 62);
+  --line-2: oklch(38% 0.014 62);
 
-  /* 03 手机外框 */
-  .phone{width:400px;flex:none;height:760px;background:var(--app);border:1px solid var(--line);border-radius:26px;overflow:hidden;display:flex;flex-direction:column;position:relative;box-shadow:0 24px 60px rgba(0,0,0,.5)}
-  @media(max-width:440px){.phone{width:100%;height:auto;min-height:640px}}
-  .statusbar{display:flex;justify-content:space-between;align-items:center;padding:9px 18px 5px;font-size:11px;color:var(--txt-3);flex:none}
-  .statusbar .sim{color:var(--amber);border:1px solid var(--amber);border-radius:3px;padding:0 5px}
-  .appbar{display:flex;align-items:center;gap:10px;padding:6px 16px 12px;flex:none;border-bottom:1px solid var(--line)}
-  .appbar .back{background:none;border:none;color:var(--txt);font-size:18px;cursor:pointer;padding:2px 4px;display:none}
-  .appbar .title{font-size:16px;font-weight:700}
-  .appbar .sub{font-size:11.5px;color:var(--txt-3)}
-  .viewport{flex:1;overflow-y:auto;overflow-x:hidden;position:relative}
-  .viewport::-webkit-scrollbar{width:0}
+  /* —— 文字层级 —— */
+  --ink-0: oklch(96% 0.004 70);
+  --ink-1: oklch(87% 0.008 70);
+  --ink-2: oklch(73% 0.010 70);
+  --ink-3: oklch(62% 0.012 70);
+  --ink-4: oklch(46% 0.012 70);
 
-  /* 04 门店卡与取餐方式 */
-  .storecard{padding:14px 16px 12px;border-bottom:1px solid var(--line)}
-  .storecard .row1{display:flex;align-items:center;justify-content:space-between;gap:8px}
-  .storecard .sname{font-size:15px;font-weight:700}
-  .storecard .smeta{font-size:11.5px;color:var(--txt-3);margin-top:2px}
-  .storecard .change{font-size:12px;color:var(--amber);background:none;border:none;cursor:pointer;flex:none}
-  .seg{display:flex;gap:8px;margin-top:12px}
-  .seg button{flex:1;background:var(--card);border:1px solid var(--line);color:var(--txt-2);border-radius:9px;padding:8px 6px;font-size:12.5px;cursor:pointer;font-family:inherit}
-  .seg button.active{background:var(--amber-bg);border-color:var(--amber);color:var(--amber);font-weight:600}
+  /* —— 品牌琥珀：只用于主行动与选中态 —— */
+  --brand:    oklch(79% 0.145 66);
+  --brand-lt: oklch(91% 0.105 76);
+  --brand-dk: oklch(58% 0.130 58);
+  --brand-ink: oklch(20% 0.040 62);
 
-  /* 05 分类 + 菜单 */
-  .menu-body{display:flex;min-height:100%}
-  .rail{width:88px;flex:none;background:#121519;padding:8px 0 90px}
-  .rail button{display:block;width:100%;background:none;border:none;color:var(--txt-2);font-size:12.5px;text-align:left;padding:11px 12px;cursor:pointer;font-family:inherit;position:relative;line-height:1.35}
-  .rail button.active{background:var(--app);color:var(--txt);font-weight:700}
-  .rail button.active::before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:16px;background:var(--amber);border-radius:0 2px 2px 0}
-  .items{flex:1;padding:12px 14px 96px;display:flex;flex-direction:column;gap:11px}
-  .item{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;gap:11px}
-  .thumb{width:62px;height:62px;border-radius:10px;flex:none;background:linear-gradient(145deg,#262c37,#1a1e26);display:flex;align-items:center;justify-content:center;font-size:22px;color:#4a5262}
-  .info{flex:1;min-width:0}
-  .info .n{font-size:14px;font-weight:600;line-height:1.35}
-  .tagrow{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
-  .tag{font-size:10.5px;border-radius:4px;padding:1px 5px;border:1px solid var(--line);color:var(--txt-3)}
-  .tag.combo{color:var(--amber);border-color:var(--amber)}
-  .tag.kcal{color:var(--green);border-color:rgba(63,178,127,.5)}
-  .tag.unknown{color:var(--red);border-color:rgba(229,83,75,.5)}
-  .info .desc{font-size:11.5px;color:var(--txt-3);margin-top:5px;line-height:1.5}
-  .priceline{display:flex;align-items:flex-end;justify-content:space-between;margin-top:8px}
-  .price{font-size:16px;font-weight:700;color:var(--txt)}
-  .price small{font-size:11px;font-weight:400;color:var(--txt-3)}
-  .price .orig{font-size:11.5px;color:var(--txt-3);text-decoration:line-through;margin-left:5px;font-weight:400}
-  .add{width:28px;height:28px;border-radius:50%;background:var(--amber);color:#1a1408;border:none;font-size:18px;line-height:1;cursor:pointer;font-weight:700;flex:none}
-  .add:hover{filter:brightness(1.08)}
+  /* —— 语义色 —— */
+  --ok:   oklch(76% 0.130 158);
+  --info: oklch(74% 0.115 252);
+  --bad:  oklch(66% 0.180 26);
 
-  /* 06 吸底购物车栏 */
-  .cartbar{position:absolute;left:0;right:0;bottom:0;height:64px;background:#1d222b;border-top:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:0 14px;z-index:20}
-  .cartbar .cicon{width:44px;height:44px;border-radius:50%;background:var(--card-2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:19px;cursor:pointer;position:relative;flex:none}
-  .cartbar .cicon.empty{opacity:.5}
-  .badge{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;border-radius:9px;background:var(--red);color:#fff;font-size:10.5px;display:flex;align-items:center;justify-content:center;padding:0 4px;font-weight:700}
-  .cartbar .csum{flex:1;min-width:0}
-  .cartbar .ctotal{font-size:16px;font-weight:700}
-  .cartbar .ckcal{font-size:11px;color:var(--green)}
-  .cartbar .ckcal.warn{color:var(--red)}
-  .btn{background:var(--amber);color:#1a1408;border:none;border-radius:20px;padding:9px 20px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit}
-  .btn:disabled{background:var(--card-2);color:var(--txt-3);cursor:not-allowed}
-  .btn.ghost{background:var(--card-2);color:var(--txt-2);border:1px solid var(--line);font-weight:500;border-radius:10px;padding:9px 16px}
-  .btn.block{display:block;width:100%;border-radius:12px;padding:13px}
+  /* —— 热量色阶（由 --heat-h 连续驱动）—— */
+  --heat:     oklch(80% 0.140 var(--heat-h));
+  --heat-bar: oklch(72% 0.150 var(--heat-h));
 
-  /* 07 弹层（规格 / 购物车 / 券） */
-  .sheet{position:absolute;left:0;right:0;bottom:0;max-height:88%;background:var(--card);border-radius:18px 18px 0 0;border-top:1px solid var(--line);z-index:40;display:none;flex-direction:column}
-  .sheet.show{display:flex}
-  .sheet .s-head{padding:16px 16px 6px;border-bottom:1px solid var(--line)}
-  .sheet .s-title{font-size:15.5px;font-weight:700}
-  .sheet .s-sub{font-size:11.5px;color:var(--txt-3);margin-top:3px}
-  .sheet .s-body{padding:14px 16px;overflow-y:auto;flex:1}
-  .sheet .s-foot{padding:12px 16px 18px;border-top:1px solid var(--line);display:flex;align-items:center;gap:12px}
-  .sheet .s-foot .price{font-size:17px;font-weight:700}
-  .sheet .s-foot .btn{flex:1}
-  .x{margin-left:auto;background:none;border:none;color:var(--txt-3);font-size:18px;cursor:pointer}
-  .opt-group{margin-bottom:14px}
-  .opt-group .og-title{font-size:12px;color:var(--txt-3);margin-bottom:7px}
-  .opt-group .og-title b{color:var(--txt);font-weight:600}
-  .chips{display:flex;gap:8px;flex-wrap:wrap}
-  .chip{background:var(--card-2);border:1px solid var(--line);color:var(--txt-2);border-radius:8px;padding:7px 13px;font-size:12.5px;cursor:pointer;font-family:inherit}
-  .chip.active{background:var(--amber-bg);border-color:var(--amber);color:var(--amber);font-weight:600}
-  .chip small{display:block;font-size:10px;color:var(--txt-3)}
-  .chip.active small{color:var(--amber)}
-  .stepper{display:flex;align-items:center;gap:14px}
-  .stepper button{width:26px;height:26px;border-radius:50%;border:1px solid var(--line);background:var(--card-2);color:var(--txt);font-size:15px;cursor:pointer;line-height:1}
-  .stepper button.minus.bare{border:none;background:none;color:var(--amber);font-size:20px}
-  .stepper .q{font-size:14px;min-width:16px;text-align:center;font-weight:600}
-  .combo-list{display:flex;flex-direction:column;gap:8px}
-  .combo-list .cl{display:flex;justify-content:space-between;font-size:12.5px;color:var(--txt-2);padding:8px 10px;background:var(--card-2);border-radius:8px}
-  .combo-list .cl b{color:var(--txt);font-weight:600}
-  .warn-note{font-size:11.5px;color:var(--red);margin-top:8px}
-  .hint-note{font-size:11.5px;color:var(--txt-3);margin-top:8px}
+  --font-sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "HarmonyOS Sans SC", "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-serif: "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", "SimSun", Georgia, serif;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
 
-  /* 08 购物车列表项 */
-  .cart-line{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}
-  .cart-line .cl-info{flex:1;min-width:0}
-  .cart-line .cl-name{font-size:13.5px;font-weight:600}
-  .cart-line .cl-note{font-size:11.5px;color:var(--txt-3);margin-top:2px}
-  .cart-line .cl-price{font-size:13px;color:var(--txt);margin-top:5px;font-weight:600}
-  .cart-line .cl-price span{color:var(--txt-3);font-size:11px;font-weight:400;margin-left:5px}
+  /* —— 动效 token —— */
+  --dur-1:120ms; --dur-2:240ms; --dur-3:420ms; --dur-4:640ms;
+  --e-out-quart: cubic-bezier(.25,1,.5,1);
+  --e-out-expo:  cubic-bezier(.16,1,.3,1);
+  --e-in-quart:  cubic-bezier(.7,0,.84,0);
 
-  /* 09 结算页 */
-  .co{padding:12px 14px 120px}
-  .co-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
-  .co-card .ct{font-size:12.5px;color:var(--txt-3);display:flex;align-items:center;gap:7px;margin-bottom:10px}
-  .co-card .ct .num{width:18px;height:18px;border-radius:5px;background:var(--amber-bg);color:var(--amber);font-size:10.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
-  .kv{display:flex;justify-content:space-between;font-size:13px;padding:5px 0;color:var(--txt-2)}
-  .kv b{color:var(--txt);font-weight:600}
-  .kv.total{font-size:15px;color:var(--txt);padding-top:10px;margin-top:6px;border-top:1px solid var(--line)}
-  .kv.total b{font-size:19px;color:var(--amber)}
-  .kv.discount b,.kv.discount{color:var(--green)}
-  .co-line{display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px dashed var(--line)}
-  .co-line .l-note{font-size:11px;color:var(--txt-3)}
-  .remarks{width:100%;background:var(--card-2);border:1px solid var(--line);border-radius:9px;color:var(--txt);padding:10px;font-size:12.5px;font-family:inherit;resize:none;height:56px}
-  .co-foot{position:absolute;left:0;right:0;bottom:0;background:#1d222b;border-top:1px solid var(--line);padding:12px 14px;display:flex;align-items:center;gap:12px;z-index:20}
-  .co-foot .csum{flex:1}
-  .co-heat{font-size:11.5px;color:var(--txt-3)}
-  .co-heat b{color:var(--green)}
-  .co-heat.warn b{color:var(--red)}
+  /* —— 语义 z 轴 —— */
+  --z-sticky:200; --z-sheet-mask:300; --z-sheet:320; --z-modal:400; --z-toast:500;
+}
+html{ transition: --heat-h var(--dur-4) var(--e-out-quart) }
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+body{
+  background:
+    radial-gradient(90% 55% at 12% -8%, oklch(24% 0.030 62 / .55), transparent 70%),
+    var(--surf-0);
+  color:var(--ink-1);
+  font-family:var(--font-sans); font-size:14px; line-height:1.62;
+  font-kerning:normal; -webkit-font-smoothing:antialiased;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+button,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:6px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.skip{position:absolute;left:12px;top:-48px;z-index:999;background:var(--surf-2);color:var(--ink-0);padding:8px 14px;border-radius:8px;text-decoration:none;transition:top var(--dur-2) var(--e-out-quart)}
+.skip:focus{top:12px}
 
-  /* 10 右侧面板 */
-  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px}
-  .p-title{font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:13px}
-  .p-title .num{width:20px;height:20px;border-radius:6px;background:var(--amber-bg);color:var(--amber);font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex:none}
-  .p-title .hint{margin-left:auto;font-size:11.5px;color:var(--txt-3);font-weight:400}
-  .heat-total{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px}
-  .heat-total .v{font-size:32px;font-weight:800;font-variant-numeric:tabular-nums}
-  .heat-total .v small{font-size:13px;font-weight:400;color:var(--txt-3);margin-left:4px}
-  .verdict{font-size:12.5px;font-weight:600;padding:3px 10px;border-radius:6px;white-space:nowrap}
-  .verdict.ok{color:var(--green);background:rgba(63,178,127,.12)}
-  .verdict.high{color:var(--red);background:rgba(229,83,75,.12)}
-  .verdict.low{color:var(--blue);background:rgba(76,141,255,.12)}
-  .bar-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--txt-3);margin-bottom:4px}
-  .bar{position:relative;height:10px;border-radius:5px;background:linear-gradient(90deg,#1d3a2e 0%,#234434 33%,#3a3a1d 33%,#4a4420 66%,#452323 66%,#522a2a 100%);margin-bottom:18px}
-  .bar .mk{position:absolute;top:-4px;width:2.5px;height:18px;background:var(--txt);border-radius:2px;transform:translateX(-50%)}
-  .bar .mk span{position:absolute;top:-19px;left:50%;transform:translateX(-50%);font-size:10.5px;color:var(--txt);white-space:nowrap}
-  .mini-table{width:100%;border-collapse:collapse;font-size:12.5px}
-  .mini-table th{color:var(--txt-3);font-weight:500;text-align:left;padding:5px 6px;border-bottom:1px solid var(--line)}
-  .mini-table td{padding:6px;border-bottom:1px solid var(--line);color:var(--txt-2)}
-  .mini-table td.num,.mini-table th.num{text-align:right;font-variant-numeric:tabular-nums}
-  .mini-table td.name{color:var(--txt)}
-  .mini-table .unknown{color:var(--red)}
-  .reco-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
-  .reco{background:var(--card-2);border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:6px}
-  .reco .r-items{font-size:12.5px;font-weight:600;line-height:1.45}
-  .reco .r-kcal{font-size:19px;font-weight:800;color:var(--amber);font-variant-numeric:tabular-nums}
-  .reco .r-kcal small{font-size:11px;color:var(--txt-3);font-weight:400;margin-left:4px}
-  .reco .r-delta{font-size:11.5px;font-weight:600}
-  .r-delta.down{color:var(--green)} .r-delta.up{color:var(--red)}
-  .reco .r-nutri{font-size:11.5px;color:var(--txt-2)}
-  .reco .r-foot{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:8px;border-top:1px dashed var(--line)}
-  .reco .r-price{font-size:13.5px;font-weight:700}
-  .reco .use{background:none;border:1px solid var(--amber);color:var(--amber);border-radius:6px;padding:3px 10px;font-size:11.5px;cursor:pointer;font-family:inherit}
-  .reco .use:hover{background:var(--amber);color:#1a1408}
-  .log{background:var(--card-2);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:8px;padding:8px 11px;font-size:12px;margin-bottom:7px}
-  .log.sys{border-left-color:var(--blue)}
-  .log .tool{font-family:"SF Mono",Menlo,monospace;font-size:11.5px;font-weight:700;color:var(--amber)}
-  .log.sys .tool{color:var(--blue)}
-  .log .desc{color:var(--txt-2);margin-top:2px}
-  .log .time{color:var(--txt-3);font-size:10.5px;margin-top:1px}
-  .empty{color:var(--txt-3);font-size:12.5px;text-align:center;padding:20px;border:1px dashed var(--line);border-radius:10px}
+/* ═══ 01 页头 ═══ */
+.page{max-width:1240px;margin:0 auto;padding:clamp(20px,3vw,34px) clamp(14px,3vw,26px) 56px}
+.head{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;
+      padding-bottom:18px;border-bottom:1px solid var(--line);margin-bottom:26px}
+.head-lead{display:flex;gap:14px;align-items:flex-start}
+.seal{
+  width:36px;height:36px;flex:none;display:grid;place-items:center;
+  background:oklch(50% 0.190 30); color:oklch(97% 0.010 70);
+  font-family:var(--font-serif); font-size:13px; font-weight:700; letter-spacing:.02em; line-height:1;
+  border-radius:3px; transform:rotate(-4deg);
+  box-shadow:inset 0 0 0 1.5px oklch(97% 0.010 70 / .38);
+}
+h1{font-size:clamp(17px,2.1vw,21px);font-weight:700;letter-spacing:.01em;color:var(--ink-0);line-height:1.4}
+h1 .sim{display:inline-block;font-size:10.5px;font-weight:500;color:var(--brand);
+        border:1px solid oklch(79% 0.145 66 / .55);border-radius:4px;padding:1px 6px;margin-left:9px;vertical-align:middle;letter-spacing:.06em}
+.head .sub{color:var(--ink-3);font-size:12.5px;margin-top:5px;max-width:68ch;line-height:1.7}
+.head .clock{color:var(--ink-3);font-size:12px;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.head .clock b{display:block;color:var(--ink-2);font-weight:500;font-size:12.5px}
 
-  /* 11 确认弹窗 */
-  .mask{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:90}
-  .mask.show{display:flex}
-  .modal{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;width:min(400px,92vw)}
-  .modal h3{font-size:16px;margin-bottom:4px}
-  .modal .m-sub{font-size:11.5px;color:var(--txt-3);margin-bottom:14px}
-  .modal .m-items{font-size:13px;color:var(--txt-2);max-height:180px;overflow-y:auto;margin-bottom:12px}
-  .modal .m-items div{padding:4px 0;border-bottom:1px dashed var(--line);display:flex;justify-content:space-between}
-  .modal .m-total{display:flex;justify-content:space-between;align-items:baseline;padding:11px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:14px;font-size:13.5px}
-  .modal .m-total b{font-size:20px;color:var(--amber)}
-  .modal .m-heat{font-size:12px;color:var(--txt-2);margin-bottom:14px;padding:9px 11px;background:var(--card-2);border-radius:9px}
-  .modal .m-actions{display:flex;gap:10px;justify-content:flex-end}
-  .pay{color:var(--blue);font-size:12.5px;word-break:break-all}
-  footer{margin-top:28px;padding-top:14px;border-top:1px solid var(--line);color:var(--txt-3);font-size:11.5px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+/* ═══ 02 舞台 ═══ */
+.stage{display:flex;gap:clamp(18px,2.4vw,34px);align-items:flex-start}
+.side{flex:1;min-width:min(100%,330px);max-width:580px;position:sticky;top:22px;container-type:inline-size}
+@media(max-width:1000px){
+  .stage{flex-direction:column;align-items:center}
+  .side{width:100%;max-width:none;position:static}
+}
+
+/* ═══ 03 手机 ═══ */
+.phone{
+  width:404px;flex:none;height:812px;position:relative;overflow:hidden;
+  background:var(--surf-1); border:1px solid var(--line-2); border-radius:34px;
+  display:flex;flex-direction:column;
+  box-shadow:0 32px 70px oklch(8% 0.02 62 / .55), inset 0 1px 0 oklch(60% 0.02 62 / .10);
+}
+.phone-glow{position:absolute;inset:0 0 auto 0;height:210px;pointer-events:none;
+  background:radial-gradient(115% 100% at 50% 0%, oklch(70% 0.16 var(--heat-h) / .20), transparent 72%);}
+@media(max-width:1000px){ .phone{width:min(100%,420px);height:min(812px,88svh)} }
+@media(max-width:440px){ .phone{height:min(812px,86svh);border-radius:28px} }
+
+.statusbar{display:flex;justify-content:space-between;align-items:center;gap:8px;
+           padding:11px 20px 6px;font-size:11px;color:var(--ink-3);flex:none;font-variant-numeric:tabular-nums}
+.statusbar .sim{color:var(--brand);border:1px solid oklch(79% 0.145 66 / .5);border-radius:3px;padding:0 5px;letter-spacing:.05em}
+.appbar{display:flex;align-items:center;gap:10px;padding:4px 18px 13px;flex:none;border-bottom:1px solid var(--line)}
+.appbar .back{background:none;border:none;color:var(--ink-1);font-size:22px;line-height:1;cursor:pointer;
+              padding:6px 8px;margin-left:-8px;border-radius:8px;transition:color var(--dur-1),background var(--dur-1)}
+.appbar .back:hover{color:var(--ink-0);background:var(--surf-2)}
+.appbar .title{font-size:16px;font-weight:700;color:var(--ink-0);letter-spacing:.01em}
+.appbar .sub{font-size:11.5px;color:var(--ink-3)}
+.viewport{flex:1;overflow-y:auto;overflow-x:hidden;position:relative;overscroll-behavior:contain}
+.viewport::-webkit-scrollbar{width:0}
+.screen{animation:screen-in var(--dur-3) var(--e-out-quart) both}
+@keyframes screen-in{from{opacity:0;transform:translate3d(0,10px,0)}to{opacity:1;transform:none}}
+
+/* ═══ 04 门店卡与取餐方式 ═══ */
+.storecard{padding:15px 18px 14px;border-bottom:1px solid var(--line)}
+.storecard .row1{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.storecard .sname{font-size:15px;font-weight:700;color:var(--ink-0);letter-spacing:.01em}
+.storecard .smeta{font-size:11.5px;color:var(--ink-3);margin-top:3px;line-height:1.55}
+.storecard .change{font-size:12px;color:var(--brand);background:none;border:none;cursor:pointer;flex:none;
+                   padding:6px 2px;letter-spacing:.02em;transition:color var(--dur-1)}
+.storecard .change:hover{color:var(--brand-lt)}
+.seg{display:flex;gap:5px;padding:3px;background:var(--surf-2);border-radius:11px}
+.seg button{flex:1;background:none;border:none;color:var(--ink-3);border-radius:8px;padding:8px 6px;
+            font-size:12.5px;cursor:pointer;transition:color var(--dur-1),background var(--dur-2)}
+.seg button:hover{color:var(--ink-1)}
+.seg button.active{background:oklch(79% 0.145 66 / .14);color:var(--brand-lt);font-weight:600;
+                   box-shadow:inset 0 0 0 1px oklch(79% 0.145 66 / .40)}
+.storecard .seg{margin-top:12px}
+
+/* ═══ 05 分类 + 菜单 ═══ */
+.menu-body{display:flex;min-height:100%;align-items:stretch}
+.rail{width:92px;flex:none;background:oklch(15% 0.010 62);padding:6px 0 96px;border-right:1px solid var(--line)}
+.rail button{display:flex;align-items:center;justify-content:space-between;gap:4px;width:100%;background:none;border:none;
+             color:var(--ink-3);font-size:12.5px;text-align:left;padding:11px 10px 11px 13px;cursor:pointer;
+             position:relative;line-height:1.35;transition:color var(--dur-1),background var(--dur-2)}
+.rail button:hover{color:var(--ink-1)}
+.rail button[aria-current="true"]{background:var(--surf-1);color:var(--ink-0);font-weight:700}
+.rail button[aria-current="true"]::before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);
+  width:3px;height:18px;background:var(--brand);border-radius:0 2px 2px 0}
+.rail .cnt{font-size:10px;color:var(--ink-4);font-variant-numeric:tabular-nums}
+.rail button[aria-current="true"] .cnt{color:var(--brand)}
+
+.items{flex:1;padding:12px 14px 100px;display:flex;flex-direction:column;gap:9px;min-width:0}
+.item{background:var(--surf-2);border-radius:14px;padding:12px;display:flex;gap:12px;
+      animation:item-in var(--dur-3) var(--e-out-quart) both;animation-delay:calc(var(--i,0)*34ms)}
+@keyframes item-in{from{opacity:0;transform:translate3d(0,12px,0)}to{opacity:1;transform:none}}
+@media(hover:hover){ .item:hover{background:var(--surf-3)} }
+.thumb{width:64px;height:64px;border-radius:12px;flex:none;
+  background:linear-gradient(150deg, oklch(28% 0.016 62), oklch(21% 0.012 62));
+  box-shadow:inset 0 0 0 1px oklch(45% 0.014 62 / .35);
+  display:flex;align-items:center;justify-content:center;font-size:26px;line-height:1}
+.info{flex:1;min-width:0}
+.info .n{font-size:14.5px;font-weight:600;line-height:1.4;color:var(--ink-0);overflow-wrap:anywhere}
+.tagrow{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+.tag{font-size:10.5px;border-radius:4px;padding:1px 6px;border:1px solid var(--line-2);color:var(--ink-3);letter-spacing:.02em}
+.tag.combo{color:var(--brand);border-color:oklch(79% 0.145 66 / .45)}
+.tag.kcal{color:var(--ink-2);border-color:var(--line-2)}
+.tag.unknown{color:var(--bad);border-color:oklch(66% 0.180 26 / .5)}
+.info .desc{font-size:11.5px;color:var(--ink-3);margin-top:6px;line-height:1.6;overflow-wrap:anywhere}
+.priceline{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:9px}
+.price{font-family:var(--font-serif);font-size:17px;font-weight:700;color:var(--ink-0);font-variant-numeric:tabular-nums;letter-spacing:.01em}
+.price small{font-family:var(--font-sans);font-size:11px;font-weight:400;color:var(--ink-3)}
+.price .orig{font-size:11.5px;color:var(--ink-4);text-decoration:line-through;margin-left:6px;font-weight:400}
+.add{width:32px;height:32px;border-radius:50%;background:var(--brand);color:var(--brand-ink);border:none;
+     font-size:19px;line-height:1;cursor:pointer;font-weight:700;flex:none;position:relative;
+     transition:transform var(--dur-1) var(--e-out-quart), background var(--dur-1)}
+.add::before{content:"";position:absolute;inset:-8px}   /* 触控目标 48px */
+.add:hover{background:var(--brand-lt)}
+.add:active{transform:scale(.9)}
+.add.done{background:var(--ok);animation:pop var(--dur-2) var(--e-out-quart)}
+@keyframes pop{0%{transform:scale(.9)}55%{transform:scale(1.14)}100%{transform:scale(1)}}
+
+/* ═══ 06 吸底购物车栏 ═══ */
+.cartbar{position:absolute;left:0;right:0;bottom:0;min-height:70px;background:var(--surf-2);
+  border-top:1px solid var(--line-2);display:flex;align-items:center;gap:12px;padding:10px 14px;z-index:var(--z-sticky)}
+.cartbar::before{content:"";position:absolute;inset:-1px 0 auto 0;height:1px;
+  background:linear-gradient(90deg, transparent, oklch(72% 0.15 var(--heat-h) / .55), transparent)}
+.cartbar .cicon{width:46px;height:46px;border-radius:50%;background:var(--surf-3);border:1px solid var(--line-2);
+  display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;position:relative;flex:none;
+  transition:background var(--dur-2),border-color var(--dur-2),transform var(--dur-2) var(--e-out-quart)}
+.cartbar .cicon:hover{background:oklch(30% 0.02 62)}
+.cartbar .cicon.empty{opacity:.45}
+.cartbar .cicon.pulse{animation:cart-pulse var(--dur-3) var(--e-out-quart)}
+@keyframes cart-pulse{0%{transform:scale(1)}40%{transform:scale(1.14)}100%{transform:scale(1)}}
+.badge{position:absolute;top:-3px;right:-3px;min-width:19px;height:19px;border-radius:10px;background:var(--bad);
+  color:oklch(98% 0.005 70);font-size:10.5px;display:flex;align-items:center;justify-content:center;padding:0 5px;
+  font-weight:700;font-variant-numeric:tabular-nums;box-shadow:0 0 0 2px var(--surf-2)}
+.cartbar .csum{flex:1;min-width:0}
+.cartbar .ctotal{font-family:var(--font-serif);font-size:19px;font-weight:700;color:var(--ink-0);
+                 font-variant-numeric:tabular-nums;line-height:1.25}
+.cartbar .ckcal{font-size:11.5px;color:var(--heat);font-variant-numeric:tabular-nums;
+                display:flex;align-items:center;gap:6px}
+.cartbar .ckcal .dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex:none}
+.cartbar .ckcal.warn{color:var(--bad)}
+.btn{background:var(--brand);color:var(--brand-ink);border:none;border-radius:12px;padding:11px 20px;
+     font-size:13.5px;font-weight:700;cursor:pointer;letter-spacing:.02em;
+     transition:background var(--dur-1),transform var(--dur-1) var(--e-out-quart),box-shadow var(--dur-2)}
+.btn:hover{background:var(--brand-lt)}
+.btn:active{transform:scale(.97)}
+.btn:disabled{background:var(--surf-3);color:var(--ink-4);cursor:not-allowed;transform:none}
+.btn.ghost{background:var(--surf-3);color:var(--ink-2);box-shadow:inset 0 0 0 1px var(--line-2);font-weight:500}
+.btn.ghost:hover{background:oklch(30% 0.015 62);color:var(--ink-0)}
+.btn.block{display:block;width:100%;border-radius:13px;padding:14px}
+.link{background:none;border:none;color:var(--brand);font-size:12px;cursor:pointer;padding:4px 2px;letter-spacing:.02em}
+.link:hover{color:var(--brand-lt);text-decoration:underline}
+
+/* ═══ 07 弹层 ═══ */
+.sheet-mask{position:absolute;inset:0;background:oklch(6% 0.01 62 / .62);z-index:var(--z-sheet-mask);
+  opacity:0;transition:opacity var(--dur-2) var(--e-out-quart);pointer-events:none}
+.sheet-mask.show{opacity:1;pointer-events:auto}
+.sheet{position:absolute;left:0;right:0;bottom:0;max-height:88%;background:var(--surf-1);
+  border-radius:22px 22px 0 0;border-top:1px solid var(--line-2);z-index:var(--z-sheet);
+  display:flex;flex-direction:column;visibility:hidden;transform:translate3d(0,100%,0);
+  transition:transform var(--dur-3) var(--e-out-expo), visibility var(--dur-3) linear;
+  box-shadow:0 -18px 44px oklch(6% 0.01 62 / .5)}
+.sheet.show{transform:none;visibility:visible;transition:transform var(--dur-3) var(--e-out-expo), visibility 0s}
+.sheet .s-head{padding:16px 18px 10px;display:flex;align-items:flex-start;gap:12px;border-bottom:1px solid var(--line)}
+.sheet .s-title{font-size:16px;font-weight:700;color:var(--ink-0);letter-spacing:.01em}
+.sheet .s-sub{font-size:12px;color:var(--ink-3);margin-top:4px;font-variant-numeric:tabular-nums}
+.sheet .s-sub .orig{color:var(--ink-4);text-decoration:line-through;margin-left:6px}
+.sheet .s-sub b{color:var(--heat);font-weight:700}
+.sheet .s-body{padding:14px 18px;overflow-y:auto;flex:1;overscroll-behavior:contain}
+.sheet .s-body::-webkit-scrollbar{width:0}
+.sheet .s-foot{padding:12px 18px;border-top:1px solid var(--line);display:flex;align-items:center;gap:14px;
+  padding-bottom:max(14px,env(safe-area-inset-bottom))}
+.sheet .s-foot .btn{flex:1}
+.x{margin-left:auto;background:none;border:none;color:var(--ink-3);font-size:17px;cursor:pointer;
+   padding:6px;border-radius:8px;line-height:1;transition:color var(--dur-1),background var(--dur-1)}
+.x:hover{color:var(--ink-0);background:var(--surf-2)}
+
+.sp-nutri{display:flex;flex-wrap:wrap;gap:7px 16px;background:var(--surf-2);border-radius:11px;
+  padding:11px 13px;font-size:11.5px;color:var(--ink-3);margin-bottom:16px;
+  box-shadow:inset 0 0 0 1px var(--line)}
+.sp-nutri b{color:var(--ink-1);font-weight:600;font-variant-numeric:tabular-nums}
+.round{padding:14px 0;border-top:1px solid var(--line)}
+.round-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:10px}
+.r-name{font-size:13px;font-weight:700;color:var(--ink-0)}
+.r-req{font-size:10.5px;color:var(--ink-4);letter-spacing:.04em;white-space:nowrap}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{background:var(--surf-2);box-shadow:inset 0 0 0 1px var(--line-2);color:var(--ink-2);border:none;
+  border-radius:10px;padding:8px 13px;font-size:12.5px;cursor:pointer;text-align:left;line-height:1.4;
+  transition:color var(--dur-1),background var(--dur-2),box-shadow var(--dur-2)}
+.chip:hover{color:var(--ink-0);box-shadow:inset 0 0 0 1px var(--line-2);background:var(--surf-3)}
+.chip.active{background:oklch(79% 0.145 66 / .13);color:var(--brand-lt);font-weight:600;
+  box-shadow:inset 0 0 0 1px oklch(79% 0.145 66 / .50)}
+.chip small{display:block;font-size:10.5px;color:var(--ink-4);margin-top:2px;font-variant-numeric:tabular-nums}
+.chip.active small{color:oklch(88% 0.09 70 / .78)}
+.chip.sm{padding:7px 11px;font-size:12px}
+.spec-tag{display:inline-block;margin-left:7px;font-size:10.5px;font-weight:600;color:var(--brand);
+  border:1px solid oklch(79% 0.145 66 / .55);border-radius:4px;padding:0 5px;vertical-align:middle;font-style:normal}
+.spec-tag-sm{display:inline-block;margin-left:5px;font-size:9.5px;font-style:normal;font-weight:600;
+  color:var(--brand);border:1px solid oklch(79% 0.145 66 / .45);border-radius:3px;padding:0 3px;transform:translateY(-1px)}
+.default-line{margin-top:14px;padding:10px 12px;border-radius:11px;background:oklch(79% 0.145 66 / .08);
+  box-shadow:inset 0 0 0 1px oklch(79% 0.145 66 / .28);font-size:12px;color:var(--ink-2);line-height:1.6}
+.default-line b{color:var(--brand-lt)}
+.mod-block{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.mod-toggle{width:100%;background:var(--surf-2);box-shadow:inset 0 0 0 1px var(--line-2);color:var(--ink-1);
+  border:none;border-radius:11px;padding:11px;font-size:12.5px;cursor:pointer;text-align:left;
+  transition:color var(--dur-1),box-shadow var(--dur-2)}
+.mod-toggle:hover{color:var(--brand-lt);box-shadow:inset 0 0 0 1px oklch(79% 0.145 66 / .45)}
+.mod-group{margin-top:14px}
+.og-title{font-size:12px;color:var(--ink-3);margin-bottom:8px}
+.og-title b{color:var(--ink-1);font-weight:600}
+.og-hint,.hint-note{font-size:11px;color:var(--ink-4);margin-top:8px;line-height:1.65}
+.stepper{display:flex;align-items:center;gap:12px}
+.stepper button{width:30px;height:30px;border-radius:50%;box-shadow:inset 0 0 0 1px var(--line-2);
+  background:var(--surf-3);border:none;color:var(--ink-1);font-size:15px;cursor:pointer;line-height:1;position:relative;
+  transition:background var(--dur-1),transform var(--dur-1) var(--e-out-quart)}
+.stepper button::before{content:"";position:absolute;inset:-7px}
+.stepper button:hover{background:oklch(30% 0.015 62)}
+.stepper button:active{transform:scale(.92)}
+.stepper .q{font-size:14px;min-width:18px;text-align:center;font-weight:600;font-variant-numeric:tabular-nums}
+.cart-line{display:flex;gap:12px;align-items:center;padding:13px 0;border-bottom:1px solid var(--line)}
+.cart-line:first-child{padding-top:2px}
+.cart-line .cl-info{flex:1;min-width:0}
+.cart-line .cl-name{font-size:13.5px;font-weight:600;color:var(--ink-0);overflow-wrap:anywhere}
+.cart-line .cl-note{font-size:11.5px;color:var(--ink-3);margin-top:3px;line-height:1.55;overflow-wrap:anywhere}
+.cart-line .cl-price{font-size:13px;color:var(--ink-1);margin-top:6px;font-weight:600;font-variant-numeric:tabular-nums}
+.cart-line .cl-price span{color:var(--ink-4);font-size:11px;font-weight:400;margin-left:7px}
+.empty{color:var(--ink-3);font-size:12.5px;text-align:center;padding:26px 16px;border:1px dashed var(--line-2);
+  border-radius:12px;line-height:1.75}
+.empty .e-ico{display:block;font-size:22px;margin-bottom:8px;opacity:.7}
+
+/* ═══ 08 结算 ═══ */
+.co{padding:8px 18px 120px}
+.co-sec{padding:16px 0;border-top:1px solid var(--line)}
+.co-sec:first-child{border-top:none;padding-top:6px}
+.co-h{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--ink-3);letter-spacing:.09em;margin-bottom:11px}
+.co-h .num{width:19px;height:19px;border-radius:6px;background:oklch(79% 0.145 66 / .14);color:var(--brand);
+  font-size:10.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex:none;letter-spacing:0}
+.co-h .link{margin-left:auto;letter-spacing:.02em}
+.kv{display:flex;justify-content:space-between;gap:12px;font-size:13px;padding:5px 0;color:var(--ink-3)}
+.kv b{color:var(--ink-1);font-weight:600;text-align:right;overflow-wrap:anywhere}
+.kv.total{font-size:14px;color:var(--ink-1);padding-top:12px;margin-top:8px;border-top:1px solid var(--line);
+  align-items:baseline}
+.kv.total b{font-family:var(--font-serif);font-size:22px;color:var(--brand-lt);font-variant-numeric:tabular-nums}
+.kv.discount b,.kv.discount{color:var(--ok)}
+.co-line{display:flex;justify-content:space-between;gap:12px;font-size:13px;padding:9px 0;border-bottom:1px dashed var(--line)}
+.co-line:last-child{border-bottom:none}
+.co-line .l-note{font-size:11px;color:var(--ink-4);margin-top:3px}
+.co-line .r{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--ink-1);font-weight:600}
+.remarks{width:100%;background:var(--surf-2);box-shadow:inset 0 0 0 1px var(--line-2);border:none;border-radius:11px;
+  color:var(--ink-0);padding:11px 12px;font-size:12.5px;resize:none;height:60px;line-height:1.6}
+.remarks::placeholder{color:var(--ink-3)}
+.remarks:focus{outline:none;box-shadow:inset 0 0 0 1.5px oklch(79% 0.145 66 / .6)}
+.co-foot{position:absolute;left:0;right:0;bottom:0;background:var(--surf-2);border-top:1px solid var(--line-2);
+  padding:12px 16px;display:flex;align-items:center;gap:14px;z-index:var(--z-sticky);
+  padding-bottom:max(12px,env(safe-area-inset-bottom))}
+.co-foot .csum{flex:1;min-width:0}
+.co-foot .ctotal{font-family:var(--font-serif);font-size:21px;font-weight:700;color:var(--ink-0);font-variant-numeric:tabular-nums}
+.co-heat{font-size:11.5px;color:var(--ink-3);display:flex;align-items:center;gap:6px}
+.co-heat b{color:var(--heat);font-weight:700;font-variant-numeric:tabular-nums}
+.co-heat.warn b{color:var(--bad)}
+.co-heat .dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex:none;color:var(--heat)}
+.co-heat.warn .dot{color:var(--bad)}
+
+/* ═══ 09 右侧面板 ═══ */
+.panel{padding:4px 0 20px;margin-bottom:20px;border-top:1px solid var(--line)}
+.panel:last-child{margin-bottom:0}
+.p-title{font-size:12px;font-weight:700;color:var(--ink-2);display:flex;align-items:center;gap:8px;
+  margin:14px 0 16px;letter-spacing:.05em}
+.p-title .num{width:21px;height:21px;border-radius:6px;background:oklch(79% 0.145 66 / .14);color:var(--brand);
+  font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex:none;letter-spacing:0}
+.p-title .hint{margin-left:auto;font-size:11px;color:var(--ink-4);font-weight:400;letter-spacing:.02em}
+.panel .seg{margin-bottom:18px}
+
+.heat-total{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:22px}
+.heat-total .v{font-family:var(--font-serif);font-size:clamp(38px,4.4vw,52px);font-weight:700;line-height:1;
+  color:var(--heat);font-variant-numeric:tabular-nums;letter-spacing:.01em}
+.heat-total .v small{font-family:var(--font-sans);font-size:12.5px;font-weight:400;color:var(--ink-3);margin-left:6px;letter-spacing:.06em}
+.verdict{font-size:12px;font-weight:600;padding:5px 11px;border-radius:999px;white-space:nowrap;margin-top:6px}
+.verdict.ok{color:var(--ok);background:oklch(76% 0.130 158 / .13)}
+.verdict.high{color:var(--bad);background:oklch(66% 0.180 26 / .14)}
+.verdict.low{color:var(--info);background:oklch(74% 0.115 252 / .14)}
+.verdict.idle{color:var(--ink-3);background:var(--surf-2)}
+
+/* 仪表：刻度 + 目标区间 + 指针 */
+.gauge{position:relative;height:46px;margin:0 2px 28px}
+.gauge .track{position:absolute;top:20px;left:0;right:0;height:6px;border-radius:3px;background:var(--surf-3);overflow:hidden}
+.gauge .fill{position:absolute;top:0;left:0;bottom:0;background:var(--heat-bar);border-radius:3px;
+  transition:width var(--dur-4) var(--e-out-quart)}
+.gauge .ticks{position:absolute;inset:0;background:repeating-linear-gradient(90deg,
+  oklch(45% 0.012 62 / .55) 0 1px, transparent 1px 10%);pointer-events:none}
+.gauge .band{position:absolute;top:13px;height:20px;border-left:1px solid oklch(70% 0.02 62 / .75);
+  border-right:1px solid oklch(70% 0.02 62 / .75);background:oklch(72% 0.150 var(--heat-h) / .12);
+  transition:left var(--dur-4) var(--e-out-quart), width var(--dur-4) var(--e-out-quart)}
+.gauge .needle{position:absolute;top:4px;width:2px;height:38px;background:var(--ink-0);margin-left:-1px;
+  transition:left var(--dur-4) var(--e-out-quart)}
+.gauge .needle i{position:absolute;left:50%;transform:translateX(-50%);top:-19px;font-size:11px;font-style:normal;
+  color:var(--ink-1);white-space:nowrap;font-variant-numeric:tabular-nums;background:var(--surf-0);
+  padding:1px 5px;border-radius:5px}
+.gauge .scale{position:absolute;top:34px;left:0;right:0;height:14px}
+.gauge .scale span{position:absolute;transform:translateX(-50%);font-size:10.5px;color:var(--ink-4);
+  white-space:nowrap;font-variant-numeric:tabular-nums}
+.gauge .scale span.on{color:var(--ink-2)}
+
+.mini-table{width:100%;border-collapse:collapse;font-size:12.5px}
+.mini-table th{color:var(--ink-4);font-weight:500;text-align:left;padding:6px;border-bottom:1px solid var(--line);letter-spacing:.05em}
+.mini-table td{padding:7px 6px;border-bottom:1px solid var(--line);color:var(--ink-3);vertical-align:top}
+.mini-table td.num,.mini-table th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mini-table td.name{color:var(--ink-1);overflow-wrap:anywhere}
+.mini-table td.name em{display:block;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:2px;line-height:1.5}
+.mini-table .unknown{color:var(--bad)}
+.mini-table tfoot td{border-bottom:none;padding-top:10px;font-weight:700;color:var(--ink-1)}
+.mini-table tfoot td.num{color:var(--brand-lt);font-size:14px}
+
+.reco-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:11px}
+@container (max-width:400px){ .reco-grid{grid-template-columns:1fr} }
+.reco{background:var(--surf-2);border-radius:13px;padding:13px;display:flex;flex-direction:column;gap:7px;
+  box-shadow:inset 0 0 0 1px var(--line);transition:box-shadow var(--dur-2),transform var(--dur-2) var(--e-out-quart)}
+@media(hover:hover){ .reco:hover{box-shadow:inset 0 0 0 1px var(--line-2);transform:translateY(-2px)} }
+.reco .r-items{font-size:12.5px;font-weight:600;line-height:1.5;color:var(--ink-0);overflow-wrap:anywhere}
+.reco .r-kcal{font-family:var(--font-serif);font-size:22px;font-weight:700;color:var(--brand-lt);
+  font-variant-numeric:tabular-nums;line-height:1.1}
+.reco .r-kcal small{font-family:var(--font-sans);font-size:11px;color:var(--ink-4);font-weight:400;margin-left:5px;letter-spacing:.03em}
+.reco .r-delta{font-size:11.5px;font-weight:600;font-variant-numeric:tabular-nums}
+.r-delta.down{color:var(--ok)} .r-delta.up{color:var(--bad)}
+.reco .r-nutri{font-size:11.5px;color:var(--ink-3);line-height:1.6}
+.reco .r-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;padding-top:9px;
+  border-top:1px dashed var(--line-2)}
+.reco .r-price{font-size:13.5px;font-weight:700;color:var(--ink-1);font-variant-numeric:tabular-nums}
+.reco .use{background:none;border:1px solid oklch(79% 0.145 66 / .55);color:var(--brand);border-radius:8px;
+  padding:5px 11px;font-size:11.5px;cursor:pointer;transition:background var(--dur-1),color var(--dur-1)}
+.reco .use:hover{background:var(--brand);color:var(--brand-ink)}
+
+.log-list{display:flex;flex-direction:column;gap:7px;max-height:340px;overflow-y:auto;scrollbar-width:thin}
+.log{background:var(--surf-2);border-radius:9px;padding:9px 12px;font-size:12px;box-shadow:inset 0 0 0 1px var(--line);
+  border-left:2px solid var(--brand);animation:log-in var(--dur-3) var(--e-out-quart) both}
+@keyframes log-in{from{opacity:0;transform:translate3d(0,-6px,0)}to{opacity:1;transform:none}}
+.log.sys{border-left-color:var(--info)}
+.log .tool{font-family:var(--font-mono);font-size:11px;font-weight:700;color:var(--brand);letter-spacing:.01em;overflow-wrap:anywhere}
+.log.sys .tool{color:var(--info)}
+.log .desc{color:var(--ink-2);margin-top:3px;line-height:1.6;overflow-wrap:anywhere}
+.log .time{color:var(--ink-4);font-size:10.5px;margin-top:2px;font-variant-numeric:tabular-nums}
+
+/* ═══ 10 确认弹窗（原生 dialog） ═══ */
+dialog{border:none;background:transparent;padding:0;max-width:none;max-height:none}
+dialog::backdrop{background:oklch(6% 0.01 62 / .68)}
+.modal{background:var(--surf-1);box-shadow:inset 0 0 0 1px var(--line-2), 0 30px 70px oklch(6% 0.01 62 / .6);
+  border-radius:18px;padding:24px;width:min(420px,92vw);animation:modal-in var(--dur-3) var(--e-out-expo) both}
+@keyframes modal-in{from{opacity:0;transform:translate3d(0,14px,0) scale(.98)}to{opacity:1;transform:none}}
+.modal h3{font-size:17px;color:var(--ink-0);margin-bottom:5px;letter-spacing:.01em}
+.modal .m-sub{font-size:11.5px;color:var(--ink-3);margin-bottom:16px;line-height:1.6}
+.modal .m-items{font-size:13px;color:var(--ink-2);max-height:170px;overflow-y:auto;margin-bottom:12px}
+.modal .m-items div{padding:5px 0;border-bottom:1px dashed var(--line);display:flex;justify-content:space-between;gap:12px}
+.modal .m-total{display:flex;justify-content:space-between;align-items:baseline;padding:12px 0;border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);margin-bottom:14px;font-size:13px;color:var(--ink-2)}
+.modal .m-total b{font-family:var(--font-serif);font-size:24px;color:var(--brand-lt);font-variant-numeric:tabular-nums}
+.modal .m-heat{font-size:12px;color:var(--ink-2);margin-bottom:16px;padding:11px 13px;background:var(--surf-2);
+  border-radius:11px;line-height:1.7;box-shadow:inset 0 0 0 1px var(--line)}
+.modal .m-heat b{color:var(--heat);font-variant-numeric:tabular-nums}
+.modal .m-actions{display:flex;gap:10px;justify-content:flex-end}
+.pay{color:var(--info);font-size:12px;word-break:break-all;font-family:var(--font-mono)}
+.ok-line{font-size:12.5px;color:var(--ok);font-weight:600;margin-bottom:5px}
+
+/* ═══ 11 Toast ═══ */
+.toast{position:fixed;left:50%;bottom:26px;transform:translate3d(-50%,140%,0);z-index:var(--z-toast);
+  background:var(--surf-3);box-shadow:inset 0 0 0 1px var(--line-2), 0 14px 34px oklch(6% 0.01 62 / .5);
+  border-radius:13px;padding:12px 16px;display:flex;align-items:center;gap:14px;font-size:12.5px;color:var(--ink-1);
+  max-width:min(92vw,440px);transition:transform var(--dur-3) var(--e-out-expo), opacity var(--dur-2)}
+.toast.show{transform:translate3d(-50%,0,0)}
+.toast-act{background:none;border:none;color:var(--brand);font-weight:700;font-size:12.5px;cursor:pointer;padding:4px 2px}
+.toast-act:hover{color:var(--brand-lt);text-decoration:underline}
+
+/* ═══ 12 飞入购物车 ═══ */
+.fly{position:fixed;left:0;top:0;width:12px;height:12px;border-radius:50%;background:var(--brand);
+  pointer-events:none;z-index:var(--z-toast);will-change:transform;
+  box-shadow:0 0 12px oklch(79% 0.145 66 / .6)}
+.fly i{display:block;width:100%;height:100%;border-radius:50%;background:inherit}
+
+footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);color:var(--ink-4);font-size:11.5px;
+  display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;line-height:1.7}
+
+/* ═══ 降低动效偏好 ═══ */
+@media (prefers-reduced-motion: reduce){
+  html{transition:none}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .item,.screen,.log{animation:none!important}
+}
 </style>
 </head>
 <body>
+<a class="skip" href="#stage">跳到主内容</a>
 <div class="page">
 
   <!-- 01 页头 -->
-  <div class="head">
-    <div>
-      <h1>热麦卡路里 · 点餐流程演示<span>模拟数据</span></h1>
-      <div class="sub">按点餐客户端的操作顺序重制：门店与取餐方式 → 分类菜单 → 规格选择 → 购物车 → 结算 → 提交确认，全程实时估算热量</div>
+  <header class="head">
+    <div class="head-lead">
+      <div class="seal" aria-hidden="true">热麦</div>
+      <div>
+        <h1>热麦卡路里 · 点餐流程演示<span class="sim">模拟数据</span></h1>
+        <p class="sub">按点餐客户端的操作顺序重制：门店与取餐方式 → 分类菜单 → 规格选择 → 购物车 → 结算 → 提交确认，全程实时估算热量。右侧强调色随本单热量在冷青 ↔ 琥珀 ↔ 赤之间连续变化。</p>
+      </div>
     </div>
-    <div class="clock" id="clock">--</div>
-  </div>
+    <div class="clock"><b id="clockTime">--:--</b><span id="clock">--</span></div>
+  </header>
 
-  <div class="stage">
-    <!-- ============ 手机 ============ -->
+  <div class="stage" id="stage" tabindex="-1">
+    <!-- ══════════ 手机 ══════════ -->
     <div class="phone">
+      <div class="phone-glow" aria-hidden="true"></div>
       <div class="statusbar"><span id="statusTime">--:--</span><span class="sim">演示 · 模拟</span><span>100%</span></div>
 
       <div class="appbar">
-        <button class="back" id="btnBack">‹</button>
+        <button class="back" id="btnBack" aria-label="返回菜单" hidden>‹</button>
         <div>
           <div class="title" id="appTitle">点餐</div>
           <div class="sub" id="appSub">选择你想要的餐品</div>
@@ -227,7 +490,7 @@
 
       <div class="viewport" id="viewport">
         <!-- 菜单屏 -->
-        <div id="screenMenu">
+        <section class="screen" id="screenMenu" aria-label="点餐菜单">
           <div class="storecard">
             <div class="row1">
               <div>
@@ -236,101 +499,106 @@
               </div>
               <button class="change" id="btnChangeStore">切换门店</button>
             </div>
-            <div class="seg" id="segService">
-              <button data-s="到店取餐" class="active">到店取餐</button>
-              <button data-s="外送">外送</button>
+            <div class="seg" id="segService" role="group" aria-label="取餐方式">
+              <button type="button" data-s="到店取餐" class="active" aria-pressed="true">到店取餐</button>
+              <button type="button" data-s="外送" aria-pressed="false">外送</button>
             </div>
           </div>
           <div class="menu-body">
-            <div class="rail" id="rail"></div>
+            <nav class="rail" id="rail" aria-label="餐品分类"></nav>
             <div class="items" id="items"></div>
           </div>
-        </div>
+        </section>
 
         <!-- 结算屏 -->
-        <div id="screenCheckout" style="display:none">
+        <section class="screen" id="screenCheckout" hidden aria-label="确认订单">
           <div class="co" id="coBody"></div>
-          <div class="co-foot">
-            <div class="csum">
-              <div class="ctotal" id="coTotal">¥0.00</div>
-              <div class="co-heat" id="coHeat">本单约 <b>0</b> 千卡</div>
-            </div>
-            <button class="btn" id="btnSubmit">提交订单</button>
-          </div>
-        </div>
+        </section>
       </div>
 
       <!-- 吸底购物车栏（仅菜单屏） -->
       <div class="cartbar" id="cartbar">
-        <div class="cicon empty" id="cartIcon">🛒<span class="badge" id="cartBadge" style="display:none">0</span></div>
+        <button class="cicon empty" id="cartIcon" aria-label="查看已选餐品">🛒<span class="badge" id="cartBadge" hidden>0</span></button>
         <div class="csum">
           <div class="ctotal" id="cartTotal">¥0.00</div>
-          <div class="ckcal" id="cartKcal">本单约 0 千卡</div>
+          <div class="ckcal" id="cartKcal" aria-live="polite"><span class="dot"></span>本单约 0 千卡</div>
         </div>
         <button class="btn" id="btnCheckout" disabled>去结算</button>
       </div>
+      <div class="co-foot" id="coFoot" hidden>
+        <div class="csum">
+          <div class="ctotal" id="coTotal">¥0.00</div>
+          <div class="co-heat" id="coHeat"><span class="dot"></span>本单约 <b>0</b> 千卡</div>
+        </div>
+        <button class="btn" id="btnSubmit">提交订单</button>
+      </div>
 
       <!-- 规格弹层 -->
-      <div class="sheet" id="sheetSpec">
+      <div class="sheet" id="sheetSpec" role="dialog" aria-modal="true" aria-labelledby="spTitle" inert>
         <div class="s-head">
-          <div style="display:flex;align-items:flex-start">
-            <div>
-              <div class="s-title" id="spTitle">商品</div>
-              <div class="s-sub" id="spSub"></div>
-            </div>
-            <button class="x" id="spClose">✕</button>
+          <div style="min-width:0">
+            <div class="s-title" id="spTitle">商品</div>
+            <div class="s-sub" id="spSub"></div>
           </div>
+          <button class="x" id="spClose" aria-label="关闭" data-autofocus>✕</button>
         </div>
         <div class="s-body" id="spBody"></div>
         <div class="s-foot">
           <div class="stepper">
-            <button class="minus" id="spMinus">−</button><span class="q" id="spQty">1</span><button id="spPlus">＋</button>
+            <button class="minus" id="spMinus" aria-label="减少数量">−</button><span class="q" id="spQty" aria-live="polite">1</span><button id="spPlus" aria-label="增加数量">＋</button>
           </div>
           <button class="btn" id="spAdd">加入购物车 ¥0.00</button>
         </div>
       </div>
 
       <!-- 购物车弹层 -->
-      <div class="sheet" id="sheetCart">
+      <div class="sheet" id="sheetCart" role="dialog" aria-modal="true" aria-label="已选餐品" inert>
         <div class="s-head">
-          <div style="display:flex;align-items:center">
-            <div class="s-title">已选餐品</div>
-            <button class="x" id="ctClear">清空</button>
-          </div>
+          <div style="min-width:0"><div class="s-title">已选餐品</div></div>
+          <button class="x" id="ctClear" data-autofocus>清空</button>
         </div>
         <div class="s-body" id="ctBody"></div>
       </div>
 
-      <!-- 底部遮罩（弹层用） -->
-      <div id="sheetMask" style="position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:30;display:none"></div>
+      <div class="sheet-mask" id="sheetMask"></div>
     </div>
 
-    <!-- ============ 右侧面板 ============ -->
+    <!-- ══════════ 右侧面板 ══════════ -->
     <div class="side">
-      <div class="panel">
-        <div class="p-title"><span class="num">06</span>热量估算与档位对比<span class="hint">F1 · F2 · P0</span></div>
-        <div class="seg" id="segDaypart" style="margin-top:0;margin-bottom:14px"></div>
+      <section class="panel">
+        <h2 class="p-title"><span class="num">06</span>热量估算与档位对比<span class="hint">F1 · F2 · P0</span></h2>
+        <div class="seg" id="segDaypart" role="group" aria-label="餐段"></div>
         <div class="heat-total">
-          <div class="v" id="heatTotal">0<small>千卡</small></div>
-          <div class="verdict ok" id="heatVerdict">未选餐</div>
+          <div>
+            <div class="v" id="heatTotal">0<small>千卡</small></div>
+            <div class="verdict idle" id="heatVerdict" aria-live="polite">未选餐</div>
+          </div>
         </div>
-        <div class="bar-labels"><span id="tierL">轻量</span><span id="tierM">标准</span><span id="tierH">吃饱</span></div>
-        <div class="bar"><div class="mk" id="heatMk" style="left:50%"><span id="heatMkTxt"></span></div></div>
+        <div class="gauge" id="gauge" role="img" aria-label="热量档位仪表">
+          <div class="track">
+            <div class="fill" id="gFill" style="width:0%"></div>
+            <div class="ticks"></div>
+          </div>
+          <div class="band" id="gBand" style="left:0%;width:0%"></div>
+          <div class="needle" id="gNeedle" style="left:0%"><i id="gLabel"></i></div>
+          <div class="scale" id="gScale"></div>
+        </div>
         <table class="mini-table" id="heatTable">
           <thead><tr><th>已选餐品</th><th class="num">数量</th><th class="num">热量</th></tr></thead>
           <tbody></tbody>
+          <tfoot></tfoot>
         </table>
-      </div>
+      </section>
 
-      <div class="panel" id="panelReco" style="display:none">
-        <div class="p-title"><span class="num">07</span>替换建议<span class="hint">F4 · P1 · 命中标准档 ±12%</span></div>
+      <section class="panel" id="panelReco" hidden>
+        <h2 class="p-title"><span class="num">07</span>替换建议<span class="hint">F4 · P1 · 命中标准档 ±12%</span></h2>
         <div class="reco-grid" id="recoGrid"></div>
-      </div>
+      </section>
 
-      <div class="panel">
-        <div class="p-title"><span class="num">08</span>工具调用日志<span class="hint">Skill → MCP（模拟）</span></div>
-        <div id="logList"></div>
-      </div>
+      <section class="panel">
+        <h2 class="p-title"><span class="num">08</span>工具调用日志<span class="hint">Skill → MCP（模拟）</span></h2>
+        <div class="log-list" id="logList"></div>
+      </section>
     </div>
   </div>
 
@@ -340,16 +608,16 @@
   </footer>
 </div>
 
-<!-- 11 提交确认弹窗 -->
-<div class="mask" id="mask">
+<!-- 09 提交确认弹窗 -->
+<dialog id="dlg" aria-labelledby="mTitle">
   <div class="modal">
     <h3 id="mTitle">确认提交订单</h3>
     <div class="m-sub" id="mSub">提交前请核对餐品与金额</div>
     <div class="m-items" id="mItems"></div>
     <div class="m-total"><span>应付金额</span><b id="mTotal">¥0.00</b></div>
     <div class="m-heat" id="mHeat"></div>
-    <div id="mPay" style="display:none;margin-bottom:14px">
-      <div style="font-size:12.5px;color:var(--green);font-weight:600;margin-bottom:4px">✅ 订单已创建，请前往支付</div>
+    <div id="mPay" hidden style="margin-bottom:16px">
+      <div class="ok-line">✅ 订单已创建，请前往支付</div>
       <div class="pay" id="payLink"></div>
     </div>
     <div class="m-actions">
@@ -357,10 +625,14 @@
       <button class="btn" id="mConfirm">确认提交</button>
     </div>
   </div>
-</div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
-/* ================== 模拟数据 ================== */
+/* ══════════════════════════════════════════════════════════════
+   一、模拟数据
+   ══════════════════════════════════════════════════════════════ */
 const NUTRI = {
   "猪柳麦满分":{kcal:308,p:16,f:16,c:24,na:781},
   "猪柳蛋麦满分":{kcal:387,p:23,f:21,c:25,na:846},
@@ -395,7 +667,15 @@ const NUTRI = {
   "拿铁中杯":{kcal:120,p:7,f:6,c:10,na:90},
   "卡布奇诺中杯":{kcal:100,p:6,f:5,c:8,na:80},
   "橙汁":{kcal:105,p:1.5,f:0,c:24,na:3},
-  "苹果汁":{kcal:96,p:0,f:0,c:23,na:10}
+  "苹果汁":{kcal:96,p:0,f:0,c:23,na:10},
+  /* 套餐选配中用到的补充条目（模拟值，标注见页脚） */
+  "大薯条":{kcal:379,p:6,f:16,c:50,na:216},
+  "小杯玉米杯":{kcal:53,p:2,f:1,c:7,na:1},
+  "锡兰红茶":{kcal:2,p:0,f:0,c:0,na:0},
+  "可乐大杯":{kcal:203,p:0,f:0,c:51,na:0},
+  "【美汁源】“黄金橙橙”":{kcal:180,p:1,f:0,c:43,na:10},
+  "不素之霸双层牛堡":{kcal:470,p:26,f:24,c:38,na:1050},
+  "培根安格斯厚牛堡":{kcal:560,p:32,f:30,c:40,na:1180}
 };
 /* meal: 主食/小食/甜品/饮品 —— 用于组合推荐；cat: 客户端分类 */
 const MENU = [
@@ -419,14 +699,17 @@ const MENU = [
   {n:"麦香鸡三件套", cat:"超值套餐", meal:"套餐", dp:["午餐","晚餐","宵夜"], price:28.0, orig:36.0,
    combo:["麦香鸡","中薯条","可乐中杯"]},
 
-  {n:"巨无霸",       cat:"汉堡包", meal:"主食", dp:["午餐","晚餐","宵夜"], price:24.0, addons:true},
-  {n:"麦辣鸡腿汉堡", cat:"汉堡包", meal:"主食", dp:["午餐","晚餐","宵夜"], price:21.0, addons:true},
-  {n:"板烧鸡腿堡",   cat:"汉堡包", meal:"主食", dp:["午餐","晚餐","宵夜"], price:22.0, addons:true},
-  {n:"麦香鸡",       cat:"汉堡包", meal:"主食", dp:["午餐","晚餐","宵夜"], price:15.0, addons:true},
-  {n:"麦香鱼",       cat:"汉堡包", meal:"主食", dp:["午餐","晚餐","宵夜"], price:16.5, addons:true},
-  {n:"吉士汉堡包",   cat:"汉堡包", meal:"主食", dp:["午餐","晚餐","宵夜"], price:13.5, addons:true},
-  {n:"双层吉士汉堡", cat:"汉堡包", meal:"主食", dp:["午餐","晚餐","宵夜"], price:19.5, addons:true},
-  {n:"培根蔬萃双层牛堡", cat:"汉堡包", meal:"主食", dp:["午餐","晚餐","宵夜"], price:25.0, addons:true},
+  /* 注：加料（如「吉士 +¥2」）由下方 MODS 的配料/可选加料组实现，无需 addons 标记；
+     杯型切换（中杯→大杯）当前未实现——大杯走营养表真实条目（如「可乐大杯」203 千卡），
+     待接入 query-meal-detail 真实 choices 后再补，此处不预留无效标记。 */
+  {n:"巨无霸",       cat:"汉堡包", meal:"主食", dp:["午餐","晚餐","宵夜"], price:24.0},
+  {n:"麦辣鸡腿汉堡", cat:"汉堡包", meal:"主食", dp:["午餐","晚餐","宵夜"], price:21.0},
+  {n:"板烧鸡腿堡",   cat:"汉堡包", meal:"主食", dp:["午餐","晚餐","宵夜"], price:22.0},
+  {n:"麦香鸡",       cat:"汉堡包", meal:"主食", dp:["午餐","晚餐","宵夜"], price:15.0},
+  {n:"麦香鱼",       cat:"汉堡包", meal:"主食", dp:["午餐","晚餐","宵夜"], price:16.5},
+  {n:"吉士汉堡包",   cat:"汉堡包", meal:"主食", dp:["午餐","晚餐","宵夜"], price:13.5},
+  {n:"双层吉士汉堡", cat:"汉堡包", meal:"主食", dp:["午餐","晚餐","宵夜"], price:19.5},
+  {n:"培根蔬萃双层牛堡", cat:"汉堡包", meal:"主食", dp:["午餐","晚餐","宵夜"], price:25.0},
 
   {n:"中薯条",       cat:"小食", meal:"小食", dp:["早餐","午餐","随便吃吃","晚餐","宵夜"], price:11.0},
   {n:"小薯条",       cat:"小食", meal:"小食", dp:["午餐","随便吃吃","晚餐","宵夜"], price:9.0},
@@ -440,9 +723,9 @@ const MENU = [
   {n:"朱古力新地",   cat:"甜品", meal:"甜品", dp:["午餐","随便吃吃","晚餐","宵夜"], price:12.0},
   {n:"奥利奥麦旋风", cat:"甜品", meal:"甜品", dp:["午餐","随便吃吃","晚餐","宵夜"], price:13.0},
 
-  {n:"可乐中杯",     cat:"饮品", meal:"饮品", dp:["早餐","午餐","随便吃吃","晚餐","宵夜"], price:8.5, sizes:true},
-  {n:"雪碧中杯",     cat:"饮品", meal:"饮品", dp:["午餐","随便吃吃","晚餐","宵夜"], price:8.5, sizes:true},
-  {n:"零度可乐中杯", cat:"饮品", meal:"饮品", dp:["午餐","随便吃吃","晚餐","宵夜"], price:8.5, sizes:true},
+  {n:"可乐中杯",     cat:"饮品", meal:"饮品", dp:["早餐","午餐","随便吃吃","晚餐","宵夜"], price:8.5},
+  {n:"雪碧中杯",     cat:"饮品", meal:"饮品", dp:["午餐","随便吃吃","晚餐","宵夜"], price:8.5},
+  {n:"零度可乐中杯", cat:"饮品", meal:"饮品", dp:["午餐","随便吃吃","晚餐","宵夜"], price:8.5},
   {n:"拿铁中杯",     cat:"饮品", meal:"饮品", dp:["早餐","午餐","随便吃吃","晚餐","宵夜"], price:15.0},
   {n:"卡布奇诺中杯", cat:"饮品", meal:"饮品", dp:["早餐","午餐","随便吃吃","晚餐","宵夜"], price:15.0},
   {n:"热红茶",       cat:"饮品", meal:"饮品", dp:["早餐","随便吃吃"], price:8.0},
@@ -456,67 +739,128 @@ const TIERS = {
   "晚餐":{轻量:500,标准:750,吃饱:1000},
   "宵夜":{轻量:300,标准:450,吃饱:600}
 };
-const SIZE_MUL = 1.35, SIZE_ADD = 3;   /* 大杯热量系数与加价（模拟） */
-const ADDON_PRICE = 2;                  /* 加芝士（加）加价；热量不计入 */
 
-/* ================== 状态 ================== */
+/* ══════════ 商品详情数据（结构对齐 query-meal-detail）══════════
+   ROUNDS: 套餐选配轮次 —— rounds[].name / minQuantity / maxQuantity / choices[]
+           choice 三元组 = [名称, 差价(diffPrice), 是否默认选中(isDefault)]
+   MODS  : 单品特调 —— modification.items[].values[]（含必选 minValues=1 与可多选 maxValues>1）
+           官方规范：supportModify=true 才标【可特调】；不主动展开，需用户点「查看特调」
+   ══════════════════════════════════════════════════════════════ */
+const ROUNDS = {
+  "猪柳蛋麦满分套餐": [
+    {name:"选择主食", min:1, max:1, choices:[["猪柳蛋麦满分",0,true],["猪柳麦满分",-2],["烟肉蛋麦满分",-1.5],["火腿扒麦满分",-3]]},
+    {name:"选择套餐内小食", min:1, max:1, choices:[["薯饼",0,true],["大杯玉米杯",-1],["小杯玉米杯",-1.5],["香芋派",1.5],["苹果片",-1]]},
+    {name:"选择套餐内饮料", min:1, max:1, choices:[["鲜煮咖啡",0,true],["纯牛奶",1],["豆浆",1],["锡兰红茶",1.5],["橙汁",3]]}
+  ],
+  "麦辣鸡腿汉堡三件套": [
+    {name:"选择主食", min:1, max:1, choices:[["麦辣鸡腿汉堡",0,true],["麦香鸡",-3],["板烧鸡腿堡",1],["双层吉士汉堡",1],["巨无霸",2.5]]},
+    {name:"选择套餐内小食", min:1, max:1, choices:[["中薯条",0,true],["小薯条",-1.5],["大薯条",1.5],["麦乐鸡5块",1.5],["麦辣鸡翅-2块",1],["大杯玉米杯",-1.5]]},
+    {name:"选择套餐内饮料", min:1, max:1, choices:[["可乐中杯",0,true],["雪碧中杯",0],["零度可乐中杯",0],["可乐大杯",2],["锡兰红茶",1.5],["拿铁中杯",9],["橙汁",2]]}
+  ],
+  "巨无霸四件套": [
+    {name:"新升级巨无霸", min:1, max:1, choices:[["巨无霸",0,true],["不素之霸双层牛堡",2.5],["麦辣鸡腿汉堡",-1],["培根安格斯厚牛堡",10.5],["板烧鸡腿堡",-2]]},
+    {name:"选择套餐内小食", min:1, max:1, choices:[["中薯条",0,true],["大薯条",1.5],["麦乐鸡5块",1],["麦辣鸡翅-2块",0.5],["大杯玉米杯",-1]]},
+    {name:"选择套餐内甜品", min:1, max:1, choices:[["圆筒冰淇淋",0,true],["香芋派",1.5],["苹果片",-1]]},
+    {name:"选择套餐内饮料", min:1, max:1, choices:[["可乐中杯",0,true],["零度可乐中杯",0],["雪碧中杯",0],["可乐大杯",2],["锡兰红茶",1.5],["【美汁源】“黄金橙橙”",3],["拿铁中杯",9]]}
+  ],
+  "板烧鸡腿堡三件套": [
+    {name:"选择主食", min:1, max:1, choices:[["板烧鸡腿堡",0,true],["麦香鸡",-2],["麦辣鸡腿汉堡",1],["巨无霸",2.5]]},
+    {name:"选择套餐内小食", min:1, max:1, choices:[["中薯条",0,true],["大薯条",1.5],["麦乐鸡5块",1.5],["大杯玉米杯",-1]]},
+    {name:"选择套餐内饮料", min:1, max:1, choices:[["可乐中杯",0,true],["雪碧中杯",0],["零度可乐中杯",0],["可乐大杯",2],["锡兰红茶",1.5],["橙汁",2]]}
+  ],
+  "麦香鸡三件套": [
+    {name:"选择主食", min:1, max:1, choices:[["麦香鸡",0,true],["吉士汉堡包",-1.5],["板烧鸡腿堡",3],["巨无霸",3.5]]},
+    {name:"选择套餐内小食", min:1, max:1, choices:[["中薯条",0,true],["小薯条",-1.5],["大薯条",1.5],["麦乐鸡5块",1.5]]},
+    {name:"选择套餐内饮料", min:1, max:1, choices:[["可乐中杯",0,true],["雪碧中杯",0],["零度可乐中杯",0],["可乐大杯",2]]}
+  ]
+};
+/* 单品特调（热麦实测口径：配料为「取消即不要」，饮品冰量为必选其一） */
+const MODS = {
+  "巨无霸":            [{g:"配料", min:0, max:5, values:[["巨无霸酱",0,true],["吉士",0,true],["生菜",0,true],["酸黄瓜",0,true],["洋葱粒",0,true]]}],
+  "麦辣鸡腿汉堡":       [{g:"配料", min:0, max:4, values:[["麦辣酱",0,true],["生菜",0,true],["白芝麻面包",0,true],["吉士",2,false]]}],
+  "板烧鸡腿堡":         [{g:"配料", min:0, max:4, values:[["烤味酱",0,true],["切块生菜",0,true],["吉士",2,false]]}],
+  "麦香鸡":            [{g:"配料", min:0, max:3, values:[["麦香鸡酱",0,true],["生菜",0,true]]}],
+  "麦香鱼":            [{g:"配料", min:0, max:3, values:[["塔塔酱",0,true],["吉士",2,false]]}],
+  "吉士汉堡包":         [{g:"配料", min:0, max:4, values:[["番茄酱",0,true],["黄芥末",0,true],["酸黄瓜",0,true],["洋葱粒",0,true]]}],
+  "双层吉士汉堡":       [{g:"配料", min:0, max:4, values:[["番茄酱",0,true],["黄芥末",0,true],["酸黄瓜",0,true],["洋葱粒",0,true]]}],
+  "培根蔬萃双层牛堡":    [{g:"配料", min:0, max:4, values:[["烤味酱",0,true],["生菜",0,true],["番茄",0,true]]}],
+  "麦乐鸡5块":         [{g:"蘸酱", min:0, max:1, values:[["不蘸酱",0,true],["韩式烟熏芝士风味酱",3],["日式鲜磨山葵酱",3]]}],
+  "麦辣鸡翅-2块":       [{g:"蘸酱", min:0, max:1, values:[["不蘸酱",0,true],["韩式烟熏芝士风味酱",3]]}],
+  "可乐中杯":          [{g:"冰量", min:1, max:1, values:[["标准",0,true],["去冰",0],["多冰",0],["少冰",0]]}],
+  "雪碧中杯":          [{g:"冰量", min:1, max:1, values:[["标准",0,true],["去冰",0],["多冰",0],["少冰",0]]}],
+  "零度可乐中杯":       [{g:"冰量", min:1, max:1, values:[["标准",0,true],["去冰",0],["多冰",0],["少冰",0]]}],
+  "拿铁中杯":          [{g:"冰量", min:1, max:1, values:[["热",0,true],["冰",0]]},
+                       {g:"可选加料", min:0, max:2, values:[["奶油球",0,true],["白砂糖",0,true],["换燕麦奶",2,false]]}],
+  "卡布奇诺中杯":       [{g:"可选加料", min:0, max:2, values:[["可可粉",0,true],["白砂糖",0,true]]}],
+  "鲜煮咖啡":          [{g:"可选加料", min:0, max:2, values:[["奶油球",0,true],["白砂糖",0,true]]}],
+  "橙汁":             [{g:"冰量", min:1, max:1, values:[["标准",0,true],["去冰",0],["少冰",0]]}]
+};
+/* 官方规范里 supportModify 的判定：有特调组即视为可特调 */
+const canModify = name => !!MODS[name];
+
+/* ══════════════════════════════════════════════════════════════
+   二、状态与工具
+   ══════════════════════════════════════════════════════════════ */
 const state = {
   screen:"menu", daypart:"午餐", service:"到店取餐", cat:"超值套餐",
-  cart:[], seq:1, sp:{item:null, qty:1, size:"中杯", addon:false}
+  cart:[], lastTotal:0, sp:{item:null, qty:1, sel:{}, mods:{}, showMod:false}
 };
 const $ = s => document.querySelector(s);
+const root = document.documentElement;
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const nowStr = () => new Date().toLocaleString("zh-CN",{timeZone:"Asia/Shanghai",hour12:false});
 const item = n => MENU.find(m=>m.n===n);
 const baseKcal = n => NUTRI[n] ? NUTRI[n].kcal : null;
+const yuan = v => "¥" + v.toFixed(2);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
-/* 单件热量：套餐=组成合计；饮品按杯型系数 */
-function unitKcal(name, size){
-  const m = item(name);
-  if(m && m.combo) return m.combo.reduce((a,c)=>a+baseKcal(c),0);
-  const b = baseKcal(name);
-  if(b===null) return null;
-  return Math.round(b * (size==="大杯" ? SIZE_MUL : 1));
-}
-function unitNutri(name, size){
-  const m = item(name);
-  const list = m && m.combo ? m.combo : [name];
-  const mul = (!m || !m.combo) && size==="大杯" ? SIZE_MUL : 1;
-  const acc = {kcal:0,p:0,f:0,c:0,na:0};
-  let unknown = false;
-  list.forEach(x=>{
-    const b = NUTRI[x];
-    if(!b){ unknown = true; return; }
-    acc.kcal += b.kcal; acc.p += b.p; acc.f += b.f; acc.c += b.c; acc.na += b.na;
-  });
-  return {kcal:Math.round(acc.kcal*mul), p:Math.round(acc.p*mul), f:Math.round(acc.f*mul),
-          c:Math.round(acc.c*mul), na:Math.round(acc.na*mul), unknown};
-}
-
-/* ================== 通用 ================== */
 function log(tool, desc, sys){
   const el = document.createElement("div");
   el.className = "log" + (sys?" sys":"");
-  el.innerHTML = `<div class="tool">${tool}</div><div class="desc">${desc}</div><div class="time">${nowStr()}</div>`;
-  $("#logList").prepend(el);
+  el.innerHTML = `<div class="tool">${esc(tool)}</div><div class="desc">${esc(desc)}</div><div class="time">${nowStr()}</div>`;
+  const list = $("#logList");
+  list.prepend(el);
+  while(list.children.length > 40) list.lastElementChild.remove();   /* 防无限增长 */
 }
-function setSeg(id, opts, cur, cb, dataAttr){
+function setSeg(id, opts, cur, cb){
   const el = $(id); el.innerHTML = "";
   opts.forEach(o=>{
     const b = document.createElement("button");
-    b.textContent = o;
+    b.type = "button"; b.textContent = o;
+    b.setAttribute("aria-pressed", String(o===cur));
     if(o===cur) b.className = "active";
-    if(dataAttr) b.dataset[dataAttr.key] = o;
     b.onclick = ()=> cb(o);
     el.appendChild(b);
   });
 }
+/* 只在文本变化时写 DOM —— 每秒一次的时钟不再是布局抖动源 */
+function setText(el, txt){ if(el.textContent !== txt) el.textContent = txt; }
 function tick(){
   const d = new Date();
   const t = d.toLocaleString("zh-CN",{timeZone:"Asia/Shanghai",hour:"2-digit",minute:"2-digit",hour12:false});
-  $("#statusTime").textContent = t;
-  $("#clock").textContent = "北京时间 " + nowStr();
+  setText($("#statusTime"), t);
+  setText($("#clockTime"), t);
+  setText($("#clock"), "北京时间 " + nowStr());
 }
 tick(); setInterval(tick, 1000);
+
+/* 数字滚动（fmt 返回 HTML 片段，仅由内部数值拼装，不含用户输入）
+   兜底：若页面切到后台导致 rAF 不触发，用定时器保证终值一定落地 */
+function roll(el, to, fmt){
+  const from = Number(el.dataset.v || 0);
+  clearTimeout(el._rollT);
+  if(from === to || reduced){ el.innerHTML = fmt(to); el.dataset.v = to; return; }
+  const t0 = performance.now(), dur = 520;
+  const step = now=>{
+    const p = Math.min(1, (now - t0) / dur);
+    const v = Math.round(from + (to - from) * (1 - Math.pow(1 - p, 4)));
+    el.innerHTML = fmt(v); el.dataset.v = v;
+    if(p < 1) requestAnimationFrame(step);
+    else { el.innerHTML = fmt(to); el.dataset.v = to; }
+  };
+  requestAnimationFrame(step);
+  el._rollT = setTimeout(()=>{ el.innerHTML = fmt(to); el.dataset.v = to; }, dur + 80);
+}
 
 /* 餐段识别（F2）：宵夜单列 22:14–04:45 */
 function detectDaypart(){
@@ -525,173 +869,384 @@ function detectDaypart(){
   if(t>=360 && t<=629) return "早餐";
   if(t>=630 && t<=929) return "午餐";
   if(t>=930 && t<=1079) return "随便吃吃";
-  if(t>=1334 || t<=285) return "宵夜";
+  if(t>=1334 || t<360) return "宵夜";      /* 22:14 起，跨零点至 05:59 均按宵夜 */
   return "晚餐";
 }
 
-/* ================== 02 菜单渲染 ================== */
-function availItems(){
-  return MENU.filter(m=>m.dp.includes(state.daypart));
+/* ══════════════════════════════════════════════════════════════
+   三、热量色阶：把「本单热量 ÷ 标准档」映射成色相
+   0.30→252(冷青/不足) · 0.88→158(绿/合理) · 1.12→88(琥珀) · 1.70→25(赤/偏高)
+   ══════════════════════════════════════════════════════════════ */
+const HEAT_STOPS = [[0.30,252],[0.88,158],[1.12,88],[1.70,25]];
+function heatHue(r){
+  const a = HEAT_STOPS;
+  const x = Math.min(Math.max(r, a[0][0]), a[a.length-1][0]);
+  for(let i=0;i<a.length-1;i++){
+    const [x0,y0] = a[i], [x1,y1] = a[i+1];
+    if(x <= x1){ const t = (x1-x0) ? (x-x0)/(x1-x0) : 0; return y0 + (y1-y0)*t; }
+  }
+  return 25;
 }
+function applyHeat(){
+  const t = TIERS[state.daypart];
+  const r = cartKcal().total / (t.标准 || 1);
+  root.style.setProperty("--heat-h", heatHue(r).toFixed(1));
+}
+
+/* ══════════════════════════════════════════════════════════════
+   四、Toast（撤销优先于确认弹窗）
+   ══════════════════════════════════════════════════════════════ */
+let toastTimer = null;
+function hideToast(){ const el = $("#toast"); el.classList.remove("show"); }
+function toast(msg, action){
+  const el = $("#toast");
+  el.innerHTML = `<span>${esc(msg)}</span>`;
+  if(action){
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "toast-act"; b.textContent = action.label;
+    b.onclick = ()=>{ action.fn(); hideToast(); };
+    el.appendChild(b);
+  }
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(hideToast, action ? 7000 : 3200);
+}
+
+/* 加入购物车的抛物线飞行 */
+function flyToCart(btn){
+  const icon = $("#cartIcon");
+  if(reduced){ icon.classList.add("pulse"); setTimeout(()=>icon.classList.remove("pulse"), 420); return; }
+  const s = btn.getBoundingClientRect(), t = icon.getBoundingClientRect();
+  const dot = document.createElement("div"); dot.className = "fly";
+  const inner = document.createElement("i"); dot.appendChild(inner);
+  document.body.appendChild(dot);
+  const x0 = s.left + s.width/2, y0 = s.top + s.height/2;
+  const dx = (t.left + t.width/2) - x0, dy = (t.top + t.height/2) - y0;
+  dot.style.transform = `translate3d(${x0-6}px, ${y0-6}px, 0)`;
+  const aX = inner.animate([{transform:"translateX(0)"},{transform:`translateX(${dx}px)`}],
+                           {duration:600, easing:"linear", fill:"forwards"});
+  const aY = dot.animate([{transform:`translate3d(${x0-6}px, ${y0-6}px, 0) scale(1)`},
+                          {transform:`translate3d(${x0-6}px, ${y0-6+dy}px, 0) scale(.35)`}],
+                         {duration:600, easing:"cubic-bezier(.55,0,1,.45)", fill:"forwards"});
+  Promise.allSettled([aX.finished, aY.finished]).then(()=>{
+    dot.remove();
+    icon.classList.add("pulse");
+    setTimeout(()=> icon.classList.remove("pulse"), 440);
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   五、菜单渲染
+   ══════════════════════════════════════════════════════════════ */
+const availItems = () => MENU.filter(m=>m.dp.includes(state.daypart));
 function catsOfDay(){
   const order = ["早餐","超值套餐","汉堡包","小食","甜品","饮品"];
   const have = new Set(availItems().map(m=>m.cat));
   return order.filter(c=>have.has(c));
 }
-function renderRail(){
+/* 默认分类优先级：切换餐段后原分类不可售时，按此顺序挑第一个「有得选」的分类。
+   直接取列表首项会落坑——「鲜煮咖啡」跨时段挂在「早餐」分类下，
+   切到晚餐时「早餐」只剩 1 项，看起来像空分类。 */
+const CAT_PREF = ["超值套餐","早餐","汉堡包","小食","甜品","饮品"];
+function countByCat(list){
+  const m = {};
+  list.forEach(x=> m[x.cat] = (m[x.cat] || 0) + 1);
+  return m;
+}
+function pickCat(cats, counts){
+  const hit = CAT_PREF.find(c => cats.includes(c) && (counts[c] || 0) >= 2);
+  return hit || cats.reduce((a,c)=> (counts[c] || 0) > (counts[a] || 0) ? c : a, cats[0]);
+}
+/* forcePick：餐段切换时重挑默认分类；用户手点分类时保留其选择 */
+function renderRail(forcePick){
+  const avail = availItems();
   const cats = catsOfDay();
-  if(!cats.includes(state.cat)) state.cat = cats[0];
+  const counts = countByCat(avail);
+  if(forcePick || !cats.includes(state.cat)) state.cat = pickCat(cats, counts);
   const rail = $("#rail"); rail.innerHTML = "";
   cats.forEach(c=>{
+    const n = counts[c] || 0;
     const b = document.createElement("button");
-    b.textContent = c;
-    if(c===state.cat) b.className = "active";
+    b.type = "button";
+    b.innerHTML = `<span>${esc(c)}</span><span class="cnt">${n}</span>`;
+    if(c === state.cat) b.setAttribute("aria-current","true");
+    else b.removeAttribute("aria-current");
     b.onclick = ()=> renderMenu(c);
     rail.appendChild(b);
   });
 }
+/* 分类间用 ↑↓ 键移动（roving 的轻量版：保持可 Tab 到，方向键快速切换） */
+$("#rail").addEventListener("keydown", e=>{
+  const btns = [...$("#rail").querySelectorAll("button")];
+  const i = btns.indexOf(document.activeElement);
+  if(i < 0) return;
+  const map = {ArrowDown:1, ArrowRight:1, ArrowUp:-1, ArrowLeft:-1};
+  if(!(e.key in map)) return;
+  e.preventDefault();
+  const next = btns[(i + map[e.key] + btns.length) % btns.length];
+  next.focus(); next.click();
+});
 function renderMenu(cat){
   if(cat) state.cat = cat;
   renderRail();
   const list = availItems().filter(m=>m.cat===state.cat);
   const box = $("#items"); box.innerHTML = "";
-  list.forEach(m=>{
-    const k = unitKcal(m.n, "中杯");
-    const unknown = k === null;
-    const el = document.createElement("div"); el.className = "item";
+  if(!list.length){
+    box.innerHTML = `<div class="empty"><span class="e-ico">🍽️</span>当前餐段该分类暂无可售餐品，换一个餐段或分类看看。</div>`;
+    return;
+  }
+  list.forEach((m,i)=>{
+    const isCombo = !!roundsOf(m.n);
+    const baseNames = isCombo ? defaultNames(m.n) : [m.n];
+    const nu = nutriOf(baseNames);
+    const k = nu.unknown ? null : nu.kcal;
+    const el = document.createElement("div");
+    el.className = "item"; el.style.setProperty("--i", Math.min(i,8));
     el.innerHTML = `
-      <div class="thumb">🍔</div>
+      <div class="thumb" aria-hidden="true">${isCombo ? "🍱" : (m.meal==="饮品" ? "🥤" : m.meal==="甜品" ? "🍦" : m.meal==="小食" ? "🍟" : "🍔")}</div>
       <div class="info">
-        <div class="n">${m.n}</div>
+        <div class="n">${esc(m.n)}${canModify(m.n) ? '<i class="spec-tag-sm">可特调</i>' : ""}</div>
         <div class="tagrow">
-          ${m.combo?'<span class="tag combo">套餐</span>':""}
-          ${unknown?'<span class="tag unknown">热量未知</span>'
-                    :`<span class="tag kcal">约 ${k} 千卡</span>`}
-          ${m.addons?'<span class="tag">可加料</span>':""}
-          ${m.sizes?'<span class="tag">可选杯型</span>':""}
+          ${isCombo?'<span class="tag combo">套餐 · 可换品</span>':""}
+          ${k===null?'<span class="tag unknown">热量未知</span>'
+                    :`<span class="tag kcal">默认搭配约 ${k} 千卡</span>`}
         </div>
-        ${m.combo?`<div class="desc">含 ${m.combo.join(" + ")}</div>`:""}
+        ${isCombo?`<div class="desc">默认搭配：${esc(baseNames.join(" + "))}（各轮可换，含差价）</div>`
+                 :`<div class="desc">${nu.p}g 蛋白 · 脂肪 ${nu.f}g · 钠 ${nu.na}mg</div>`}
         <div class="priceline">
           <div class="price">¥${m.price.toFixed(2)}${m.orig?`<span class="orig">¥${m.orig.toFixed(2)}</span>`:""}</div>
-          <button class="add">＋</button>
+          <button class="add" type="button" aria-label="将 ${esc(m.n)} 加入购物车">＋</button>
         </div>
       </div>`;
-    el.querySelector(".add").onclick = ()=> onAddClick(m.n);
+    const add = el.querySelector(".add");
+    add.onclick = ()=> onAddClick(m.n, add);
     box.appendChild(el);
   });
 }
 
-/* ================== 03 规格弹层 ================== */
-function onAddClick(name){
+/* ══════════════════════════════════════════════════════════════
+   六、商品详情（按官方输出规范）
+   ══════════════════════════════════════════════════════════════ */
+function roundsOf(name){ return ROUNDS[name] || null; }
+function defaultSel(name){
+  const rs = roundsOf(name), sel = {};
+  if(rs) rs.forEach((r,i)=>{ const d = r.choices.findIndex(c=>c[2]); sel[i] = d >= 0 ? d : 0; });
+  return sel;
+}
+function selNames(name, sel){
+  const rs = roundsOf(name);
+  return rs ? rs.map((r,i)=> r.choices[sel[i] ?? 0][0]) : [name];
+}
+function defaultNames(name){
+  const rs = roundsOf(name);
+  return rs ? rs.map(r=> (r.choices.find(c=>c[2]) || r.choices[0])[0]) : [name];
+}
+function specDiff(name, sel){
+  const rs = roundsOf(name);
+  return rs ? rs.reduce((a,r,i)=> a + (r.choices[sel[i] ?? 0][1] || 0), 0) : 0;
+}
+function modTargets(name, names){
+  const rs = roundsOf(name);
+  return rs ? names.filter(canModify) : (canModify(name) ? [name] : []);
+}
+function modState(sp, target, gi){
+  const k = target + "#" + gi;
+  if(!sp.mods[k]) sp.mods[k] = (MODS[target][gi].values).map(v=> v[2] === true);
+  return sp.mods[k];
+}
+function iterMods(targets, fn){ targets.forEach(t=> (MODS[t] || []).forEach((g,gi)=> fn(t, g, gi))); }
+function modsPriceOf(sp, targets){
+  let sum = 0;
+  iterMods(targets, (t,g,gi)=> g.values.forEach((v,vi)=>{ if(modState(sp,t,gi)[vi]) sum += (v[1] || 0); }));
+  return sum;
+}
+function modsNoteOf(sp, targets){
+  const parts = [];
+  iterMods(targets, (t,g,gi)=>{
+    const st = modState(sp,t,gi);
+    const prefix = targets.length > 1 ? `${t} ` : "";
+    if(g.min === 1 && g.max === 1){
+      const idx = st.findIndex(Boolean);
+      if(idx > 0) parts.push(prefix + g.values[idx][0]);
+    }else{
+      const removed = g.values.filter((v,vi)=> v[2] === true && !st[vi]).map(v=>v[0]);
+      if(removed.length) parts.push(prefix + "不要" + removed.join("/"));
+      g.values.filter((v,vi)=> v[2] !== true && st[vi])
+             .forEach(v=> parts.push(prefix + (v[1] ? `加${v[0]}(+¥${v[1].toFixed(1)})` : `加${v[0]}`)));
+    }
+  });
+  return parts;
+}
+function nutriOf(names){
+  const acc = {kcal:0,p:0,f:0,c:0,na:0}; let unknown = false;
+  names.forEach(n=>{ const b = NUTRI[n]; if(!b){ unknown = true; return; }
+    acc.kcal+=b.kcal; acc.p+=b.p; acc.f+=b.f; acc.c+=b.c; acc.na+=b.na; });
+  return {...acc, unknown};
+}
+function onAddClick(name, btn){
   const m = item(name);
-  const needSpec = !!(m.combo || m.sizes || m.addons);
-  if(!needSpec){ pushCart(name, 1, "中杯", false); log("skill:cart", `直接加入购物车：${name}`, true); return; }
-  state.sp = {item:name, qty:1, size:"中杯", addon:false};
+  if(!(roundsOf(name) || canModify(name))){
+    pushCart(name, 1, {names:[name], note:[], unitPrice:m.price, kcal:baseKcal(name), combo:null});
+    log("skill:cart", `直接加入购物车：${name}`, true);
+    if(btn){
+      flyToCart(btn);
+      const old = btn.textContent;
+      btn.textContent = "✓"; btn.classList.add("done");
+      setTimeout(()=>{ btn.textContent = old; btn.classList.remove("done"); }, 700);
+    }
+    return;
+  }
+  state.sp = {item:name, qty:1, sel:defaultSel(name), mods:{}, showMod:false};
   renderSpec();
   openSheet("#sheetSpec");
 }
 function renderSpec(){
-  const {item:name, qty, size, addon} = state.sp, m = item(name);
-  $("#spTitle").textContent = name;
-  const u = unitNutri(name, size);
-  $("#spSub").textContent = (m.combo ? `套餐组成热量合计约 ${u.kcal} 千卡` : `约 ${u.kcal} 千卡 / 份`) +
-    (u.unknown ? "（含未匹配项）" : "");
-  let html = "";
-  if(m.combo){
-    html += `<div class="opt-group"><div class="og-title">套餐组成 <b>（暂不支持更换套餐内单品）</b></div>
-      <div class="combo-list">${m.combo.map(c=>{
-        const k = baseKcal(c);
-        return `<div class="cl"><b>${c}</b><span>${k===null?'热量未知':k+" 千卡"}</span></div>`;
-      }).join("")}</div>
-      <div class="hint-note">套餐内单品由门店固定搭配，如需调整请单独下单。</div></div>`;
+  const {item:name, qty, sel, showMod} = state.sp, m = item(name);
+  const rs = roundsOf(name);
+  const names = selNames(name, sel);
+  const nu = nutriOf(names);
+  const targets = modTargets(name, names);
+  const unitPrice = m.price + specDiff(name, sel) + modsPriceOf(state.sp, targets);
+  $("#spTitle").innerHTML = esc(name) + (targets.length ? '<span class="spec-tag">可特调</span>' : '');
+  $("#spSub").innerHTML = `¥${unitPrice.toFixed(2)}${m.orig ? `<span class="orig">¥${m.orig.toFixed(2)}</span>` : ""}` +
+    ` · 约 <b>${nu.kcal}</b> 千卡${nu.unknown ? "（含未匹配项）" : ""}`;
+
+  let html = `<div class="sp-nutri">
+    <span>热量 <b>${nu.kcal} 千卡</b></span><span>蛋白 <b>${nu.p}g</b></span>
+    <span>脂肪 <b>${nu.f}g</b></span><span>碳水 <b>${nu.c}g</b></span>
+    <span>钠 <b>${nu.na}mg</b></span>
+  </div>`;
+
+  if(rs){
+    rs.forEach((r,i)=>{
+      html += `<div class="round">
+        <div class="round-h"><span class="r-name">${esc(r.name)}</span>
+          <span class="r-req">${r.min > 0 ? "必选" : "可选"} · ${r.max > 1 ? `最多 ${r.max} 项` : "单选"}</span></div>
+        <div class="chips">${r.choices.map((c,ci)=>{
+          const on = (sel[i] ?? 0) === ci, k = baseKcal(c[0]);
+          const diff = c[1] ? `${c[1] > 0 ? "+" : "−"}¥${Math.abs(c[1]).toFixed(1)}` : "含在套餐价";
+          return `<button type="button" class="chip ${on ? "active" : ""}" data-r="${i}" data-c="${ci}"
+            aria-pressed="${on}">${esc(c[0])}${canModify(c[0]) ? '<i class="spec-tag-sm">可特调</i>' : ""}
+            <small>${k === null ? "热量未知" : k + " 千卡"} · ${diff}</small></button>`;
+        }).join("")}</div></div>`;
+    });
+    html += `<div class="default-line">当前默认搭配：<b>${esc(defaultNames(name).join(" + "))}</b></div>`;
   }
-  if(m.sizes){
-    html += `<div class="opt-group"><div class="og-title">杯型 <b>（大杯热量 ×${SIZE_MUL}，加 ¥${SIZE_ADD.toFixed(2)}）</b></div>
-      <div class="chips" id="chipsSize">
-        <button class="chip ${size==="中杯"?"active":""}" data-v="中杯">中杯<small>约 ${baseKcal(name)} 千卡</small></button>
-        <button class="chip ${size==="大杯"?"active":""}" data-v="大杯">大杯<small>约 ${Math.round(baseKcal(name)*SIZE_MUL)} 千卡</small></button>
-      </div></div>
-      <div class="opt-group"><div class="og-title">冰量 <b>（不影响热量）</b></div>
-      <div class="chips"><button class="chip active">正常冰</button><button class="chip">少冰</button><button class="chip">去冰</button></div></div>`;
+
+  if(targets.length){
+    html += `<div class="mod-block">
+      <button type="button" class="mod-toggle" id="btnMod" aria-expanded="${showMod}">${showMod ? "收起特调 ▲" : "查看特调 ▼"}
+        <i class="spec-tag-sm">${esc(targets.join("、"))}</i></button>
+      <p class="hint-note">按官方规范：详情页不主动展开特调项，需用户主动查看。取消勾选即传「不要」状态；加料的增量热量无官方数据，不计入估算。</p>
+      ${showMod ? targets.map(t=> (MODS[t] || []).map((g,gi)=>`
+        <div class="mod-group">
+          <div class="og-title">${targets.length > 1 ? `<span class="r-name">${esc(t)}</span> · ` : ""}${esc(g.g)}
+            <b>（${g.min === 1 ? "必选其一" : (g.max > 1 ? `可选，最多 ${g.max} 项` : "可选")}）</b></div>
+          <div class="chips">${g.values.map((v,vi)=>{
+            const on = modState(state.sp, t, gi)[vi];
+            return `<button type="button" class="chip sm ${on ? "active" : ""}" data-t="${esc(t)}" data-g="${gi}" data-v="${vi}"
+              aria-pressed="${on}">${esc(v[0])}${v[1] ? `<small>+¥${v[1].toFixed(1)}</small>` : ""}</button>`;
+          }).join("")}</div>
+        </div>`).join("")).join("") : ""}
+    </div>`;
   }
-  if(m.addons){
-    html += `<div class="opt-group"><div class="og-title">加料</div>
-      <div class="chips"><button class="chip ${addon?"active":""}" id="chipAddon">加芝士（加）<small>+¥${ADDON_PRICE.toFixed(2)} · 热量不计入</small></button></div>
-      <div class="hint-note">加料的热量不计入本次估算，实际热量会高于合计。</div></div>`;
-  }
-  if(!html) html = `<div class="hint-note">该餐品无需选择规格。</div>`;
-  $("#spBody").innerHTML = html;
-  const cs = $("#chipsSize");
-  if(cs) cs.querySelectorAll(".chip").forEach(c=> c.onclick = ()=>{ state.sp.size = c.dataset.v; renderSpec(); });
-  const ca = $("#chipAddon");
-  if(ca) ca.onclick = ()=>{ state.sp.addon = !state.sp.addon; renderSpec(); };
+  const body = $("#spBody");
+  const keepScroll = body.scrollTop;
+  body.innerHTML = html;
+  body.scrollTop = keepScroll;
+
+  body.querySelectorAll(".chip[data-c]").forEach(b=> b.onclick = ()=>{
+    state.sp.sel[+b.dataset.r] = +b.dataset.c; renderSpec();
+  });
+  body.querySelectorAll(".chip[data-v]").forEach(b=> b.onclick = ()=>{
+    const t = b.dataset.t, g = +b.dataset.g, v = +b.dataset.v, group = MODS[t][g];
+    const st = modState(state.sp, t, g);
+    if(group.min === 1 && group.max === 1) state.sp.mods[t + "#" + g] = group.values.map((_,i)=> i === v);
+    else st[v] = !st[v];
+    renderSpec();
+  });
+  const bm = $("#btnMod");
+  if(bm) bm.onclick = ()=>{ state.sp.showMod = !state.sp.showMod; renderSpec(); };
   $("#spQty").textContent = qty;
-  const unitPrice = m.price + (size==="大杯" && m.sizes ? SIZE_ADD : 0) + (addon ? ADDON_PRICE : 0);
-  $("#spAdd").textContent = `加入购物车 ¥${(unitPrice*qty).toFixed(2)}`;
+  $("#spAdd").textContent = `加入购物车 ${yuan(unitPrice * qty)}`;
 }
 $("#spMinus").onclick = ()=>{ state.sp.qty = Math.max(1, state.sp.qty-1); renderSpec(); };
 $("#spPlus").onclick  = ()=>{ state.sp.qty = Math.min(20, state.sp.qty+1); renderSpec(); };
 $("#spClose").onclick = ()=> closeSheet("#sheetSpec");
 $("#spAdd").onclick = ()=>{
-  const {item:name, qty, size, addon} = state.sp;
-  pushCart(name, qty, size, addon);
-  log("query-meal-detail", `读取「${name}」套餐组成与可选规格`, false);
+  const {item:name, qty, sel} = state.sp, m = item(name);
+  const rs = roundsOf(name);
+  const names = selNames(name, sel);
+  const nu = nutriOf(names);
+  const targets = modTargets(name, names);
+  const note = modsNoteOf(state.sp, targets);
+  pushCart(name, qty, {
+    names, combo: rs ? names.join(" + ") : null, note,
+    unitPrice: m.price + specDiff(name, sel) + modsPriceOf(state.sp, targets),
+    kcal: nu.unknown ? null : nu.kcal
+  });
+  log("query-meal-detail", rs ? `读取「${name}」组成与选配：${names.join(" + ")}`
+                              : `读取「${name}」特调项${note.length ? "：" + note.join("、") : ""}`, false);
   closeSheet("#sheetSpec");
+  const icon = $("#cartIcon");
+  icon.classList.add("pulse");
+  setTimeout(()=> icon.classList.remove("pulse"), 440);
+  toast(`已加入：${name}${qty > 1 ? ` ×${qty}` : ""}`);
 };
 
-/* ================== 04 购物车 ================== */
-function pushCart(name, qty, size, addon){
-  const m = item(name);
-  const unitPrice = m.price + (size==="大杯" && m.sizes ? SIZE_ADD : 0) + (addon ? ADDON_PRICE : 0);
-  const key = [name, size, addon ? "加芝士" : ""].join("|");
-  const found = state.cart.find(l=>l.key===key);
+/* ══════════════════════════════════════════════════════════════
+   七、购物车
+   ══════════════════════════════════════════════════════════════ */
+function pushCart(name, qty, cfg){
+  const key = [name, (cfg.names || []).join(">"), (cfg.note || []).join(">")].join("|");
+  const found = state.cart.find(l=> l.key === key);
   if(found) found.qty += qty;
-  else state.cart.push({key, name, size, addon, qty, unitPrice, isCombo:!!m.combo});
+  else state.cart.push({key, name, qty, unitPrice:cfg.unitPrice, kcal:cfg.kcal,
+                        note:cfg.note || [], combo:cfg.combo || null});
   renderCart(); renderHeat();
 }
-function cartQty(){ return state.cart.reduce((a,l)=>a+l.qty,0); }
-function cartPrice(){ return state.cart.reduce((a,l)=>a+l.unitPrice*l.qty,0); }
+const cartQty   = () => state.cart.reduce((a,l)=>a+l.qty,0);
+const cartPrice = () => state.cart.reduce((a,l)=>a+l.unitPrice*l.qty,0);
 function cartKcal(){
   let total = 0, unknown = 0;
-  state.cart.forEach(l=>{
-    const k = unitKcal(l.name, l.size);
-    if(k===null) unknown += l.qty; else total += k*l.qty;
-  });
+  state.cart.forEach(l=>{ if(l.kcal === null) unknown += l.qty; else total += l.kcal * l.qty; });
   return {total, unknown};
 }
-function noteOf(l){
-  const arr = [];
-  if(l.isCombo) arr.push("套餐");
-  if(l.size==="大杯") arr.push("大杯");
-  if(l.addon) arr.push("加芝士（加）");
-  return arr.join(" · ");
-}
+const lineNote = l => [l.combo ? `套餐：${l.combo}` : null, ...(l.note || [])].filter(Boolean);
+
 function renderCart(){
   const n = cartQty(), price = cartPrice(), k = cartKcal();
-  $("#cartBadge").style.display = n ? "" : "none";
+  const tier = TIERS[state.daypart][state.tier()];
+  $("#cartBadge").hidden = !n;
   $("#cartBadge").textContent = n;
   $("#cartIcon").classList.toggle("empty", !n);
-  $("#cartTotal").textContent = "¥" + price.toFixed(2);
-  const tier = TIERS[state.daypart][state.tier()];
+  roll($("#cartTotal"), price, v=>yuan(v));
   const kc = $("#cartKcal");
   kc.className = "ckcal" + (k.total > tier*1.12 ? " warn" : "");
-  kc.textContent = `本单约 ${k.total} 千卡` + (tier ? ` · ${state.tier()}档 ${tier}` : "");
+  kc.innerHTML = `<span class="dot"></span>本单约 ${k.total} 千卡` +
+                 (n ? ` · ${state.tier()}档 ${tier}` : "") +
+                 (k.unknown ? ` · ${k.unknown} 件未知` : "");
   $("#btnCheckout").disabled = !n;
 
   const body = $("#ctBody");
-  if(!n){ body.innerHTML = `<div class="empty">购物车还是空的，去左侧菜单点「＋」加购吧。</div>`; return; }
+  if(!n){
+    body.innerHTML = `<div class="empty"><span class="e-ico">🧺</span>购物车还是空的。<br>在左侧菜单点任意一个「＋」，热量会立刻出现在右侧仪表上。</div>`;
+    return;
+  }
   body.innerHTML = "";
   state.cart.forEach(l=>{
     const line = document.createElement("div"); line.className = "cart-line";
-    const uk = unitKcal(l.name, l.size);
+    const uk = l.kcal;
     line.innerHTML = `
       <div class="cl-info">
-        <div class="cl-name">${l.name}</div>
-        ${noteOf(l)?`<div class="cl-note">${noteOf(l)}</div>`:""}
-        <div class="cl-price">¥${(l.unitPrice*l.qty).toFixed(2)}<span>${uk===null?"热量未知":(uk*l.qty)+" 千卡"}</span></div>
+        <div class="cl-name">${esc(l.name)}</div>
+        ${lineNote(l).length?`<div class="cl-note">${esc(lineNote(l).join(" · "))}</div>`:""}
+        <div class="cl-price">${yuan(l.unitPrice*l.qty)}<span>${uk===null?"热量未知":(uk*l.qty)+" 千卡"}</span></div>
       </div>
       <div class="stepper">
-        <button class="minus bare">−</button><span class="q">${l.qty}</span><button class="plus">＋</button>
+        <button type="button" class="minus" aria-label="减少 ${esc(l.name)}">−</button>
+        <span class="q">${l.qty}</span>
+        <button type="button" class="plus" aria-label="增加 ${esc(l.name)}">＋</button>
       </div>`;
     line.querySelector(".minus").onclick = ()=>{
       l.qty--; if(l.qty<=0) state.cart = state.cart.filter(x=>x!==l);
@@ -701,123 +1256,191 @@ function renderCart(){
     body.appendChild(line);
   });
 }
-$("#cartIcon").onclick = ()=>{ if(cartQty()) openSheet("#sheetCart"); };
-$("#ctClear").onclick = ()=>{ state.cart = []; renderCart(); renderHeat(); log("skill:cart", "清空购物车", true); closeSheet("#sheetCart"); };
+$("#cartIcon").onclick = ()=>{
+  if(cartQty()) openSheet("#sheetCart");
+  else toast("购物车还是空的，先去菜单里加一份吧");
+};
+/* 清空 → 撤销：比二次确认更轻，也更不容易误点 */
+$("#ctClear").onclick = ()=>{
+  if(!cartQty()){ closeSheet("#sheetCart"); return; }
+  const backup = state.cart;
+  state.cart = []; renderCart(); renderHeat();
+  log("skill:cart", "清空购物车", true);
+  closeSheet("#sheetCart");
+  toast("已清空购物车", {label:"撤销", fn(){
+    state.cart = backup; renderCart(); renderHeat();
+    log("skill:cart", "撤销清空，购物车已恢复", true);
+  }});
+};
 $("#sheetMask").onclick = ()=>{ closeSheet("#sheetCart"); closeSheet("#sheetSpec"); };
-function openSheet(sel){ $(sel).classList.add("show"); $("#sheetMask").style.display = ""; }
-function closeSheet(sel){ $(sel).classList.remove("show"); $("#sheetMask").style.display = "none"; }
 
-/* ================== 05 结算与提交 ================== */
-state.tier = ()=> { const k = cartKcal().total, t = TIERS[state.daypart];
-  if(k > t.标准*1.12) return "标准";           /* 偏高时对齐标准档做替换 */
+let lastFocus = null;
+function openSheet(sel){
+  lastFocus = document.activeElement;
+  const el = $(sel);
+  el.removeAttribute("inert"); el.classList.add("show");
+  $("#sheetMask").classList.add("show");
+  requestAnimationFrame(()=>{
+    const f = el.querySelector("[data-autofocus]") || el.querySelector("button");
+    if(f) f.focus({preventScroll:true});
+  });
+}
+function closeSheet(sel){
+  const el = $(sel);
+  if(!el.classList.contains("show")) return;
+  el.classList.remove("show"); el.setAttribute("inert","");
+  if(!$("#sheetSpec").classList.contains("show") && !$("#sheetCart").classList.contains("show"))
+    $("#sheetMask").classList.remove("show");
+  if(lastFocus && document.contains(lastFocus)) lastFocus.focus({preventScroll:true});
+}
+document.addEventListener("keydown", e=>{
+  if(e.key !== "Escape") return;
+  if($("#dlg").open) return;                       /* dialog 自带 Esc */
+  if($("#sheetSpec").classList.contains("show")) closeSheet("#sheetSpec");
+  else if($("#sheetCart").classList.contains("show")) closeSheet("#sheetCart");
+});
+
+/* ══════════════════════════════════════════════════════════════
+   八、结算与提交
+   ══════════════════════════════════════════════════════════════ */
+state.tier = ()=> {
+  const k = cartKcal().total, t = TIERS[state.daypart];
+  if(k > t.标准*1.12) return "标准";               /* 偏高时对齐标准档做替换 */
   let best = "标准", d = Infinity;
   Object.keys(t).forEach(x=>{ const dd = Math.abs(t[x]-k); if(dd<d){ d=dd; best=x; } });
   return best;
 };
 function renderCheckout(){
   const k = cartKcal(), sub = cartPrice();
+  /* 口径：满 30 减 5 与满 40 免配送费均以「优惠前商品小计 sub」判定（模拟口径）。
+     若按实付判定，sub=42 时优惠后 37 将不满足免配送门槛，两种口径都合理，此处取前者并在 UI 标注门槛。 */
   const useCoupon = sub >= 30, cut = useCoupon ? 5 : 0;
   const delivery = state.service === "外送" ? (sub >= 40 ? 0 : 9) : 0;
   const total = Math.max(sub - cut + delivery, 0);
   const t = TIERS[state.daypart], tierNow = state.tier();
-  const verdict = k.total > t.标准*1.12 ? `<span style="color:var(--red)">偏高，超出标准档 ${k.total-t.标准} 千卡</span>`
-    : k.total < t.轻量*0.88 ? `<span style="color:var(--blue)">偏低，距轻量档还差 ${t.轻量-k.total} 千卡</span>`
-    : `<span style="color:var(--green)">处于${tierNow}档合理区间</span>`;
+  const verdict = k.total > t.标准*1.12 ? `<span style="color:var(--bad)">偏高，超出标准档 ${k.total-t.标准} 千卡</span>`
+    : k.total < t.轻量*0.88 ? `<span style="color:var(--info)">偏低，距轻量档还差 ${t.轻量-k.total} 千卡</span>`
+    : `<span style="color:var(--ok)">处于${tierNow}档合理区间</span>`;
+
   $("#coBody").innerHTML = `
-    <div class="co-card">
-      <div class="ct"><span class="num">01</span>取餐方式与门店</div>
-      <div class="kv"><span>${state.service}</span><b>${state.service==="外送"?"上海市浦东新区世纪大道 100 号 8F（模拟）":"热麦餐厅 · 陆家嘴中心店"}</b></div>
+    <div class="co-sec">
+      <div class="co-h"><span class="num">01</span>取餐方式与门店</div>
+      <div class="kv"><span>${esc(state.service)}</span><b>${state.service==="外送"?"上海市浦东新区世纪大道 100 号 8F（模拟）":"热麦餐厅 · 陆家嘴中心店"}</b></div>
       <div class="kv"><span>预计${state.service==="外送"?"送达":"取餐"}</span><b>${state.service==="外送"?"32 分钟":"12 分钟"}</b></div>
     </div>
-    <div class="co-card">
-      <div class="ct"><span class="num">02</span>餐品清单<span style="margin-left:auto;color:var(--amber);font-size:12px;cursor:pointer" id="coEdit">修改</span></div>
+    <div class="co-sec">
+      <div class="co-h"><span class="num">02</span>餐品清单<button type="button" class="link" id="coEdit">修改</button></div>
       ${state.cart.map(l=>{
-        const uk = unitKcal(l.name, l.size);
-        return `<div class="co-line"><span>${l.name}${noteOf(l)?`<div class="l-note">${noteOf(l)}</div>`:""}</span>
-          <span>x${l.qty} · ¥${(l.unitPrice*l.qty).toFixed(2)}<div class="l-note">${uk===null?"热量未知":(uk*l.qty)+" 千卡"}</div></span></div>`;
-      }).join("")}
+        const uk = l.kcal;
+        return `<div class="co-line"><span>${esc(l.name)}${lineNote(l).length?`<div class="l-note">${esc(lineNote(l).join(" · "))}</div>`:""}</span>
+          <span class="r">x${l.qty} · ${yuan(l.unitPrice*l.qty)}<div class="l-note">${uk===null?"热量未知":(uk*l.qty)+" 千卡"}</div></span></div>`;
+      }).join("") || `<div class="empty">购物车为空，请返回菜单加购。</div>`}
     </div>
-    <div class="co-card">
-      <div class="ct"><span class="num">03</span>优惠与餐具</div>
-      <div class="kv"><span>优惠券（满 30 减 5）</span><b style="color:${useCoupon?"var(--green)":"var(--txt-3)"}">${useCoupon?"-¥5.00":"不可用"}</b></div>
+    <div class="co-sec">
+      <div class="co-h"><span class="num">03</span>优惠与餐具</div>
+      <div class="kv"><span>优惠券（满 30 减 5）</span><b style="color:${useCoupon?"var(--ok)":"var(--ink-4)"}">${useCoupon?"-¥5.00":"不可用"}</b></div>
       <div class="kv"><span>餐具份数</span><b>1 份（按需提供）</b></div>
     </div>
-    <div class="co-card">
-      <div class="ct"><span class="num">04</span>备注</div>
-      <textarea class="remarks" placeholder="如：可乐去冰、不要餐巾纸（选填）"></textarea>
+    <div class="co-sec">
+      <div class="co-h"><span class="num">04</span>备注</div>
+      <label class="sr-only" for="coRemark">订单备注</label>
+      <textarea class="remarks" id="coRemark" placeholder="如：可乐去冰、不要餐巾纸（选填）"></textarea>
     </div>
-    <div class="co-card">
-      <div class="ct"><span class="num">05</span>金额明细</div>
-      <div class="kv"><span>商品小计</span><b>¥${sub.toFixed(2)}</b></div>
+    <div class="co-sec">
+      <div class="co-h"><span class="num">05</span>金额明细</div>
+      <div class="kv"><span>商品小计</span><b>${yuan(sub)}</b></div>
       <div class="kv ${cut?"discount":""}"><span>优惠</span><b>${cut?"-¥"+cut.toFixed(2):"¥0.00"}</b></div>
       ${state.service==="外送"?`<div class="kv"><span>配送费${delivery?`（满 40 免配送费）`:""}</span><b>${delivery?"¥"+delivery.toFixed(2):"免配送费"}</b></div>`:""}
-      <div class="kv total"><span>应付金额</span><b>¥${total.toFixed(2)}</b></div>
+      <div class="kv total"><span>应付金额</span><b>${yuan(total)}</b></div>
     </div>
-    <div class="co-card">
-      <div class="ct"><span class="num">06</span>本单热量估算</div>
+    <div class="co-sec">
+      <div class="co-h"><span class="num">06</span>本单热量估算</div>
       <div class="kv"><span>本单合计</span><b>${k.total} 千卡${k.unknown?`（另有 ${k.unknown} 件热量未知）`:""}</b></div>
       <div class="kv"><span>当前餐段档位</span><b>${state.daypart} · 轻量 ${t.轻量} / 标准 ${t.标准} / 吃饱 ${t.吃饱}</b></div>
       <div class="kv"><span>结论</span><b>${verdict}</b></div>
     </div>`;
   $("#coEdit").onclick = ()=> goScreen("menu");
-  $("#coTotal").textContent = "¥" + total.toFixed(2);
+  roll($("#coTotal"), total, v=>yuan(v));
   const ch = $("#coHeat");
   ch.className = "co-heat" + (k.total > t.标准*1.12 ? " warn" : "");
-  ch.innerHTML = `本单约 <b>${k.total}</b> 千卡`;
+  ch.innerHTML = `<span class="dot"></span>本单约 <b>${k.total}</b> 千卡`;
   state.lastTotal = total;
 }
-
-/* 提交 → 二次确认（F7：先报价，用户确认后才创建订单） */
 $("#btnSubmit").onclick = ()=>{
+  if(!cartQty()){ toast("购物车为空，无法提交"); return; }
+  renderCheckout();                                 /* 兜底：确保 lastTotal 是最新的 */
   const k = cartKcal(), t = TIERS[state.daypart];
-  log("calculate-price", `报价：¥${state.lastTotal.toFixed(2)}（${state.service}，含优惠与配送费）`, false);
+  log("calculate-price", `报价：${yuan(state.lastTotal)}（${state.service}，含优惠与配送费）`, false);
   $("#mItems").innerHTML = state.cart.map(l=>
-    `<div><span>${l.name} x${l.qty}</span><span>¥${(l.unitPrice*l.qty).toFixed(2)}</span></div>`).join("");
-  $("#mTotal").textContent = "¥" + state.lastTotal.toFixed(2);
-  $("#mHeat").innerHTML = `本单约 <b style="color:var(--amber)">${k.total} 千卡</b>（${state.daypart} · ${state.tier()}档目标 ${t[state.tier()]}，区间 ${Math.round(t[state.tier()]*0.88)}–${Math.round(t[state.tier()]*1.12)}）` +
-    (k.total > t.标准*1.12 ? `<br><span style="color:var(--red)">已超出标准档，可在右侧查看替换建议。</span>` : "");
-  $("#mPay").style.display = "none"; $("#mConfirm").style.display = "";
+    `<div><span>${esc(l.name)} x${l.qty}</span><span>${yuan(l.unitPrice*l.qty)}</span></div>`).join("");
+  $("#mTotal").textContent = yuan(state.lastTotal);
+  $("#mHeat").innerHTML = `本单约 <b>${k.total} 千卡</b>（${state.daypart} · ${state.tier()}档目标 ${t[state.tier()]}，区间 ${Math.round(t[state.tier()]*0.88)}–${Math.round(t[state.tier()]*1.12)}）` +
+    (k.total > t.标准*1.12 ? `<br><span style="color:var(--bad)">已超出标准档，可在右侧查看替换建议。</span>` : "");
+  $("#mPay").hidden = true; $("#mConfirm").hidden = false;
   $("#mTitle").textContent = "确认提交订单";
   $("#mSub").textContent = "提交后不可修改，请核对餐品与金额";
-  $("#mask").classList.add("show");
+  $("#dlg").showModal();
 };
-$("#mCancel").onclick = ()=>{ $("#mask").classList.remove("show"); log("skill:order", "用户取消，未调用 create-order", true); };
+$("#mCancel").onclick = ()=>{ $("#dlg").close(); log("skill:order", "用户取消，未调用 create-order", true); };
 $("#mConfirm").onclick = ()=>{
   log("create-order", "用户明确确认，创建订单并返回支付链接（模拟）", false);
   $("#mTitle").textContent = "订单已创建";
   $("#mSub").textContent = "请在下单后 15 分钟内完成支付";
   $("#payLink").textContent = "https://pay.example-mock.cn/order/" + Date.now();
-  $("#mPay").style.display = ""; $("#mConfirm").style.display = "none";
+  $("#mPay").hidden = false; $("#mConfirm").hidden = true;
+  $("#mCancel").textContent = "关闭";
 };
+/* 点遮罩关闭（dialog 内边距区域即 dialog 本身） */
+$("#dlg").addEventListener("click", e=>{ if(e.target.id === "dlg") $("#dlg").close(); });
+$("#dlg").addEventListener("close", ()=>{ $("#mCancel").textContent = "再想想"; });
 
-/* ================== 06 热量面板 ================== */
+/* ══════════════════════════════════════════════════════════════
+   九、热量面板（仪表）
+   ══════════════════════════════════════════════════════════════ */
 function renderHeat(){
   const k = cartKcal(), t = TIERS[state.daypart];
-  $("#heatTotal").innerHTML = k.total + "<small>千卡</small>";
+  applyHeat();
+  roll($("#heatTotal"), k.total, v=> v + "<small>千卡</small>");
   const v = $("#heatVerdict");
-  if(!cartQty()){ v.className = "verdict ok"; v.textContent = "未选餐"; }
+  if(!cartQty()){ v.className = "verdict idle"; v.textContent = "未选餐"; }
   else if(k.total > t.标准*1.12){ v.className = "verdict high"; v.textContent = `偏高 ${k.total-t.标准}`; }
   else if(k.total < t.轻量*0.88){ v.className = "verdict low"; v.textContent = `偏低 ${t.轻量-k.total}`; }
   else{ v.className = "verdict ok"; v.textContent = "合理区间"; }
-  $("#tierL").textContent = `轻量 ${t.轻量}`;
-  $("#tierM").textContent = `标准 ${t.标准}`;
-  $("#tierH").textContent = `吃饱 ${t.吃饱}`;
-  const max = t.吃饱*1.2;
-  $("#heatMk").style.left = Math.min(k.total/max*100,100) + "%";
-  $("#heatMkTxt").textContent = k.total + " 千卡";
-  const tb = $("#heatTable tbody");
-  if(!cartQty()) tb.innerHTML = `<tr><td colspan="3" style="color:var(--txt-3)">尚未选择餐品</td></tr>`;
-  else tb.innerHTML = state.cart.map(l=>{
-    const uk = unitKcal(l.name, l.size);
-    return `<tr><td class="name">${l.name}${noteOf(l)?`<div style="font-size:11px;color:var(--txt-3)">${noteOf(l)}</div>`:""}</td>
-      <td class="num">${l.qty}</td>
-      <td class="num ${uk===null?"unknown":""}">${uk===null?"未知":uk*l.qty}</td></tr>`;
-  }).join("") + `<tr><td class="name" style="font-weight:700">合计</td><td class="num"></td><td class="num" style="font-weight:700;color:var(--amber)">${k.total}</td></tr>`;
+
+  /* 仪表 */
+  const max = t.吃饱 * 1.25;
+  const pct = val => Math.min(100, Math.max(0, val / max * 100));
+  const tierNow = state.tier(), target = t[tierNow] || t.标准;
+  $("#gFill").style.width = pct(k.total) + "%";
+  $("#gNeedle").style.left = pct(k.total) + "%";
+  $("#gLabel").textContent = k.total ? k.total + " 千卡" : "";
+  $("#gBand").style.left  = pct(target*0.88) + "%";
+  $("#gBand").style.width = (pct(target*1.12) - pct(target*0.88)) + "%";
+  $("#gScale").innerHTML = ["轻量","标准","吃饱"].map(x=>
+    `<span class="${x===tierNow?"on":""}" style="left:${pct(t[x])}%">${x} ${t[x]}</span>`).join("");
+
+  const tb = $("#heatTable tbody"), tf = $("#heatTable tfoot");
+  if(!cartQty()){
+    tb.innerHTML = `<tr><td colspan="3" style="color:var(--ink-4)">尚未选择餐品</td></tr>`;
+    tf.innerHTML = "";
+  }else{
+    tb.innerHTML = state.cart.map(l=>{
+      const uk = l.kcal;
+      return `<tr><td class="name">${esc(l.name)}${lineNote(l).length?`<em>${esc(lineNote(l).join(" · "))}</em>`:""}</td>
+        <td class="num">${l.qty}</td>
+        <td class="num ${uk===null?"unknown":""}">${uk===null?"未知":uk*l.qty}</td></tr>`;
+    }).join("");
+    tf.innerHTML = `<tr><td>合计${k.unknown?`（另有 ${k.unknown} 件热量未知）`:""}</td><td class="num"></td><td class="num">${k.total}</td></tr>`;
+  }
   renderReco();
 }
 
-/* ================== 07 替换建议 ================== */
+/* ══════════════════════════════════════════════════════════════
+   十、替换建议（组合枚举按餐段缓存）
+   ══════════════════════════════════════════════════════════════ */
+const comboCache = new Map();
 function enumCombos(){
+  if(comboCache.has(state.daypart)) return comboCache.get(state.daypart);
   const dp = state.daypart;
   const av = MENU.filter(m=>m.dp.includes(dp) && !m.combo && baseKcal(m.n)!==null);
   const mains = av.filter(m=>m.meal==="主食"), snacks = av.filter(m=>m.meal==="小食"),
@@ -833,20 +1456,23 @@ function enumCombos(){
     sets.forEach(s=>{ out.push({items:s, ...sum(s)}); if(s.length<3) drinks.forEach(d=> out.push({items:[...s,d], ...sum([...s,d])})); });
     drinks.forEach(d=> out.push({items:[d], ...sum([d])}));
   }else{
+    /* 与引擎对齐：甜品归入「小食」池，参与正餐组合（主食 + 0~1 小食/甜品 + 0~1 饮品） */
+    const snackPool = [...snacks, ...desserts];
     mains.forEach(m=>{
       const bases = [[m]];
-      snacks.forEach(s=> bases.push([m,s]));
+      snackPool.forEach(s=> bases.push([m,s]));
       bases.forEach(b=>{ out.push({items:b, ...sum(b)}); drinks.forEach(d=> out.push({items:[...b,d], ...sum([...b,d])})); });
     });
   }
+  comboCache.set(dp, out);
   return out;
 }
 function renderReco(){
   const k = cartKcal(), t = TIERS[state.daypart];
   const panel = $("#panelReco");
   const needRepl = cartQty() && k.total > t.标准*1.12;
-  if(!needRepl){ panel.style.display = "none"; return; }
-  panel.style.display = "";
+  if(!needRepl){ panel.hidden = true; return; }
+  panel.hidden = false;
   const target = t.标准;
   let list = enumCombos().filter(c=>c.kcal>=target*0.88 && c.kcal<=target*1.12);
   list.sort((a,b)=> Math.abs(a.kcal-target)-Math.abs(b.kcal-target));
@@ -854,47 +1480,62 @@ function renderReco(){
   const g = $("#recoGrid");
   if(!list.length){ g.innerHTML = `<div class="empty">标准档内暂无合适替换组合，建议换餐段或档位。</div>`; return; }
   g.innerHTML = "";
-  list.forEach(c=>{
+  list.forEach((c,i)=>{
     const diff = c.kcal - k.total;
     const el = document.createElement("div"); el.className = "reco";
+    el.style.animation = reduced ? "none" : `item-in var(--dur-3) var(--e-out-quart) ${i*60}ms both`;
     el.innerHTML = `
-      <div class="r-items">${c.items.map(m=>m.n).join(" + ")}</div>
+      <div class="r-items">${esc(c.items.map(m=>m.n).join(" + "))}</div>
       <div class="r-kcal">${c.kcal}<small>千卡 / 目标 ${target}</small></div>
       <div class="r-delta ${diff<0?"down":"up"}">${diff<0?`▼ 少 ${Math.abs(diff)} 千卡`:`▲ 多 ${diff} 千卡`}</div>
       <div class="r-nutri">蛋白 ${c.p}g · 脂肪 ${c.f}g · 碳水 ${c.c}g · 钠 ${c.na}mg</div>
-      <div class="r-foot"><span class="r-price">¥${c.price.toFixed(2)}</span>
-        <button class="use">换这一份</button></div>`;
+      <div class="r-foot"><span class="r-price">${yuan(c.price)}</span>
+        <button type="button" class="use">换这一份</button></div>`;
     el.querySelector(".use").onclick = ()=>{
       state.cart = c.items.map(m=>({
-        key:m.n+"|中杯|", name:m.n, size:"中杯", addon:false, qty:1,
-        unitPrice:m.price, isCombo:false
+        key:"reco|"+m.n, name:m.n, qty:1, unitPrice:m.price, kcal:NUTRI[m.n] ? NUTRI[m.n].kcal : null,
+        combo:null, note:["替换方案"],
       }));
       log("skill:replace", `按标准档替换购物车：${c.items.map(m=>m.n).join(" + ")}（少 ${Math.abs(diff)} 千卡）`, true);
       renderCart(); renderHeat();
+      toast(`已替换为 ${c.items.map(m=>m.n).join(" + ")}，约 ${c.kcal} 千卡`);
     };
     g.appendChild(el);
   });
 }
 
-/* ================== 导航与其他 ================== */
+/* ══════════════════════════════════════════════════════════════
+   十一、导航
+   ══════════════════════════════════════════════════════════════ */
 function goScreen(name){
+  if(state.screen === name) return;
   state.screen = name;
-  $("#screenMenu").style.display = name==="menu" ? "" : "none";
-  $("#screenCheckout").style.display = name==="checkout" ? "" : "none";
-  $("#cartbar").style.display = name==="menu" ? "" : "none";
-  $("#btnBack").style.display = name==="menu" ? "none" : "";
-  $("#appTitle").textContent = name==="menu" ? "点餐" : "确认订单";
-  $("#appSub").textContent = name==="menu" ? "选择你想要的餐品" : `${state.service} · ${state.daypart}`;
+  const menu = $("#screenMenu"), co = $("#screenCheckout");
+  menu.hidden = name !== "menu"; co.hidden = name !== "checkout";
+  const target = name === "menu" ? menu : co;
+  target.classList.remove("screen"); void target.offsetWidth; target.classList.add("screen");  /* 重放入场动画 */
+  $("#cartbar").hidden = name !== "menu";
+  $("#coFoot").hidden = name !== "checkout";
+  $("#btnBack").hidden = name === "menu";
+  $("#appTitle").textContent = name === "menu" ? "点餐" : "确认订单";
+  $("#appSub").textContent = name === "menu" ? "选择你想要的餐品" : `${state.service} · ${state.daypart}`;
   $("#viewport").scrollTop = 0;
-  if(name==="checkout"){ renderCheckout(); log("calculate-price", "结算页：计算商品小计、优惠、配送费与应付金额", false); }
+  if(name === "checkout"){
+    renderCheckout();
+    log("calculate-price", "结算页：计算商品小计、优惠、配送费与应付金额", false);
+  }
 }
 $("#btnBack").onclick = ()=> goScreen("menu");
-$("#btnCheckout").onclick = ()=>{ closeSheet("#sheetCart"); goScreen("checkout"); renderCart(); };
+$("#btnCheckout").onclick = ()=>{ closeSheet("#sheetCart"); goScreen("checkout"); };
 
 $("#segService").querySelectorAll("button").forEach(b=>{
   b.onclick = ()=>{
     state.service = b.dataset.s;
-    $("#segService").querySelectorAll("button").forEach(x=>x.classList.toggle("active", x===b));
+    $("#segService").querySelectorAll("button").forEach(x=>{
+      const on = x === b;
+      x.classList.toggle("active", on);
+      x.setAttribute("aria-pressed", String(on));
+    });
     $("#storeMeta").textContent = state.service==="外送"
       ? "送至 世纪大道 100 号 8F（模拟） · 满 40 免配送费"
       : "距你 480m · 营业中 · 取餐预计 12 分钟";
@@ -904,26 +1545,31 @@ $("#segService").querySelectorAll("button").forEach(b=>{
     if(state.screen==="checkout") renderCheckout();
   };
 });
-$("#btnChangeStore").onclick = ()=> log("query-nearby-stores", "打开门店列表（演示页不实现）", true);
+$("#btnChangeStore").onclick = ()=> toast("演示页未实现门店列表（不调用真实接口）");
 
 function setDaypart(dp, silent){
   state.daypart = dp;
   setSeg("#segDaypart", Object.keys(TIERS), dp, d=> setDaypart(d));
   if(!silent) log("now-time-info", `餐段切换为「${dp}」，档位目标与可售菜单已更新`, false);
-  renderRail(); renderMenu(); renderCart(); renderHeat();
+  renderRail(true); renderMenu(); renderCart(); renderHeat();
   if(state.screen==="checkout") renderCheckout();
 }
 
-/* ================== 初始化 ================== */
+/* ══════════════════════════════════════════════════════════════
+   十二、初始化
+   ══════════════════════════════════════════════════════════════ */
 function init(){
   setDaypart(detectDaypart(), true);
   log("now-time-info", `按当前北京时间自动识别餐段：${state.daypart}`, false);
   log("list-nutrition-foods", "拉取营养表（模拟 160 项，紧凑格式解析并缓存）", false);
   log("query-meals", `查询当前门店可售餐品（${state.daypart}时段）`, false);
   renderCart(); renderHeat();
-  $("#mask").onclick = e=>{ if(e.target.id==="mask") $("#mask").classList.remove("show"); };
+  $("#sheetSpec").setAttribute("inert","");
+  $("#sheetCart").setAttribute("inert","");
 }
 init();
 </script>
 </body>
 </html>
+</content>
+</invoke>

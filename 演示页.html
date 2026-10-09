@@ -492,9 +492,11 @@ function enumCombos(dp){
     drinks.forEach(d=>withDrink.push([d]));
     withDrink.forEach(set=>combos.push({items:set, ...sum(set)}));
   }else{
+    /* 与引擎对齐：甜品归入「小食」池，参与正餐组合（主食 + 0~1 小食/甜品 + 0~1 饮品） */
+    const snackPool = [...snacks, ...desserts];
     mains.forEach(m=>{
       const bases = [[m]];
-      snacks.forEach(s=>bases.push([m,s]));
+      snackPool.forEach(s=>bases.push([m,s]));
       const expanded = [];
       bases.forEach(b=>{
         expanded.push(b);

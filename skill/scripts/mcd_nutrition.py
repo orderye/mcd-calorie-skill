@@ -174,6 +174,15 @@ class Matcher:
         if key in self.by_key:
             return {"status": "hit", "method": "exact", "record": self.by_key[key], "candidates": []}
 
+        # 1.5) 原始键精确（不剥数量后缀）
+        #     normalize_query 会剥掉「N块」等后缀，导致「麦乐鸡5块」被降级成
+        #     前缀歧义（麦乐鸡4块/5块 二选一）。营养表本身收录的就是带数量的条目名，
+        #     查询侧带数量时应优先按原名精确命中，禁止退化成猜测。
+        raw_key = normalize_name(name)
+        if raw_key != key and raw_key in self.by_key:
+            return {"status": "hit", "method": "exact-qty", "record": self.by_key[raw_key],
+                    "candidates": []}
+
         # 2) 别名表
         if key in self.alias:
             target = self.alias[key]

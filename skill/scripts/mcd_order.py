@@ -18,16 +18,13 @@ from pathlib import Path
 from typing import Optional
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from mcd_nutrition import Matcher, load_nutrition, normalize_name   # noqa: E402
-import mcd_daypart as dp                                            # noqa: E402
-from mcd_combo import _keyword_category                             # noqa: E402
-
-ADDON_RE = r"加[^加]{1,8}(?:（加）|\(加\))$"
+from mcd_nutrition import Matcher, _ADDON_RE, load_nutrition   # noqa: E402
+import mcd_daypart as dp                                       # noqa: E402
+from mcd_combo import _keyword_category                        # noqa: E402
 
 
 def _is_addon(name: str) -> bool:
-    import re
-    return bool(re.search(ADDON_RE, name))
+    return bool(_ADDON_RE.search(name))
 
 
 def expand_order(order: dict) -> tuple[list[str], list[str]]:
@@ -36,23 +33,23 @@ def expand_order(order: dict) -> tuple[list[str], list[str]]:
     comboItemList 展开为组成单品；无组成项按商品本身。
     未命中/歧义项由调用方按匹配结果标注（UNKNOWN 保护）。
     """
-    items, addons = [], []
+    items = []
     for p in order.get("orderProductList", []):
         qty = int(p.get("quantity") or 1)
         combo = p.get("comboItemList")
         if combo:
             for c in combo:
                 cq = int(c.get("quantity") or 1)
-                for _ in range(cq):
-                    items.append(c.get("productName", ""))
+                # ★ 字段差异：query-order 的子项用 productName，order-list 的子项用 name。
+                #   实测 2026-10-10：order-list 返回 {"productCode","name","quantity"}，
+                #   只认 productName 会把全部套餐子项读成空串（92% 误判为热量未知）。
+                cname = c.get("productName") or c.get("name") or ""
+                items.extend([cname] * cq)
             # 套餐壳本身不计数
         else:
-            for _ in range(qty):
-                items.append(p.get("productName", ""))
-    for it in list(items):
-        if _is_addon(it):
-            items.remove(it)
-            addons.append(it)
+            items.extend([p.get("productName") or p.get("name") or ""] * qty)
+    addons = [it for it in items if _is_addon(it)]
+    items = [it for it in items if not _is_addon(it)]
     return items, addons
 
 
@@ -66,13 +63,23 @@ def estimate(order_path: Path,
     matcher = Matcher(load_nutrition())
     items, addons = expand_order(order)
 
+    # 餐段来源优先级：显式入参 > 订单自带（_meta.expectedDaypart / createTime）> now_hhmm 兜底。
+    # 订单是历史事实，其餐段不应由"查看时刻"决定（否则早餐单在中午被按午餐档判定）。
+    if not daypart and not user_daypart:
+        meta = order.get("_meta") or {}
+        exp = meta.get("expectedDaypart")
+        if exp in dp.TIERS:                      # 样本/接口自带的餐段声明
+            user_daypart = exp
+        else:                                    # 真实订单：用下单时间推断
+            parts = (order.get("createTime") or "").split()
+            if len(parts) > 1 and len(parts[1]) >= 5:
+                now_hhmm = parts[1][:5]
+
     dp_final = daypart or dp.resolve_daypart(now_hhmm, store_options, user_daypart)
     target = dp.tier_target(dp_final, tier)
 
     rows, unknown, ambiguous = [], [], []
     for raw in items:
-        if _is_addon(raw):
-            continue
         res = matcher.match(raw, allow_defaults=True)
         row = {"name": raw, "category": _keyword_category(raw)}
         if res["status"] == "hit":

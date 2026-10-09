@@ -4,7 +4,7 @@ description: >
   麦当劳订单热量估算与餐段档位套餐推荐。用户问"这单多少热量""300 大卡左右吃什么"
   "想吃轻一点""帮我换个更低的组合"时使用。基于官方 MCP（M-China/mcd-mcp-server）。
   不提供医学、减重或疾病相关建议，热量仅为估算参考。
-version: 0.1.0
+version: 0.2.0
 ---
 
 # 订单热量与套餐推荐 Skill
@@ -25,10 +25,11 @@ version: 0.1.0
 |---|---|---|
 | 当前时间 | `now-time-info` | 餐段判定的时钟 |
 | 门店 | `query-nearby-stores` / `delivery-query-addresses` + `delivery-query-stores` | 取 `storeCode`（+`beCode`） |
-| 订单 | `query-order` | 按 orderId；无列表接口，用户须提供单号 |
-| 营养表 | `list-nutrition-foods` | 全量缓存 ≥24h，勿重复拉取 |
-| 菜单 | `query-meals` | **按餐段取菜单：传 `reservationDate`=目标餐段代表时刻**（接口无 daypart 字段，已实测） |
-| 套餐组成 | `query-meal-detail` | rounds 名称即品类；默认项 `isDefault=1` |
+| 订单 | `query-order`（单号） / `order-list`（历史，无入参） | **字段差异**：order-list 的套餐子项名称字段是 `name`，query-order 是 `productName`，展开时必须兼容两者 |
+| 营养表 | `list-nutrition-foods` | 全量缓存 ≥24h，勿重复拉取；**对当前在售单品覆盖率约 44%**（实测），缺口见 `data/nutrition-gaps.json` |
+| 菜单 | `query-meals` | **按餐段取菜单：传 `reservationDate`=目标餐段代表时刻**（接口无 daypart 字段，已实测）；价格随餐段浮动，**必须用当次返回值** |
+| 套餐组成 | `query-meal-detail` | `rounds[].name` 只是轮次名、**不是品类**（可能叫「新升级巨无霸」）；品类优先取 `rounds[].category`，该字段可能缺失 → 缺失时按名称反查。`choices[]` 的 `diffPrice` 即换品差价 |
+| 换品 vs 特调 | `query-meal-detail` | **换品**在 rounds/choices 层；**特调**看 `supportModify`/`modification`（去冰、换燕麦奶等）。特调传参：含 `unselectedKey` 的组，选中项传 `selectedKey`、未选中项传 `unselectedKey`，两者都要传给报价与下单 |
 | 优惠券 | `query-store-coupons` | 只标注，不参与排序 |
 | 报价/下单 | `calculate-price` / `create-order` | 金额单位为「分」，÷100 转元；到店下单 `takeWayCode` 取自报价返回 `takeWayList[].code`；**下单必须先展示金额并获用户明确确认** |
 
@@ -42,6 +43,8 @@ version: 0.1.0
 3. 展示：逐项热量 → 整单合计 → 餐段档位对比结论。
 4. 匹配不上的项标 **热量未知**，合计说成 **「≥ N kcal（实际会更高）」**，绝不按 0 算。
 5. 名称歧义（可乐/薯条/新地/派等缺规格）→ 列出候选项让用户确认，不要猜。
+6. **餐段来源**：订单是历史事实，餐段优先取订单自带（下单时间 / 餐段声明），无则用当前时刻；
+   `scripts/mcd_order.py` 提供 `--daypart/--user-daypart/--time` 显式覆盖。
 
 ### B. 档位推荐（"想吃 300 大卡左右的早餐"）
 
@@ -62,10 +65,22 @@ version: 0.1.0
 2. 整单 > 该餐段标准档 → 切标准档；否则用最接近的档位。
 3. 输出替换组合 + 少多少 kcal + 参考价；价格差在未接真实订单金额前显示"需按实付口径计算"。
 
-### D. 下单（用户明确要求时）
+### D. 历史订单批量复盘（"我最近都吃了些什么 / 哪天吃重了"）
+
+1. `order-list`（无入参）→ 取订单列表；**落盘前必须脱敏**（去 orderId / storeCode / storeName / beCode）。
+2. `scripts/mcd_history.py --path <脱敏样本>` → 逐单：展开套餐 → 匹配营养表 → 合计热量 → 按 `createTime` 推断餐段 → 与标准档对比 → 按期排序并汇总。
+3. 输出：热量排行、超标准档的单子、平均热量、未知项占比；对超档订单再接 C 生成更轻方案。
+4. 未知项照旧标「热量未知」，不得按 0 计算。
+
+### E. 下单（用户明确要求时）
 
 严格按 `docs/order-flow.md`：查券（只标注）→ `calculate-price` 报价（金额单位为「分」，÷100 转元）→
 **展示金额并等待明确确认** → `create-order`（到店取②返回的 `takeWayList[].code` 作 `takeWayCode`）→ 返回支付链接由用户自付。
+
+### F. 全量目录（离线匹配 / 兜底，非实时推荐）
+
+`scripts/mcd_catalog.py` 把多份 `query-meals` 快照聚合成 `data/catalog.json`（商品 / 套餐组成 / 按餐段价格）并导出 `data/nutrition-gaps.json`。
+**纪律**：目录只用于匹配与兜底；**推荐候选仍必须取自当次 `query-meals` 实时返回**（价格随餐段浮动，目录价会过期）。
 
 ## 输出模板
 
@@ -96,11 +111,16 @@ version: 0.1.0
 scripts/mcd_nutrition.py   营养表解析 / 名称归一化 / 四级匹配器（UNKNOWN 保护）
 scripts/mcd_daypart.py     餐段时段解析（门店实测 > 固定兜底）+ 档位表
 scripts/mcd_combo.py       品类三级归类 + 组合枚举 + ±12% 筛选 + 四种排序
-scripts/mcd_order.py       订单展开 + 加料剥离 + 合计与档位对比
+scripts/mcd_order.py       订单展开（兼容 productName / name）+ 加料剥离 + 合计与档位对比
 scripts/mcd_replace.py     替换建议（标准档触发规则）
+scripts/mcd_history.py     历史订单批量复盘（order-list → 逐单热量与档位对比）
+scripts/mcd_catalog.py     全量目录聚合（多快照 → catalog.json / nutrition-gaps.json）
 tools/eval_match.py        匹配率评测（常见订单集 ≥90% 验收）
 data/alias.json            别名表 + 有证据默认规格（query-meal-detail isDefault=1）
 data/category-rules.json   品类兜底关键词
-fixtures/                  实测快照（营养表/菜单×2餐段/套餐详情/订单样本）
-docs/                      nutrition-schema / store-chain / order-flow
+data/catalog.json          全量目录（179 商品 / 89 套餐，按餐段价格）
+data/nutrition-gaps.json   营养缺口：未收录单品 + 规格歧义（UNKNOWN 兜底白名单）
+                           含 `origin=history-order` 条目（历史订单里的已下架/限定品）
+fixtures/                  实测快照（营养表/菜单×3餐段/套餐详情/订单样本/脱敏历史订单）
+docs/                      nutrition-schema / store-chain / order-flow / catalog-collection
 ```

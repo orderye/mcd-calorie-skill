@@ -31,18 +31,21 @@ import json
 import sys
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from mcd_nutrition import Matcher          # noqa: E402
 import mcd_daypart as dp                   # noqa: E402
+from mcd_order import expand_order         # noqa: E402
 
 SKILL_ROOT = Path(__file__).resolve().parent.parent
 FIXTURES = SKILL_ROOT / "fixtures"
 OUT_DEFAULT = SKILL_ROOT / "data" / "catalog.json"
+HISTORY_ORDERS = FIXTURES / "order-list.sample.json"   # 脱敏历史订单（order-list）
 
-# 名称里出现这些词 → 视为套餐/组合（与 data/category-rules.json 的 excludeNamePatterns 同源）
-COMBO_HINTS = ("套餐", "件套", "随心选", "随心配", "组合", "拼盘", "拼", "分享餐",
-               "乐园餐", "任选", "双人餐", "多人餐", "精选单人餐")
+# 名称里出现这些词 → 视为套餐/组合（统一维护在 data/category-rules.json#comboHints）
+_RULES = json.loads((SKILL_ROOT / "data" / "category-rules.json").read_text(encoding="utf-8"))
+COMBO_HINTS = tuple(_RULES["comboHints"])
 
 IMAGE_KEYS = ("image", "img", "imageUrl", "picUrl", "cover")
 
@@ -108,6 +111,9 @@ def load_snapshots() -> list[dict]:
     for p in sorted(FIXTURES.glob("meals.*.json")):
         raw = json.loads(p.read_text(encoding="utf-8"))
         meta = raw.get("_meta") or {}
+        # kind=diff 的差异记录不是完整菜单，跳过（否则会把 2 个差异项当成一份菜单）
+        if meta.get("kind") == "diff":
+            continue
         snaps.append({
             "file": p.name,
             "storeCode": str(meta.get("storeCode") or "?"),
@@ -153,7 +159,7 @@ def load_combo_details() -> dict[str, dict]:
 
 # ────────────────────────── 聚合 ──────────────────────────
 
-def build_catalog() -> dict:
+def build_catalog() -> tuple[dict, dict]:
     snaps = load_snapshots()
     if not snaps:
         raise SystemExit("fixtures/ 下没有 meals.*.json 快照，先按 --calls 拉取")
@@ -243,8 +249,7 @@ def build_catalog() -> dict:
     singles = {code: p for code, p in products.items() if not p["isCombo"]}
 
     return {
-        "_meta": {
-            "generatedAt": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "_meta": {            "generatedAt": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "sources": [s["file"] for s in snaps] + [d["source"] for d in details.values()],
             "note": "图片字段不落盘（合规）。本目录用于离线匹配与兜底；推荐候选必须取自当次 query-meals 实时结果。",
             "daypartMenus": daypart_menus,
@@ -266,10 +271,125 @@ def build_catalog() -> dict:
             "nutritionMiss": [x["name"] for x in coverage["unknown"] if x["kind"] == "单品"][:40],
             "comboDetailCount": len(details),
         },
-    }
+    }, coverage
 
 
 # ────────────────────────── 采集矩阵 ──────────────────────────
+
+def collect_history_gaps(matcher: Matcher, path: Path = HISTORY_ORDERS) -> list[dict]:
+    """从脱敏历史订单（order-list）里收集营养表未命中的单品。
+
+    与目录缺口的区别：这些多为**已下架 / 限定品**（如爆脆星星堡系列），
+    不在当日在售目录里，因此没有 categories / tags / price 可填。
+    但历史复盘必须知道它们「查不到」，否则每次都要重新发现一遍；
+    且纪律不变——标「热量未知」，绝不按 0 计算。
+
+    只登记 unknown；历史订单里的 ambiguous 不登记（歧义是规格缺失，
+    应让用户选，不是营养表缺口）。
+    """
+    if not path.exists():
+        return []
+    orders = json.loads(path.read_text(encoding="utf-8")).get("list") or []
+
+    # 名称 → code（同名多码取首次出现）
+    code_of: dict[str, str] = {}
+    for o in orders:
+        for p in o.get("orderProductList", []):
+            combo = p.get("comboItemList")
+            if combo:
+                for c in combo:
+                    n = (c.get("productName") or c.get("name") or "").strip()
+                    code_of.setdefault(n, str(c.get("productCode") or ""))
+            else:
+                n = (p.get("productName") or p.get("name") or "").strip()
+                code_of.setdefault(n, str(p.get("productCode") or ""))
+
+    seen: dict[str, dict] = {}
+    for o in orders:
+        items, _addons = expand_order(o)
+        hhmm = (o.get("createTime") or "").split()[1][:5] if " " in (o.get("createTime") or "") else "12:00"
+        daypart = dp.resolve_daypart(hhmm, None)
+        for raw in items:
+            name = (raw or "").strip()
+            if not name:
+                continue
+            res = matcher.match(name, allow_defaults=True)
+            if res["status"] != "unknown":
+                continue
+            g = seen.setdefault(name, {
+                "code": code_of.get(name, ""), "name": name,
+                "categories": [], "tags": ["历史订单"], "dayparts": [], "price": {},
+                "origin": "history-order",
+                "note": "已下架/限定品，不在当日在售目录 → 无分类与价格。"
+                        "热量未知，合计按「≥ N kcal」计，绝不按 0 计算。",
+                "seen": {"times": [], "stores": [], "count": 0},
+            })
+            g["seen"]["count"] += 1
+            t = o.get("createTime") or ""
+            if t and t not in g["seen"]["times"]:
+                g["seen"]["times"].append(t)
+            s = o.get("store") or ""
+            if s and s not in g["seen"]["stores"]:
+                g["seen"]["stores"].append(s)
+            if daypart and daypart not in g["dayparts"]:
+                g["dayparts"].append(daypart)
+
+    for g in seen.values():
+        g["seen"]["times"].sort()
+    return sorted(seen.values(), key=lambda g: (-g["seen"]["count"], g["name"]))
+
+
+def emit_gaps(cat: dict, unknown_list: list, ambiguous_list: list, out_path: Path,
+              matcher: Optional[Matcher] = None) -> dict:
+    """导出营养缺口清单：当前在售、但营养表无数据或规格歧义的单品。
+
+    用途：① UNKNOWN 兜底白名单（避免每次重新发现）；② 新品补录与规格确认待办；
+    ③ 向官方反馈的清单。营养表是单品维度，套餐名本来就不该命中，故只统计单品。
+
+    另并入**历史订单缺口**（origin=history-order）：已下架/限定品不在在售目录里，
+    但复盘时同样查不到营养值，必须一并登记。
+    """
+    def enrich(entry: dict) -> dict:
+        code = entry["code"]
+        p = cat["products"].get(code, {})
+        out = {
+            "code": code, "name": entry["name"],
+            "categories": p.get("categories", []), "tags": p.get("tags", []),
+            "dayparts": p.get("dayparts", []),
+            "price": {k: v["price"] for k, v in (p.get("prices") or {}).items()},
+        }
+        if entry.get("candidates"):
+            out["candidates"] = entry["candidates"]
+        return out
+
+    gaps = [enrich(e) for e in unknown_list if e.get("kind") == "单品"]
+    ambiguous = [enrich(e) for e in ambiguous_list if e.get("kind") == "单品"]
+
+    # 并入历史订单缺口：按名称去重（在售目录里已登记的以目录条目为准）
+    known_names = {g["name"] for g in gaps} | {a["name"] for a in ambiguous}
+    if matcher is None:
+        matcher = Matcher()
+    history = [g for g in collect_history_gaps(matcher) if g["name"] not in known_names]
+    gaps.extend(history)
+    payload = {
+        "_meta": {
+            "generatedAt": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "source": cat["_meta"]["sources"],
+            "historySource": HISTORY_ORDERS.name,
+            "note": "营养表查不到或规格不唯一的单品。unknown 必须标注「热量未知」，"
+                    "绝不按 0 计算；ambiguous 应让用户选择规格，禁止猜测。补录或确认后从此表移除。",
+            "originNote": "origin=history-order 的条目来自脱敏历史订单（已下架/限定品，"
+                          "不在当日在售目录 → 无分类与价格）。其余为当日在售目录缺口。",
+        },
+        "unknownCount": len(gaps),
+        "historyUnknownCount": len(history),
+        "ambiguousCount": len(ambiguous),
+        "unknown": gaps,
+        "ambiguous": ambiguous,
+    }
+    out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8")
+    return payload
+
 
 def print_calls() -> None:
     matrix = {
@@ -338,12 +458,19 @@ def main() -> None:
         print_calls()
         return
 
-    cat = build_catalog()
+    cat, coverage = build_catalog()
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(cat, ensure_ascii=False, indent=1), encoding="utf-8")
+    gaps_path = out.parent / "nutrition-gaps.json"
+    gaps = emit_gaps(cat, coverage["unknown"], coverage["ambiguous"], gaps_path, matcher=Matcher())
     if not args.quiet:
         print_report(cat)
+        print(f"营养缺口        : 未收录单品 {gaps['unknownCount']} 个 / 规格歧义 {gaps['ambiguousCount']} 个"
+              f" → {gaps_path.name}")
+        if gaps["historyUnknownCount"]:
+            print(f"  其中历史订单缺口: {gaps['historyUnknownCount']} 个"
+                  f"（{HISTORY_ORDERS.name}，已下架/限定品）")
         print(f"已写入: {out}")
 
 

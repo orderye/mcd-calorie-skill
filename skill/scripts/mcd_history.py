@@ -25,7 +25,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from mcd_nutrition import Matcher, load_nutrition   # noqa: E402
 import mcd_daypart as dp                            # noqa: E402
-from mcd_order import expand_order, _is_addon       # noqa: E402
+from mcd_order import expand_order                # noqa: E402
 
 SKILL_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_SRC = SKILL_ROOT / "fixtures" / "order-list.sample.json"
@@ -47,8 +47,6 @@ def review_order(order: dict, matcher: Matcher, user_daypart: str | None = None)
 
     rows, unknown, ambiguous = [], [], []
     for raw in items:
-        if _is_addon(raw):
-            continue
         res = matcher.match(raw, allow_defaults=True)
         if res["status"] == "hit":
             r = res["record"]
@@ -66,9 +64,9 @@ def review_order(order: dict, matcher: Matcher, user_daypart: str | None = None)
     if abs(diff) <= standard * 0.12:
         verdict = "标准档合适"
     elif diff > 0:
-        verdict = f"偏高 +{diff}"
+        verdict = f"偏高 +{diff:.0f}"
     else:
-        verdict = f"偏低 {diff}"
+        verdict = f"偏低 {diff:.0f}"
     return {
         "orderId": order.get("orderId"),
         "createTime": order.get("createTime"),
@@ -110,7 +108,7 @@ def main() -> None:
     print(f"{'下单时间':<20}{'餐段':<8}{'项数':>4}{'热量':>7}{'标准档':>8}  {'结论'}")
     print("-" * 74)
     for r in reviews[:args.top]:
-        print(f"{r['createTime']:<20}{r['daypart']:<8}{r['itemCount']:>4}{r['kcal']:>7}"
+        print(f"{r['createTime']:<20}{r['daypart']:<8}{r['itemCount']:>4}{r['kcal']:>7.0f}"
               f"{r['standard']:>8}  {r['verdict']}")
     print("-" * 74)
 

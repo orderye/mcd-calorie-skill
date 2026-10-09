@@ -2,6 +2,8 @@
 版本 v0.3，2026-10-10。依据麦当劳中国官方 MCP 服务（M-China/mcd-mcp-server）的接口文档与真实接口勘察（样本门店 3570190，2026-10-09）编写。参赛作品形态为 Agent Skill。演示页链接待补充。
 修订记录：v0.2 吸收实施计划 D1–D7 勘察修正——删除 daypart 字段描述（改 reservationDate 切餐段）、餐段改逐店实测并新增宵夜单列档、品类改三级归类、组合规则加入 tags 过滤与非食品剔除、加料与减料换料区分口径、匹配主键统一为归一化名称；Q1/Q2 已实测解决。
 修订记录：v0.3 依据官方连接器 mcd-mcp（实测连通，now-time-info 返回 200）回写——§2 修正历史订单能力假设（连接器提供 order-list）、§5 补充 calculate-price 金额单位「分」与到店下单 takeWayCode 链路、新增「连接器来源与技术选型」决策点；同步修订 docs/order-flow.md 与 SKILL.md。
+修订记录：v0.4.1 修复数量后缀伪歧义并补齐历史订单营养缺口——`normalize_query` 剥离「N块」导致「麦乐鸡5块」被判歧义（213 kcal 漏计，整单 715 → 928），已在匹配器插入 1.5 原始键精确（`exact-qty`）；`nutrition-gaps.json` 新增 `origin=history-order` 来源，登记历史订单里已下架/限定品（德克萨斯风味三层肉霸堡 521341、爆脆星星堡 521289、爆脆星星盐酥风味脆汁鸡 521291）；历史订单歧义 1 → 0，评测仍 PASS（92.3%）。见 docs/nutrition-schema.md §5.1。
+修订记录：v0.4 依据 2026-10-10 全量实测（门店 3570190 三个餐段快照 + 两个套餐详情 + 8 笔真实历史订单）回写——§2 修正套餐换品能力假设（1.0.5 起已支持）、**§5 纠错**（rounds[].name 不是权威品类，category 可能缺失；order-list 子项字段名为 name 而非 productName，已修复 mcd_order.expand_order 的 92% 误判）、§5 补充特调传参与图片规格、§6 补充价格随餐段浮动、§12 新增营养表覆盖缺口与匹配精度两项；新增 §13 新增资产；同步修订 docs/catalog-collection.md。
 1. 背景与目标
 用户点麦当劳时，常常不知道一单有多少热量，也不清楚早餐、午餐、下午加餐、晚餐各吃到什么程度合适。官方 MCP 已提供营养表、订单查询、门店菜单、优惠券和下单工具，但缺少把它们串起来的流程。
 目标：
@@ -16,7 +18,7 @@
 • 一个前端演示页，用模拟数据展示完整流程。
 本期不做：
 • 医学、减重或疾病相关的饮食建议。热量只作为估算参考。
-• 自定义套餐内部的单品。接口文档说明 v1.0.3 暂不支持更换套餐内单品。
+• 自定义套餐内部的单品。接口自 1.0.5（2026-06-16）起**已支持更换套餐内商品组合**（query-meal-detail 的 rounds[].choices 带 diffPrice 差价），本期按最小可行范围仍不做换品交互（v0.4 修正原「v1.0.3 暂不支持」的过期表述）；但在读取订单与展示套餐时会解析组成，不排除后续版本接入。
 • 历史订单批量分析。官方连接器 mcd-mcp 提供 `order-list` 可查询历史餐品订单（能力存在，v0.3 修正）；但本期按最小可行范围收窄，不做批量导入——价格与替换建议仍以单笔订单号（`query-order`）为主，避免引入历史数据的匹配与校准成本。
 • 积分商城和企业团餐场景的推荐。
 • 抓取或使用官方商品图片。
@@ -62,10 +64,11 @@ F7 下单（P2）
 • 创建订单后返回支付链接，由用户自己支付。
 5. 接口映射
 • list-nutrition-foods：营养表，无入参。字段为 productName、nutritionDescription、energyKj、energyKcal、protein、fat、carbohydrate、sodium、calcium，以紧凑格式字符串返回，需要自行解析。
-• query-order：按 orderId 读取订单明细，含 orderProductList 和 comboItemList。
-• order-list：查询历史餐品订单列表（非商城订单），无入参。本期不用于批量分析，仅作单号查询的补充来源（v0.3 新增）。
+• query-order：按 orderId 读取订单明细，含 orderProductList 和 comboItemList，子项名称字段为 **productName**。
+• order-list：查询历史餐品订单列表（非商城订单），无入参。本期不用于批量分析，仅作单号查询的补充来源（v0.3 新增）。**字段差异（v0.4 实测）**：其 comboItemList 子项的名称字段是 **name**（不是 productName），顶层商品仍为 productName；只认 productName 会把全部套餐子项读成空串（实测 92.3% 被误判为「热量未知」）。mcd_order.expand_order 已改为两者兼容。
 • query-meals：当前门店可售餐品，含分类、tags（「套餐」/「单品」等）、餐品编码、名称、价格与图片。**实测无 daypart 字段（D1）**，按餐段取菜单须传 reservationDate=目标餐段代表时刻。
-• query-meal-detail：套餐组成，含 rounds 和 choices；rounds 名称（主食任意选/选择套餐内小食/选择套餐内饮料）即权威品类来源，默认搭配 isDefault=1 可反查单品品类与默认规格（D3）。
+• query-meal-detail：套餐组成，含 rounds 和 choices。**纠错（v0.4 实测）**：rounds[].name 只是轮次名，**不等于品类**（实测「巨无霸三件套」round1 name=「新升级巨无霸」）；品类应优先取 rounds[].category（主食/小食/饮品，实测 9900004064 有、9900005466 无 → 该字段可能缺失），缺失时按名称反查或关键词兜底。默认搭配 isDefault=1 可反查单品品类与默认规格（D3）。
+• 套餐换品 vs 特调（v0.4 新增）：**换品**发生在 rounds[].choices 层（带 diffPrice 差价，如小食轮 4 选 1、饮料轮 25 选 1）；**特调**由 supportModify / modification 表达（去冰、去生菜、换燕麦奶 +2 元等），二者不可混用。特调传参规则：含 unselectedKey 的特调组，选中项传 selectedKey、未选中项传 unselectedKey，**两者都要**传给 calculate-price 与 create-order。
 • query-store-coupons：当前门店可用券。
 • calculate-price：报价（含券）。返回金额单位为**分**，展示前须 ÷100 转为「元」；到店场景（orderType=1）返回值含 takeWayList（取餐方式列表）（v0.3）。
 • create-order：下单。到店（orderType=1）**必传 takeWayCode**，取自 calculate-price 返回的 data.takeWayList[].code；外送（orderType=2）不传 takeWayCode（v0.3）。
@@ -84,6 +87,7 @@ F7 下单（P2）
 • 早餐、午餐、晚餐、宵夜：一个主食，加零或一个小食，加零或一个饮品。
 • 主食位只取 tags 含「单品」的成品；tags 含「套餐」的组合商品不得进入主食位，避免与小食饮品重复计算（D4）。玩具、单卖蘸酱等非食品一律剔除（实测存在「按摩捶痒痒挠」「风味酱」等条目）。
 • 随便吃吃：一到三个小食、甜品或饮品，其中饮品最多一个。
+• **价格取当次快照（v0.4 实测）**：同一 code 在不同餐段价格不同（例：麦咖啡™奶铁 早餐 13.9 / 午餐 9.9；马苏里拉拉丝芝士条 午餐 16 / 夜市 11），且部分商品带 discountType「随单购麦金卡优惠」——只有选随单购才享优惠价。任何报价与「价格更低」排序都必须使用本次 query-meals 返回值，禁止使用固定目录价。
 兜底：
 • 档位内没有合适组合时，提示用户换一个档位，不放宽筛选范围。
 • 营养表里没有的商品不进入推荐候选。
@@ -128,3 +132,13 @@ F7 下单（P2）
 • 比赛对 Skill 的提交形式和评审标准。
 • 名称匹配率和推荐质量需要用真实营养表和真实订单验证。
 • 官方连接器 mcd-mcp 的账号授权范围是否覆盖读订单（query-order / order-list）与下单（create-order）；其限流与错误码（401 / 429）是否与开源自建 mcd-mcp-server 一致（v0.3 新增，见 §5 技术选型）。
+• 营养表对「当前在售单品」的覆盖率（v0.4 实测）：门店 3570190 三个餐段聚合 179 个商品（套餐 89 / 单品 90）中，单品命中 40、规格歧义 13、未收录 37 → **覆盖率 44.4%**；未收录集中于季节/联名新品（北非蛋风味系列、爆脆星星堡、德克萨斯风味三层肉霸堡、举杯邀月柚桂茶、美汁源系列等）。缺口清单已落 `data/nutrition-gaps.json`，作为「热量未知」兜底白名单与后续补录/反馈依据。
+• 歧义候选可能指向语义不同商品（v0.4 实测）：「浓浓黑巧（冰/热）」的前缀匹配落到「浓浓黑巧雪冰中杯 / 大杯」，而雪冰与中杯饮品是两个商品。匹配层在返回候选时需带品类/规格提示，避免用户选错。
+• 加料与饮品杯型的营养值仍无法从营养表取得（维持观察）。
+
+13. 新增资产（v0.4）
+• `scripts/mcd_catalog.py`：全量目录聚合（多快照去重 → `data/catalog.json`），统计跨餐段价差、悬空引用、营养覆盖，并导出 `data/nutrition-gaps.json`；`--calls` 打印采集矩阵。
+• `scripts/mcd_history.py`：历史订单批量复盘（读 order-list 脱敏样本 → 逐单热量、档位对比、按期排序与汇总），直接支撑场景 5。实测 8 单：平均 1059 千卡、5 单超标准档、最重 2243 千卡。
+• fixtures 新增：`meals.3570190.dinein.lunch.json`（110 项 / 15 分类）、`meals.3570190.dinein.afternoon.diff.json`（差异记录：下午茶与午餐**逐条一致**，仅多 2 个「学生专享」条目）、`meal-detail.9900005466.json`（巨无霸三件套）、`order-list.sample.json`（8 笔已脱敏真实订单，2025-10-11 ~ 2026-03-20）。
+• `docs/catalog-collection.md`：采集矩阵、落盘约定、实测结论与 PRD 差异对照。
+• 采集剩余量：宵夜餐段 1 次调用；套餐详情 89 个 code 需逐个 query-meal-detail（已完成 2 个）。

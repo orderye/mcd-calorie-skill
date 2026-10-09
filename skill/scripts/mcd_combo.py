@@ -64,29 +64,15 @@ def _keyword_category(name: str) -> Optional[str]:
     return None
 
 
-def classify(item_name: str, menu_category: Optional[str], tags: list[str]) -> Optional[str]:
-    """三级归类：菜单分类 → （占位：套餐 rounds 反查，接入 query-meal-detail 后启用）→ 关键词。"""
-    cat = _category_from_menu_name(menu_category or "")
-    if cat:
-        return cat
-    return _keyword_category(item_name)
-
-
 def load_menu(path: Path) -> tuple[dict, dict]:
     data = json.loads(path.read_text(encoding="utf-8"))
     cat_of: dict[str, str] = {}
-    tags_of: dict[str, list[str]] = {}
     for c in data["categories"]:
-        for code, tags in c["items"]:
+        for code, _tags in c["items"]:
             cat = _category_from_menu_name(c["name"])
             if cat and code not in cat_of:
                 cat_of[code] = cat
-            if tags:
-                tags_of.setdefault(code, [])
-                for t in tags:
-                    if t not in tags_of[code]:
-                        tags_of[code].append(t)
-    return data, {"category": cat_of, "tags": tags_of}
+    return data, {"category": cat_of}
 
 
 def build_pools(menu_path: Path, matcher: Matcher) -> dict:

@@ -11,18 +11,20 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
+from typing import Optional
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import mcd_daypart as dp                       # noqa: E402
-from mcd_nutrition import load_nutrition       # noqa: E402
-from mcd_order import estimate                 # noqa: E402
-from mcd_combo import build_pools, recommend   # noqa: E402
+from mcd_nutrition import Matcher, load_nutrition   # noqa: E402
+from mcd_order import estimate                      # noqa: E402
+from mcd_combo import build_pools, recommend        # noqa: E402
 
 
 def suggest(order_path: Path, menu_path: Path,
-            tier: str = "标准", sort_by: str = "near", top: int = 3) -> dict:
-    est = estimate(order_path, tier=tier)
-    matcher_pools = build_pools(menu_path, __import__("mcd_nutrition").Matcher(load_nutrition()))
+            tier: str = "标准", sort_by: str = "near", top: int = 3,
+            now_hhmm: str = "12:00", user_daypart: Optional[str] = None) -> dict:
+    est = estimate(order_path, tier=tier, now_hhmm=now_hhmm, user_daypart=user_daypart)
+    matcher_pools = build_pools(menu_path, Matcher(load_nutrition()))
 
     order_kcal = est["totals"]["kcal"]
     order_price = None  # 订单样本未含金额；真实订单接入 query-order 后回填
@@ -74,5 +76,9 @@ if __name__ == "__main__":
     ap.add_argument("--menu", required=True)
     ap.add_argument("--tier", default="标准")
     ap.add_argument("--sort", default="near", choices=["near", "protein", "sodium", "price"])
+    ap.add_argument("--time", default="12:00", help="HH:MM，订单未自带餐段时用于判定")
+    ap.add_argument("--user-daypart", dest="user_daypart", choices=list(dp.TIERS),
+                    help="显式指定餐段（最优先）")
     a = ap.parse_args()
-    print_suggest(suggest(Path(a.order), Path(a.menu), a.tier, a.sort))
+    print_suggest(suggest(Path(a.order), Path(a.menu), a.tier, a.sort,
+                          now_hhmm=a.time, user_daypart=a.user_daypart))

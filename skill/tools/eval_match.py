@@ -62,7 +62,6 @@ def main() -> int:
         print(f"  {sid:<28} 命中 {n_h}｜歧义 {n_a}｜未知 {n_u}")
 
     print("-" * 76)
-    ok = True
     for label, b in (("常见订单集（验收口径）", stats["typical"]),
                      ("压力样本（边界验证）", stats["stress"])):
         total = b["total"]
