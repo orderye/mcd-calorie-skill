@@ -10,9 +10,13 @@
 ① query-store-coupons   查当前门店可用券
         ↓  券只做「有可用券」标注，不参与热量排序（PRD §6）
 ② calculate-price       对用户选定的组合报价（含券）
+        ↓  金额单位为「分」→ 展示前 ÷100 转元（v0.3）
+        ↓  到店场景（orderType=1）返回值含 takeWayList（取餐方式，v0.3）
         ↓  ★ 闸门：完整展示金额（原价/优惠/应付），等待用户明确确认
         ↓  用户未确认 / 答复模糊（"嗯""再说"）→ 一律不进入下一步
 ③ create-order          创建订单，返回支付链接，用户自行支付
+        ↓  到店（orderType=1）必传 takeWayCode，取自②的 takeWayList[].code（v0.3）
+        ↓  外送（orderType=2）不传 takeWayCode
         ↓  本 Skill 不代付、不轮询支付状态
 ```
 
@@ -38,3 +42,5 @@
   与用户沟通时必须标注"参考价"。
 - 替换建议的价格差在拿到真实订单金额（`query-order` 含金额字段，字段名待首个真实订单校准）
   之前一律显示"需按实付口径计算"，不得估算。
+- `calculate-price` 返回的金额单位为「分」，须 ÷100 转元后再展示（v0.3）。
+- 到店下单（orderType=1）的 `takeWayCode` 必须取自**同一门店、同一组合**的 `calculate-price` 返回 `data.takeWayList[].code`，不得跨订单复用或猜测（v0.3）。

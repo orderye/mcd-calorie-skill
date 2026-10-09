@@ -30,13 +30,13 @@ version: 0.1.0
 | 菜单 | `query-meals` | **按餐段取菜单：传 `reservationDate`=目标餐段代表时刻**（接口无 daypart 字段，已实测） |
 | 套餐组成 | `query-meal-detail` | rounds 名称即品类；默认项 `isDefault=1` |
 | 优惠券 | `query-store-coupons` | 只标注，不参与排序 |
-| 报价/下单 | `calculate-price` / `create-order` | **下单必须先展示金额并获用户明确确认** |
+| 报价/下单 | `calculate-price` / `create-order` | 金额单位为「分」，÷100 转元；到店下单 `takeWayCode` 取自报价返回 `takeWayList[].code`；**下单必须先展示金额并获用户明确确认** |
 
 ## 工作流
 
 ### A. 订单热量估算（"这单多少热量？"）
 
-1. 用户无订单号 → 说明历史订单无法列出，请其提供，或直接进推荐流程（B）。
+1. 用户无订单号 → 可提示用 `order-list` 查历史订单取单号；仍不便则请其提供，或直接进推荐流程（B）。
 2. `query-order(orderId)` → 本地脚本 `scripts/mcd_order.py --order <展开后的订单JSON>`
    （套餐按 `comboItemList` 展开；"加…(加)"加料剥离，热量不计入并告知）。
 3. 展示：逐项热量 → 整单合计 → 餐段档位对比结论。
@@ -64,8 +64,8 @@ version: 0.1.0
 
 ### D. 下单（用户明确要求时）
 
-严格按 `docs/order-flow.md`：查券（只标注）→ `calculate-price` 报价 →
-**展示金额并等待明确确认** → `create-order` → 返回支付链接由用户自付。
+严格按 `docs/order-flow.md`：查券（只标注）→ `calculate-price` 报价（金额单位为「分」，÷100 转元）→
+**展示金额并等待明确确认** → `create-order`（到店取②返回的 `takeWayList[].code` 作 `takeWayCode`）→ 返回支付链接由用户自付。
 
 ## 输出模板
 
