@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>热麦卡路里 · 公众号推文交付包</title>
+<style>
+  :root{
+    --red:#DB0007; --red-deep:#A80005; --gold:#FFC72C;
+    --ink:#1a1a1a; --ink-2:#4a4a4a; --ink-3:#8a8a8a;
+    --bg:#f5f5f7; --card:#ffffff; --line:#e8e8ec;
+    --ok:#0f9d58; --warn:#e8930c; --bad:#d93025;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.75; -webkit-font-smoothing:antialiased;
+  }
+  .topbar{
+    position:sticky; top:0; z-index:50; background:rgba(255,255,255,.86);
+    backdrop-filter:saturate(180%) blur(20px); border-bottom:1px solid var(--line);
+  }
+  .topbar-inner{max-width:900px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .brand{font-weight:800;font-size:15px;letter-spacing:-.2px;display:flex;align-items:center;gap:8px}
+  .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--red);box-shadow:0 0 0 4px rgba(219,0,7,.13)}
+  .nav{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+  .nav a{
+    font-size:13px;color:var(--ink-2);text-decoration:none;padding:5px 11px;border-radius:8px;transition:.15s;white-space:nowrap
+  }
+  .nav a:hover{background:#f0f0f3;color:var(--ink)}
+  .wrap{max-width:900px;margin:0 auto;padding:28px 20px 80px}
+
+  .hero{
+    background:linear-gradient(140deg,#DB0007 0%,#A80005 100%);
+    border-radius:20px;padding:36px 32px;color:#fff;margin-bottom:24px;position:relative;overflow:hidden;
+  }
+  .hero::after{
+    content:"";position:absolute;right:-60px;top:-60px;width:260px;height:260px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,199,44,.35),transparent 70%);
+  }
+  .hero .kicker{font-size:11px;letter-spacing:.22em;color:var(--gold);font-weight:700;margin-bottom:12px}
+  .hero h1{font-size:30px;font-weight:900;letter-spacing:-.5px;line-height:1.25;margin-bottom:10px}
+  .hero p{font-size:14px;color:rgba(255,255,255,.82);max-width:600px}
+  .hero .meta{margin-top:20px;display:flex;gap:8px;flex-wrap:wrap;position:relative;z-index:2}
+  .chip{font-size:11.5px;padding:5px 11px;border-radius:99px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.24);color:#fff}
+
+  .card{background:var(--card);border-radius:var(--radius);border:1px solid var(--line);padding:26px 28px;margin-bottom:20px}
+  .card h2{font-size:19px;font-weight:800;letter-spacing:-.3px;margin-bottom:6px;display:flex;align-items:center;gap:9px}
+  .card h2 .idx{
+    display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:7px;
+    background:var(--red);color:#fff;font-size:12.5px;font-weight:800;flex:none
+  }
+  .card .sub{font-size:13px;color:var(--ink-3);margin-bottom:20px}
+  .note{
+    font-size:13px;color:#8a6d00;background:#fff9e6;border:1px solid #ffe9a3;border-left:3px solid var(--gold);
+    border-radius:10px;padding:12px 16px;margin-bottom:20px;line-height:1.7
+  }
+
+  .tabs{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+  .title-item{border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:12px;transition:.15s;background:#fff}
+  .title-item:hover{border-color:#d5d5db;box-shadow:0 3px 14px rgba(0,0,0,.05)}
+  .title-head{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+  .t-rank{font-size:11px;font-weight:800;color:#fff;background:#3a3a3f;border-radius:6px;padding:2px 8px;flex:none}
+  .t-rank.top{background:var(--red)}
+  .t-main{font-size:16.5px;font-weight:700;letter-spacing:-.2px;line-height:1.5;flex:1;min-width:240px}
+  .t-score{font-size:12.5px;font-weight:800;color:var(--red);background:#fdeaea;border-radius:6px;padding:3px 9px;flex:none}
+  .t-why{font-size:13px;color:var(--ink-2);margin-top:9px;padding-left:2px;line-height:1.7}
+
+  .article{background:#fff;border-radius:var(--radius);border:1px solid var(--line);padding:34px 30px 30px}
+  .article h3.wx-title{font-size:22px;font-weight:800;line-height:1.5;letter-spacing:-.3px;margin-bottom:8px}
+  .article .wx-meta{font-size:12.5px;color:var(--ink-3);margin-bottom:22px;padding-bottom:18px;border-bottom:1px dashed var(--line)}
+  .article p{font-size:16px;color:#2b2b2b;margin-bottom:17px;line-height:1.9;letter-spacing:.2px}
+  .article strong{color:var(--ink);font-weight:700}
+  .article em.hl{font-style:normal;background:linear-gradient(transparent 62%,#ffe08a 62%);padding:0 2px}
+  .article h4{font-size:16.5px;font-weight:800;margin:26px 0 12px;padding-left:12px;border-left:3.5px solid var(--red);line-height:1.5}
+  .article hr{border:none;border-top:1px dashed var(--line);margin:26px 0}
+
+  .tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  .tag{font-size:13px;color:#1a6fd4;background:#eef4fd;border-radius:99px;padding:5px 13px}
+
+  .tbl{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:4px}
+  .tbl th{text-align:left;font-weight:700;font-size:12px;color:var(--ink-3);letter-spacing:.05em;padding:9px 10px;border-bottom:1.5px solid var(--line);text-transform:uppercase}
+  .tbl td{padding:11px 10px;border-bottom:1px solid #f2f2f5;color:var(--ink-2);vertical-align:top;line-height:1.65}
+  .tbl tr:last-child td{border-bottom:none}
+  .risk{font-size:11px;font-weight:800;padding:2px 8px;border-radius:5px;white-space:nowrap;display:inline-block}
+  .r-bad{background:#fdeaea;color:var(--bad)}
+  .r-warn{background:#fff4e0;color:var(--warn)}
+  .r-ok{background:#e7f6ed;color:var(--ok)}
+
+  .cover-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+  .cover-card{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+  .cover-thumb{height:104px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:17px;letter-spacing:-.3px;text-align:center;padding:12px;line-height:1.35}
+  .c-a{background:linear-gradient(140deg,#DB0007,#A80005)}
+  .c-b{background:#FAF7F0;color:#1a1a1a;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px}
+  .c-c{background:linear-gradient(140deg,#0F2A21,#123a2c);color:#7CFFB2}
+  .cover-body{padding:14px 16px}
+  .cover-body .ct{font-size:14px;font-weight:800;margin-bottom:8px}
+  .cover-body ul{list-style:none;font-size:12.5px;color:var(--ink-2);line-height:1.85}
+  .cover-body li{padding-left:13px;position:relative}
+  .cover-body li::before{content:"";position:absolute;left:0;top:9px;width:4px;height:4px;border-radius:50%;background:#c8c8cf}
+  .sw{display:inline-flex;gap:4px;margin-top:9px}
+  .sw i{width:16px;height:16px;border-radius:4px;border:1px solid rgba(0,0,0,.08);display:block}
+
+  .checklist{list-style:none;font-size:14px}
+  .checklist li{padding:9px 0 9px 30px;position:relative;border-bottom:1px solid #f4f4f7;color:var(--ink-2)}
+  .checklist li:last-child{border-bottom:none}
+  .checklist li::before{
+    content:"";position:absolute;left:0;top:12px;width:16px;height:16px;border-radius:5px;border:1.5px solid #c8c8cf
+  }
+  .checklist li.done::before{background:var(--ok);border-color:var(--ok)}
+  .checklist li.done::after{content:"";position:absolute;left:5px;top:16px;width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+
+  .btn{
+    font-size:12.5px;font-weight:700;padding:7px 15px;border-radius:9px;border:1px solid var(--line);
+    background:#fff;color:var(--ink-2);cursor:pointer;transition:.15s;font-family:inherit
+  }
+  .btn:hover{background:#f4f4f7;border-color:#d5d5db}
+  .btn.primary{background:var(--red);border-color:var(--red);color:#fff}
+  .btn.primary:hover{background:var(--red-deep)}
+  .toolbar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+
+  .stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-top:6px}
+  .stat{background:#fafafb;border:1px solid var(--line);border-radius:11px;padding:14px 16px}
+  .stat .v{font-size:24px;font-weight:900;color:var(--red);letter-spacing:-1px;line-height:1.2}
+  .stat .l{font-size:11.5px;color:var(--ink-3);margin-top:4px;line-height:1.5}
+
+  footer{text-align:center;font-size:12px;color:var(--ink-3);padding:8px 0 0;line-height:1.9}
+  @media(max-width:640px){
+    .hero{padding:26px 20px}.hero h1{font-size:23px}
+    .card{padding:20px 18px}.article{padding:24px 18px 20px}
+    .article p{font-size:15.5px}
+    .nav a{padding:5px 8px;font-size:12px}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand"><span class="dot"></span>公众号推文交付包</div>
+    <nav class="nav">
+      <a href="#titles">标题</a>
+      <a href="#article">正文</a>
+      <a href="#tags">标签</a>
+      <a href="#cover">封面</a>
+      <a href="#compliance">合规</a>
+      <a href="#checklist">清单</a>
+    </nav>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="kicker">PROJECT → ARTICLE · 2026-10-10</div>
+    <h1>热麦卡路里：零件都给你了，<br>装配图没有</h1>
+    <p>把「麦当劳订单热量估算与餐段档位套餐推荐 Skill」从立项到交付的整个过程，提炼成一篇可直接发布的公众号推文。</p>
+    <div class="meta">
+      <span class="chip">10 个标题候选</span>
+      <span class="chip">正文 ≈ 2000 字</span>
+      <span class="chip">3 套封面方案</span>
+      <span class="chip">10 条合规审查</span>
+      <span class="chip">1 个待处理风险</span>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>数据来源说明：</strong>本次未能获取红狐爆款雷达数据（本地未配置 <code>REDFOX_API_KEY</code>），因此标题与结构基于项目内容 + 通用爆款经验生成，<strong>非爆款数据驱动</strong>。违禁词检测同样未调用官方服务，合规部分为人工审查结果。配置 Key 后可重跑这两步。
+  </div>
+
+  <!-- 1 标题 -->
+  <div class="card" id="titles">
+    <h2><span class="idx">1</span>推荐标题</h2>
+    <div class="sub">每个标题附匹配指数与推荐理由，按推荐度排序。标题均 ≤30 字。</div>
+
+    <div class="title-item">
+      <div class="title-head">
+        <span class="t-rank top">TOP 1</span>
+        <span class="t-main">我用 AI 做了个麦当劳热量计算器，被一行代码坑了 213 大卡</span>
+        <span class="t-score">9.6</span>
+      </div>
+      <div class="t-why">数字冲突感强，「被坑了」自带情绪，213 大卡具体到能让人追问细节——开发复盘类文章用这种标题最抓人。</div>
+    </div>
+
+    <div class="title-item">
+      <div class="title-head">
+        <span class="t-rank top">TOP 2</span>
+        <span class="t-main">AI 写代码很快，但它不知道「麦乐鸡 5 块」是多少卡</span>
+        <span class="t-score">9.4</span>
+      </div>
+      <div class="t-why">一句话把 AI 的能力和边界都说了，反差感天然自带点击欲，做技术的人都想看看是什么坑。</div>
+    </div>
+
+    <div class="title-item">
+      <div class="title-head">
+        <span class="t-rank">3</span>
+        <span class="t-main">点完麦当劳，你根本不知道这单多少热量</span>
+        <span class="t-score">9.2</span>
+      </div>
+      <div class="t-why">直接戳中每个人的日常盲区，没有门槛，泛读者也会点进来，适合想破圈的写法。</div>
+    </div>
+
+    <div class="title-item">
+      <div class="title-head">
+        <span class="t-rank">4</span>
+        <span class="t-main">8 顿麦当劳，平均 1059 大卡：我写了段代码来面对现实</span>
+        <span class="t-score">9.1</span>
+      </div>
+      <div class="t-why">真实数据 + 自嘲口吻，「面对现实」四个字很有共鸣，适合数据驱动的复盘叙事。</div>
+    </div>
+
+    <div class="title-item">
+      <div class="title-head">
+        <span class="t-rank">5</span>
+        <span class="t-main">14 天、12 次提交、1 个 Skill：我把麦当劳点餐做成了对话</span>
+        <span class="t-score">9.0</span>
+      </div>
+      <div class="t-why">典型数字递进标题，节奏感强，一眼看清项目体量，适合开发者读者。</div>
+    </div>
+
+    <div class="title-item">
+      <div class="title-head">
+        <span class="t-rank">6</span>
+        <span class="t-main">一个 AI 工具最难的部分，是敢说「我不知道」</span>
+        <span class="t-score">8.8</span>
+      </div>
+      <div class="t-why">观点型标题，带一点反常识。做工具的人看完会点头，适合做价值观输出。</div>
+    </div>
+
+    <div class="title-item">
+      <div class="title-head">
+        <span class="t-rank">7</span>
+        <span class="t-main">你的午餐超标了吗？一秒钟，算清这单多少大卡</span>
+        <span class="t-score">8.7</span>
+      </div>
+      <div class="t-why">痛点提问 + 轻量承诺，读者代入感强，适合大众向、转发向。</div>
+    </div>
+
+    <div class="title-item">
+      <div class="title-head">
+        <span class="t-rank">8</span>
+        <span class="t-main">官方给了零件，没人给装配图：我花 14 天补上了那张图</span>
+        <span class="t-score">8.6</span>
+      </div>
+      <div class="t-why">比喻化的表达有画面感，「补图」这个动作本身就有故事性。</div>
+    </div>
+
+    <div class="title-item">
+      <div class="title-head">
+        <span class="t-rank">9</span>
+        <span class="t-main">做麦当劳热量工具，最难的不是算法，是这 5 个接口的坑</span>
+        <span class="t-score">8.5</span>
+      </div>
+      <div class="t-why">明确交付价值，把「5 个坑」摆出来，同行会有收藏冲动，适合技术号。</div>
+    </div>
+
+    <div class="title-item">
+      <div class="title-head">
+        <span class="t-rank">10</span>
+        <span class="t-main">我把麦当劳官方 MCP 串成一个 Skill，然后发现了 92% 的假故障</span>
+        <span class="t-score">8.4</span>
+      </div>
+      <div class="t-why">「92% 的假故障」是个强钩子，技术读者会好奇数据是怎么来的。</div>
+    </div>
+  </div>
+
+  <!-- 2 正文 -->
+  <div class="card" id="article" style="padding-bottom:14px">
+    <h2><span class="idx">2</span>正文内容</h2>
+    <div class="sub">已按公众号移动端阅读排版，可直接复制粘贴到后台。</div>
+    <div class="toolbar">
+      <button class="btn primary" id="copyBtn">📋 一键复制正文</button>
+      <button class="btn" id="copyDecl">复制文末声明</button>
+      <span style="font-size:12px;color:#8a8a8a" id="copyHint"></span>
+    </div>
+
+    <div class="article" id="articleBody">
+      <h3 class="wx-title">我用 AI 做了个麦当劳热量计算器，被一行代码坑了 213 大卡</h3>
+      <div class="wx-meta">热麦卡路里 · 一个 Agent Skill 的完整复盘 ｜ 阅读约 6 分钟</div>
+
+      <p>中午 12 点 40 分，你从麦当劳出来，小票还捏在手里。</p>
+      <p>你有没有想过一个问题：这一顿，到底吃了多少热量？</p>
+      <p>不是没有热量表。麦当劳中国把营养表、门店菜单、订单查询、优惠券、下单，全都开放成了官方 MCP 接口。开发者想拿什么数据，都拿得到。</p>
+      <p>可奇怪的是，身边几乎没人在用。</p>
+      <p>因为零件都给你了，<em class="hl">装配图没有</em>。✅</p>
+      <p>这就是「热麦卡路里」的起点。</p>
+      <p>我在麦当劳程序员节创意开发大赛里，用 WorkBuddy 做了一场对话式开发，最后交付了一个 Agent Skill。你对它说「这单多少热量？订单号 xxx」，它把套餐拆开、逐项匹配营养表、算出整单合计，再告诉你这在午餐档位里算轻还是算重；你对它说「想吃 300 大卡左右的早餐」，它把门店此刻能买的东西组合一遍，挑出落在档位里的几组摆给你看。</p>
+      <p>功能听起来一点也不酷。</p>
+      <p>但真正做完之后我发现，这半个月我修的不是算法——<strong>我修的是文档没写、但代码必须面对的那些「谎言」。</strong></p>
+
+      <h4>它能做的四件事</h4>
+      <p><strong>① 订单热量估算。</strong>给一个订单号，套餐按成分展开、加料剥离，逐项匹配营养表，输出每一项的热量、整单合计，以及和所处餐段档位的对比结论。</p>
+      <p><strong>② 餐段档位推荐。</strong>早餐、午餐、下午茶、晚餐，还有很多人没意识到的第五档——<em class="hl">宵夜</em>。每个餐段有轻量／标准／吃饱三档，按上下 12% 筛出组合，支持「最接近档位」「蛋白质更高」「钠更低」「价格更低」四种排序。</p>
+      <p><strong>③ 替换建议。</strong>这一单高于标准档，它会给你一套更轻的组合，并告诉你少了多少大卡。</p>
+      <p><strong>④ 报价下单。</strong>查券、报价、确认，然后才创建订单。这里有一条不可绕过的规则，后面细说。⚠️</p>
+      <p>数据层面，它跑通了 179 个商品、89 个套餐的目录，把营养表、三个餐段的菜单快照、套餐详情、8 笔真实历史订单全部落成了可离线复算的快照。</p>
+      <p>到这一步，一切都很顺利。</p>
+      <p>然后，坑来了。</p>
+
+      <hr>
+
+      <h4>坑 1：接口文档说它没有 daypart 字段</h4>
+      <p>我想按餐段取菜单——早餐菜单和晚餐菜单显然不一样。翻了半天文档，接口返回值里压根没有「餐段」这个字段。</p>
+      <p>最后的解法有点土：<strong>用 <code>reservationDate</code> 传一个「该餐段的代表时刻」</strong>，让接口自己按时间去命中餐段。</p>
+      <p>顺带一提，不同门店的餐段时段差得离谱，早餐最早 05:14 就开始供应，宵夜段能跨过零点到凌晨 04:45。所以餐段时段只能逐店实测，文档里的固定值只能当兜底。</p>
+
+      <h4>坑 2：字段名不一致，92.3% 的订单被判成「热量未知」</h4>
+      <p>这是最惊险的一个。</p>
+      <p>我从历史订单读套餐子项时，一切正常。可跑批量复盘的时候，<strong>超过九成的商品都匹配不上营养表</strong>，整单密密麻麻标着「热量未知」。</p>
+      <p>看起来像是营养表覆盖太差。但我隐约觉得不对——覆盖率再差，也不该差到这个地步。</p>
+      <p>查了半天才发现：<code>order-list</code> 接口返回的套餐子项，名称字段叫 <code>name</code>；而 <code>query-order</code> 接口返回的同一个东西，字段叫 <code>productName</code>。</p>
+      <p>我的代码只认后者。于是所有套餐子项全被读成了空字符串。🔧</p>
+      <p>这不是数据坏了，是<em class="hl">我的代码在撒谎</em>。改完兼容两种字段，未知率立刻从 92.3% 掉到 10.3%。</p>
+
+      <h4>坑 3：麦乐鸡 5 块，213 大卡凭空消失</h4>
+      <p>名称归一化的时候，我写了一句「把数字规格后缀剥掉」，本意是让「可乐中杯」和「可乐」能对上。</p>
+      <p>结果它顺手把「麦乐鸡5块」的「5块」也剥了，匹配到了一个完全不同的商品。整单热量算出来 715 大卡。</p>
+      <p>修复之后，同样的订单是 <strong>928 大卡</strong>。</p>
+      <p>差了 213 大卡——<em class="hl">差不多是一顿加餐的热量</em>。一个看似无害的正则，能让人对自己一天的摄入产生完全错误的判断。</p>
+
+      <h4>坑 4：套餐里的「round1」，不是品类</h4>
+      <p>读套餐组成时，第一轮的 name 写着「新升级巨无霸」。我天真地以为那代表「主食」。</p>
+      <p>直到我把「巨无霸三件套」拆出来——round1 的 name 依然叫「新升级巨无霸」，但它其实只是<strong>轮次的名字</strong>，跟品类毫无关系。</p>
+      <p>真正的品类可能藏在 <code>category</code> 字段里，但这个字段<strong>时有时无</strong>。最后只能做成三级兜底：先读 category，缺失就按名称反查，再不行用关键词规则。</p>
+
+      <h4>坑 5：同一杯奶铁，早餐 13.9 元，午餐 9.9 元</h4>
+      <p>这个坑不影响热量，但影响「价格更低」这个排序。</p>
+      <p>实测发现，<strong>同一个商品在不同餐段的价格是不一样的</strong>，部分商品还挂着「随单购麦金卡优惠」——只有选随单购才享优惠价。</p>
+      <p>结论只有一条：任何报价和价格排序，<strong>都必须用当次菜单接口的实时返回值，绝不能缓存一份目录价</strong>。目录价看上去方便，但它会过期。📌</p>
+
+      <hr>
+
+      <p>修完这五个坑，我反而开始想另一个问题：这些坑都是「能算错但能被发现」的。那有没有一种错，是没人会发现的？</p>
+      <p>有。<strong>就是「算不出来的时候，随便给个数字」。</strong></p>
+      <p>营养表对当前在售单品的覆盖率，只有大约 <em class="hl">44.4%</em>。缺口集中在季节限定、联名新品这些商品上——北非蛋风味系列、爆脆星星堡、德克萨斯风味三层肉霸堡，营养表里都没有。</p>
+      <p>这时候有两条路：要么按 0 算，让整单看起来一切正常；要么如实标注「热量未知」，告诉用户「实际会更高」。</p>
+      <p>我选了后者，并且把它写成了一条不可违背的设计原则：<strong>匹配不上就标未知，绝不按 0 计算。</strong></p>
+      <p>因为一个把 800 大卡算成 587 大卡的工具，比一个老实说「这项我算不出来」的工具，危险得多。⚠️</p>
+      <p>同样的思路，贯穿了整个项目：</p>
+      <p><strong>AI 不能替你花钱。</strong>下单流程里有一道「确认闸门」：报价必须完整展示金额，以明确问句收尾，只有收到肯定答复才允许创建订单。这条规则在脚本层面不可绕过。AI 可以帮你查、帮你算、帮你比，但<em class="hl">钱这件事，必须你点头</em>。</p>
+      <p><strong>不碰官方图和商标。</strong>接口返回里其实带着商品图片字段，但一律剔除不落盘；演示页全部标注「模拟」；文章和项目都明确写着「非麦当劳官方产品」。不暗示官方背书，是从第一行代码就定下来的边界。</p>
+      <p>最后说点数字。</p>
+      <p>项目 12 次提交，迭代出 7 条架构决策记录；常见订单集的名称匹配率跑到 <strong>92.3%</strong>，超过 90% 的验收线；8 笔真实历史订单跑完批量复盘，<strong>平均 1059 大卡，5 单超过标准档，最重的一单 2243 大卡。</strong></p>
+      <p>2243 大卡是什么概念？大约是很多人一整天的摄入量。</p>
+      <p>那一刻我挺庆幸这个工具做了出来——<em class="hl">不是你算不清，是这个账本来就没人替你算过</em>。</p>
+      <p>做这个项目的半个月，我最大的感受不是「AI 真好用」，而是更朴素的一句话：</p>
+      <p><strong>AI 可以替你写代码，但它没法替你承认「我不知道」。</strong></p>
+      <p>把它串起来的是接口，让它靠谱的是那些文档里没写、只能自己踩出来的细节。而一个好工具的门槛，从来不在它算得多快，而在它<strong>敢不敢把算不出来的部分，老老实实标出来</strong>。</p>
+      <p>毕竟，让人少算 213 大卡很容易。让人知道「这项还没算清楚」，才难。</p>
+      <p>你上一次认真算过一顿饭的热量是什么时候？评论区聊聊。👇</p>
+
+      <hr>
+      <p style="font-size:13.5px;color:#8a8a8a;line-height:1.85">本文所述「热麦卡路里」为个人参赛作品，非麦当劳官方产品，与麦当劳及其关联公司无隶属、代理或背书关系。文中热量数据为基于公开营养信息的估算参考，不构成营养、医学或减重建议；数据口径基于门店 3570190 的实测快照与 8 笔历史订单样本，仅供参考。商品信息、价格与供应状态请以官方渠道实时结果为准。演示材料均为模拟数据。</p>
+    </div>
+  </div>
+
+  <!-- 3 标签 -->
+  <div class="card" id="tags">
+    <h2><span class="idx">3</span>推荐标签</h2>
+    <div class="sub">建议 8–10 个，兼顾垂类与技术破圈。</div>
+    <div class="tags">
+      <span class="tag">#AI编程</span><span class="tag">#Agent</span><span class="tag">#MCP</span>
+      <span class="tag">#独立开发</span><span class="tag">#开发复盘</span><span class="tag">#麦当劳</span>
+      <span class="tag">#热量管理</span><span class="tag">#WorkBuddy</span><span class="tag">#Skill</span>
+      <span class="tag">#AI工具</span>
+    </div>
+    <div class="stat-row" style="margin-top:22px">
+      <div class="stat"><div class="v">179</div><div class="l">商品目录覆盖</div></div>
+      <div class="stat"><div class="v">44.4%</div><div class="l">营养表覆盖率（如实标注）</div></div>
+      <div class="stat"><div class="v">92.3%</div><div class="l">名称匹配率（验收 ≥90%）</div></div>
+      <div class="stat"><div class="v">2243</div><div class="l">最重一单 / kcal</div></div>
+    </div>
+  </div>
+
+  <!-- 4 封面 -->
+  <div class="card" id="cover">
+    <h2><span class="idx">4</span>封面方案 · 900×383</h2>
+    <div class="sub">三套方向，均规避官方商标素材。</div>
+    <div class="cover-grid">
+      <div class="cover-card">
+        <div class="cover-thumb c-a">热麦卡路里</div>
+        <div class="cover-body">
+          <div class="ct">方案 A · 热感刻度（推荐）</div>
+          <ul>
+            <li>左侧 40% 放 0→1000 水平刻度条，指针停在 550</li>
+            <li>主文案白色超粗；副文案金色放大字距</li>
+            <li><strong>不使用金拱门 M 标</strong>，改用自绘刻度/火焰</li>
+          </ul>
+          <div class="sw"><i style="background:#DB0007"></i><i style="background:#A80005"></i><i style="background:#FFC72C"></i><i style="background:#ffffff"></i></div>
+        </div>
+      </div>
+      <div class="cover-card">
+        <div class="cover-thumb c-b">板烧鸡腿堡 391<br>中薯条 289<br>中杯可乐 147<br><b>= 827 kcal</b></div>
+        <div class="cover-body">
+          <div class="ct">方案 B · 订单小票</div>
+          <ul>
+            <li>米白底 + 等宽字，放大一张订单小票</li>
+            <li>合计处用红色手写圈出「827 kcal」</li>
+            <li>主文案压在票面上方：这单多少热量？</li>
+          </ul>
+          <div class="sw"><i style="background:#FAF7F0"></i><i style="background:#1a1a1a"></i><i style="background:#DB0007"></i></div>
+        </div>
+      </div>
+      <div class="cover-card">
+        <div class="cover-thumb c-c">宁可说<br>不知道</div>
+        <div class="cover-body">
+          <div class="ct">方案 C · 未知的方框</div>
+          <ul>
+            <li>深墨绿底 + 荧光绿字</li>
+            <li>一排商品名，部分被 UNKNOWN 覆盖</li>
+            <li>适用「诚实设计」这条价值观主线</li>
+          </ul>
+          <div class="sw"><i style="background:#0F2A21"></i><i style="background:#7CFFB2"></i><i style="background:#e8e8ec"></i></div>
+        </div>
+      </div>
+    </div>
+    <div class="note" style="margin-top:20px;margin-bottom:0;color:#8a2b00;background:#fff0ec;border-color:#ffd0c4;border-left-color:#d93025">
+      <strong>⚠️ 待处理：</strong>仓库现有封面 <code>cover/cover-v2-1600.png</code> 与 <code>assets/golden-arches-official.svg</code> 使用了官方金拱门矢量，公开发布前建议替换为自绘元素。
+    </div>
+  </div>
+
+  <!-- 5 合规 -->
+  <div class="card" id="compliance">
+    <h2><span class="idx">5</span>合规审核报告</h2>
+    <div class="sub">人工审查结果（未调用官方违禁词服务），按风险等级排序。</div>
+
+    <table class="tbl">
+      <thead><tr><th style="width:78px">等级</th><th>位置 / 原文</th><th>风险类型</th><th>处理建议</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="risk r-bad">🔴 高</span></td>
+          <td>封面 · 使用官方金拱门 M 标</td>
+          <td>商标使用</td>
+          <td>替换为自绘刻度/抽象火焰元素；确需使用须取得书面授权</td>
+        </tr>
+        <tr>
+          <td><span class="risk r-bad">🔴 高</span></td>
+          <td>全文 · 品牌名「麦当劳」多次出现</td>
+          <td>背书暗示</td>
+          <td>属描述性使用可保留，但必须追加「非官方产品、无隶属或背书关系」声明</td>
+        </tr>
+        <tr>
+          <td><span class="risk r-bad">🔴 高</span></td>
+          <td>配图 · 演示页截图可能含品牌元素</td>
+          <td>商标使用</td>
+          <td>截图统一加「模拟」水印，避免露出商标</td>
+        </tr>
+        <tr>
+          <td><span class="risk r-warn">🟠 中</span></td>
+          <td>坑 3 段 ·「让一个人对自己一天的摄入产生完全错误的判断」</td>
+          <td>健康表述绝对化</td>
+          <td>改为「可能影响对摄入量的判断」，弱化绝对化表达</td>
+        </tr>
+        <tr>
+          <td><span class="risk r-warn">🟠 中</span></td>
+          <td>结尾 ·「让人少算 213 大卡很容易」</td>
+          <td>功效暗示</td>
+          <td>可保留，但全篇需有一处明确声明「热量为估算参考，不构成营养/医学/减重建议」</td>
+        </tr>
+        <tr>
+          <td><span class="risk r-warn">🟠 中</span></td>
+          <td>数据段 · 92.3% / 44.4% / 1059 大卡</td>
+          <td>数据声称</td>
+          <td>补充口径说明（门店 3570190 实测快照 + 8 笔历史订单样本），避免被读成普适结论</td>
+        </tr>
+        <tr>
+          <td><span class="risk r-ok">🟡 低</span></td>
+          <td>全文 · 未出现「最」「第一」「绝对」等极限词</td>
+          <td>—</td>
+          <td>✅ 通过</td>
+        </tr>
+        <tr>
+          <td><span class="risk r-ok">🟡 低</span></td>
+          <td>全文 · 无联系方式、无诱导分享、无付费引流</td>
+          <td>—</td>
+          <td>✅ 通过</td>
+        </tr>
+        <tr>
+          <td><span class="risk r-ok">🟡 低</span></td>
+          <td>全文 · 无 Token / 订单号 / 门店编码等敏感信息</td>
+          <td>—</td>
+          <td>✅ 通过</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 6 清单 -->
+  <div class="card" id="checklist">
+    <h2><span class="idx">6</span>发布前 Checklist</h2>
+    <div class="sub">逐项确认后再发布。</div>
+    <ul class="checklist">
+      <li>替换含官方金拱门标的封面图</li>
+      <li>文末追加「非官方产品 / 热量仅为估算参考」声明</li>
+      <li>所有配图加上「模拟」标注</li>
+      <li>数据口径补充样本范围说明</li>
+      <li>标题选定后二次跑违禁词检测（配置 <code>REDFOX_API_KEY</code> 后可用）</li>
+      <li class="done">全文无 Token / 订单号 / 门店编码等敏感信息（已确认）</li>
+    </ul>
+  </div>
+
+  <footer>
+    热麦卡路里 · 公众号推文交付包 &nbsp;|&nbsp; 由「公众号内容工坊」生成<br>
+    正文 ≈ 2000 字 ｜ 标题 10 选 1 ｜ 封面 3 方案 ｜ 合规 10 条
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  var article = document.getElementById('articleBody');
+  var hint = document.getElementById('copyHint');
+
+  function flash(msg){
+    hint.textContent = msg;
+    setTimeout(function(){ hint.textContent = ''; }, 2200);
+  }
+
+  function toText(node){
+    var out = [];
+    node.querySelectorAll('h3.wx-title, h4, p').forEach(function(el){
+      var t = el.innerText.trim();
+      if(!t) return;
+      if(el.tagName === 'P') out.push(t);
+      else out.push(t);
+    });
+    return out.join('\n\n');
+  }
+
+  document.getElementById('copyBtn').addEventListener('click', function(){
+    var text = toText(article);
+    navigator.clipboard.writeText(text).then(function(){
+      flash('正文已复制 ✓');
+    }).catch(function(){
+      var ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+      flash('正文已复制 ✓');
+    });
+  });
+
+  document.getElementById('copyDecl').addEventListener('click', function(){
+    var decl = '本文所述「热麦卡路里」为个人参赛作品，非麦当劳官方产品，与麦当劳及其关联公司无隶属、代理或背书关系。文中热量数据为基于公开营养信息的估算参考，不构成营养、医学或减重建议；数据口径基于门店 3570190 的实测快照与 8 笔历史订单样本，仅供参考。商品信息、价格与供应状态请以官方渠道实时结果为准。演示材料均为模拟数据。';
+    navigator.clipboard.writeText(decl).then(function(){
+      flash('声明已复制 ✓');
+    }).catch(function(){
+      flash('复制失败，请手动选取');
+    });
+  });
+
+  document.querySelectorAll('.checklist li').forEach(function(li){
+    if(li.classList.contains('done')) return;
+    li.style.cursor = 'pointer';
+    li.addEventListener('click', function(){ li.classList.toggle('done'); });
+  });
+
+  document.querySelectorAll('.nav a').forEach(function(a){
+    a.addEventListener('click', function(e){
+      e.preventDefault();
+      var target = document.querySelector(a.getAttribute('href'));
+      if(target) window.scrollTo({ top: target.offsetTop - 76, behavior: 'smooth' });
+    });
+  });
+})();
+</script>
+</body>
+</html>

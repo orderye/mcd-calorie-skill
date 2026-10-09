@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="color-scheme" content="dark">
+<meta name="color-scheme" content="light dark">
 <title>热麦卡路里 · 点餐流程演示（模拟数据）</title>
 <style>
 /* ══════════════════════════════════════════════════════════════
@@ -42,9 +42,30 @@
   --info: oklch(74% 0.115 252);
   --bad:  oklch(66% 0.180 26);
 
-  /* —— 热量色阶（由 --heat-h 连续驱动）—— */
-  --heat:     oklch(80% 0.140 var(--heat-h));
-  --heat-bar: oklch(72% 0.150 var(--heat-h));
+  /* —— 热量色阶（由 --heat-h 连续驱动；亮度随主题切换）—— */
+  --heat-l: 80%;        /* 热量文字 */
+  --heat-bar-l: 72%;    /* 仪表填充 */
+  --heat:     oklch(var(--heat-l) 0.140 var(--heat-h));
+  --heat-bar: oklch(var(--heat-bar-l) 0.150 var(--heat-h));
+
+  /* —— 品牌琥珀作为文字时的专用色（浅色下需压暗才能过对比度）—— */
+  --brand-tx: oklch(79% 0.145 66);
+
+  /* —— 主题相关的硬编码面，抽成令牌以便浅色覆盖 —— */
+  color-scheme: light dark;
+  --page-glow:   oklch(24% 0.030 62 / .55);
+  --rail-bg:     oklch(15% 0.010 62);
+  --thumb-a:     oklch(28% 0.016 62);
+  --thumb-b:     oklch(21% 0.012 62);
+  --thumb-ring:  oklch(45% 0.014 62 / .35);
+  --hover-bg:    oklch(30% 0.020 62);
+  --scrim:       oklch(6% 0.010 62);
+  --tick:        oklch(45% 0.012 62 / .55);
+  --band-edge:   oklch(70% 0.020 62 / .75);
+  --heat-glow:   oklch(70% 0.16 var(--heat-h) / .20);
+  --shadow-phone:0 32px 70px oklch(8% 0.02 62 / .55);
+  --edge-hi:     oklch(60% 0.02 62 / .10);
+  --chip-sub:    oklch(88% 0.09 70 / .78);
 
   --font-sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "HarmonyOS Sans SC", "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
   --font-serif: "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", "SimSun", Georgia, serif;
@@ -59,12 +80,63 @@
   /* —— 语义 z 轴 —— */
   --z-sticky:200; --z-sheet-mask:300; --z-sheet:320; --z-modal:400; --z-toast:500;
 }
+/* ══════════════════════════════════════════════════════════════
+   浅色主题：跟随系统 prefers-color-scheme
+   要点：浅色不是深色的简单反转。
+     · 页面底色偏暖灰（96.4%），抬升面反而更白（99.4%），靠描边而非阴影分层
+     · 品牌琥珀在浅底上要压暗（66%）才够 3:1；作为文字再用 --brand-tx 压到 44%
+     · 热量色阶亮度整体下调（80%→45%），否则冷青/琥珀在白底上完全读不出来
+     · 阴影换成低透明暖灰，遮罩用深灰而非纯黑
+   ══════════════════════════════════════════════════════════════ */
+@media (prefers-color-scheme: light){
+  :root{
+    --surf-0: oklch(96.4% 0.008 68);
+    --surf-1: oklch(99.4% 0.003 70);
+    --surf-2: oklch(97.6% 0.007 70);
+    --surf-3: oklch(94.4% 0.009 70);
+    --line:   oklch(88.5% 0.010 68);
+    --line-2: oklch(78% 0.014 68);
+
+    --ink-0: oklch(22% 0.014 62);
+    --ink-1: oklch(33% 0.014 62);
+    --ink-2: oklch(42% 0.013 62);
+    --ink-3: oklch(48% 0.013 62);
+    --ink-4: oklch(52% 0.012 62);
+
+    --brand:    oklch(66% 0.170 58);
+    --brand-lt: oklch(42% 0.165 54);
+    --brand-dk: oklch(38% 0.150 52);
+    --brand-ink:oklch(24% 0.045 60);
+    --brand-tx: oklch(44% 0.170 54);
+
+    --ok:   oklch(45% 0.140 152);
+    --info: oklch(45% 0.130 252);
+    --bad:  oklch(45% 0.190 26);
+
+    --heat-l: 45%;
+    --heat-bar-l: 52%;
+
+    --page-glow:   oklch(88% 0.050 68 / .75);
+    --rail-bg:     oklch(94.2% 0.010 68);
+    --thumb-a:     oklch(95% 0.012 68);
+    --thumb-b:     oklch(90% 0.016 68);
+    --thumb-ring:  oklch(72% 0.020 68 / .45);
+    --hover-bg:    oklch(91% 0.012 68);
+    --scrim:       oklch(28% 0.020 62);
+    --tick:        oklch(72% 0.014 68 / .75);
+    --band-edge:   oklch(52% 0.020 62 / .65);
+    --heat-glow:   oklch(78% 0.14 var(--heat-h) / .16);
+    --shadow-phone:0 24px 56px oklch(35% 0.020 62 / .16);
+    --edge-hi:     oklch(72% 0.015 68 / .40);
+    --chip-sub:    oklch(42% 0.020 62);
+  }
+}
 html{ transition: --heat-h var(--dur-4) var(--e-out-quart) }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 [hidden]{display:none!important}
 body{
   background:
-    radial-gradient(90% 55% at 12% -8%, oklch(24% 0.030 62 / .55), transparent 70%),
+    radial-gradient(90% 55% at 12% -8%, var(--page-glow), transparent 70%),
     var(--surf-0);
   color:var(--ink-1);
   font-family:var(--font-sans); font-size:14px; line-height:1.62;
@@ -72,7 +144,7 @@ body{
   padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 button,textarea{font:inherit;color:inherit}
-:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:6px}
+:focus-visible{outline:2px solid var(--brand-tx);outline-offset:2px;border-radius:6px}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 .skip{position:absolute;left:12px;top:-48px;z-index:999;background:var(--surf-2);color:var(--ink-0);padding:8px 14px;border-radius:8px;text-decoration:none;transition:top var(--dur-2) var(--e-out-quart)}
 .skip:focus{top:12px}
@@ -90,8 +162,8 @@ button,textarea{font:inherit;color:inherit}
   box-shadow:inset 0 0 0 1.5px oklch(97% 0.010 70 / .38);
 }
 h1{font-size:clamp(17px,2.1vw,21px);font-weight:700;letter-spacing:.01em;color:var(--ink-0);line-height:1.4}
-h1 .sim{display:inline-block;font-size:10.5px;font-weight:500;color:var(--brand);
-        border:1px solid oklch(79% 0.145 66 / .55);border-radius:4px;padding:1px 6px;margin-left:9px;vertical-align:middle;letter-spacing:.06em}
+h1 .sim{display:inline-block;font-size:10.5px;font-weight:500;color:var(--brand-tx);
+        border:1px solid color-mix(in oklab, var(--brand) 55%, transparent);border-radius:4px;padding:1px 6px;margin-left:9px;vertical-align:middle;letter-spacing:.06em}
 .head .sub{color:var(--ink-3);font-size:12.5px;margin-top:5px;max-width:68ch;line-height:1.7}
 .head .clock{color:var(--ink-3);font-size:12px;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .head .clock b{display:block;color:var(--ink-2);font-weight:500;font-size:12.5px}
@@ -109,16 +181,22 @@ h1 .sim{display:inline-block;font-size:10.5px;font-weight:500;color:var(--brand)
   width:404px;flex:none;height:812px;position:relative;overflow:hidden;
   background:var(--surf-1); border:1px solid var(--line-2); border-radius:34px;
   display:flex;flex-direction:column;
-  box-shadow:0 32px 70px oklch(8% 0.02 62 / .55), inset 0 1px 0 oklch(60% 0.02 62 / .10);
+  box-shadow:var(--shadow-phone), inset 0 1px 0 var(--edge-hi);
 }
 .phone-glow{position:absolute;inset:0 0 auto 0;height:210px;pointer-events:none;
-  background:radial-gradient(115% 100% at 50% 0%, oklch(70% 0.16 var(--heat-h) / .20), transparent 72%);}
+  background:radial-gradient(115% 100% at 50% 0%, var(--heat-glow), transparent 72%);}
 @media(max-width:1000px){ .phone{width:min(100%,420px);height:min(812px,88svh)} }
-@media(max-width:440px){ .phone{height:min(812px,86svh);border-radius:28px} }
+@media(max-width:440px){
+  .phone{height:min(812px,86svh);border-radius:28px}
+  .rail{width:94px}
+  .rail button{font-size:11.5px}
+  .thumb{width:56px;height:56px;font-size:22px}
+  .items{padding:12px 11px 100px}
+}
 
 .statusbar{display:flex;justify-content:space-between;align-items:center;gap:8px;
            padding:11px 20px 6px;font-size:11px;color:var(--ink-3);flex:none;font-variant-numeric:tabular-nums}
-.statusbar .sim{color:var(--brand);border:1px solid oklch(79% 0.145 66 / .5);border-radius:3px;padding:0 5px;letter-spacing:.05em}
+.statusbar .sim{color:var(--brand-tx);border:1px solid color-mix(in oklab, var(--brand) 50%, transparent);border-radius:3px;padding:0 5px;letter-spacing:.05em}
 .appbar{display:flex;align-items:center;gap:10px;padding:4px 18px 13px;flex:none;border-bottom:1px solid var(--line)}
 .appbar .back{background:none;border:none;color:var(--ink-1);font-size:22px;line-height:1;cursor:pointer;
               padding:6px 8px;margin-left:-8px;border-radius:8px;transition:color var(--dur-1),background var(--dur-1)}
@@ -135,29 +213,29 @@ h1 .sim{display:inline-block;font-size:10.5px;font-weight:500;color:var(--brand)
 .storecard .row1{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
 .storecard .sname{font-size:15px;font-weight:700;color:var(--ink-0);letter-spacing:.01em}
 .storecard .smeta{font-size:11.5px;color:var(--ink-3);margin-top:3px;line-height:1.55}
-.storecard .change{font-size:12px;color:var(--brand);background:none;border:none;cursor:pointer;flex:none;
+.storecard .change{font-size:12px;color:var(--brand-tx);background:none;border:none;cursor:pointer;flex:none;
                    padding:6px 2px;letter-spacing:.02em;transition:color var(--dur-1)}
 .storecard .change:hover{color:var(--brand-lt)}
 .seg{display:flex;gap:5px;padding:3px;background:var(--surf-2);border-radius:11px}
 .seg button{flex:1;background:none;border:none;color:var(--ink-3);border-radius:8px;padding:8px 6px;
             font-size:12.5px;cursor:pointer;transition:color var(--dur-1),background var(--dur-2)}
 .seg button:hover{color:var(--ink-1)}
-.seg button.active{background:oklch(79% 0.145 66 / .14);color:var(--brand-lt);font-weight:600;
-                   box-shadow:inset 0 0 0 1px oklch(79% 0.145 66 / .40)}
+.seg button.active{background:color-mix(in oklab, var(--brand) 14%, transparent);color:var(--brand-lt);font-weight:600;
+                   box-shadow:inset 0 0 0 1px color-mix(in oklab, var(--brand) 40%, transparent)}
 .storecard .seg{margin-top:12px}
 
 /* ═══ 05 分类 + 菜单 ═══ */
 .menu-body{display:flex;min-height:100%;align-items:stretch}
-.rail{width:92px;flex:none;background:oklch(15% 0.010 62);padding:6px 0 96px;border-right:1px solid var(--line)}
-.rail button{display:flex;align-items:center;justify-content:space-between;gap:4px;width:100%;background:none;border:none;
-             color:var(--ink-3);font-size:12.5px;text-align:left;padding:11px 10px 11px 13px;cursor:pointer;
-             position:relative;line-height:1.35;transition:color var(--dur-1),background var(--dur-2)}
+.rail{width:106px;flex:none;background:var(--rail-bg);padding:6px 0 96px;border-right:1px solid var(--line)}
+.rail button{display:flex;align-items:baseline;justify-content:space-between;gap:4px;width:100%;background:none;border:none;
+             color:var(--ink-3);font-size:12px;text-align:left;padding:10px 9px 10px 12px;cursor:pointer;
+             position:relative;line-height:1.4;transition:color var(--dur-1),background var(--dur-2)}
 .rail button:hover{color:var(--ink-1)}
 .rail button[aria-current="true"]{background:var(--surf-1);color:var(--ink-0);font-weight:700}
 .rail button[aria-current="true"]::before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);
   width:3px;height:18px;background:var(--brand);border-radius:0 2px 2px 0}
 .rail .cnt{font-size:10px;color:var(--ink-4);font-variant-numeric:tabular-nums}
-.rail button[aria-current="true"] .cnt{color:var(--brand)}
+.rail button[aria-current="true"] .cnt{color:var(--brand-tx)}
 
 .items{flex:1;padding:12px 14px 100px;display:flex;flex-direction:column;gap:9px;min-width:0}
 .item{background:var(--surf-2);border-radius:14px;padding:12px;display:flex;gap:12px;
@@ -165,16 +243,16 @@ h1 .sim{display:inline-block;font-size:10.5px;font-weight:500;color:var(--brand)
 @keyframes item-in{from{opacity:0;transform:translate3d(0,12px,0)}to{opacity:1;transform:none}}
 @media(hover:hover){ .item:hover{background:var(--surf-3)} }
 .thumb{width:64px;height:64px;border-radius:12px;flex:none;
-  background:linear-gradient(150deg, oklch(28% 0.016 62), oklch(21% 0.012 62));
-  box-shadow:inset 0 0 0 1px oklch(45% 0.014 62 / .35);
+  background:linear-gradient(150deg, var(--thumb-a), var(--thumb-b));
+  box-shadow:inset 0 0 0 1px var(--thumb-ring);
   display:flex;align-items:center;justify-content:center;font-size:26px;line-height:1}
 .info{flex:1;min-width:0}
 .info .n{font-size:14.5px;font-weight:600;line-height:1.4;color:var(--ink-0);overflow-wrap:anywhere}
 .tagrow{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
 .tag{font-size:10.5px;border-radius:4px;padding:1px 6px;border:1px solid var(--line-2);color:var(--ink-3);letter-spacing:.02em}
-.tag.combo{color:var(--brand);border-color:oklch(79% 0.145 66 / .45)}
+.tag.combo{color:var(--brand-tx);border-color:color-mix(in oklab, var(--brand) 45%, transparent)}
 .tag.kcal{color:var(--ink-2);border-color:var(--line-2)}
-.tag.unknown{color:var(--bad);border-color:oklch(66% 0.180 26 / .5)}
+.tag.unknown{color:var(--bad);border-color:color-mix(in oklab, var(--bad) 50%, transparent)}
 .info .desc{font-size:11.5px;color:var(--ink-3);margin-top:6px;line-height:1.6;overflow-wrap:anywhere}
 .priceline{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:9px}
 .price{font-family:var(--font-serif);font-size:17px;font-weight:700;color:var(--ink-0);font-variant-numeric:tabular-nums;letter-spacing:.01em}
@@ -193,11 +271,11 @@ h1 .sim{display:inline-block;font-size:10.5px;font-weight:500;color:var(--brand)
 .cartbar{position:absolute;left:0;right:0;bottom:0;min-height:70px;background:var(--surf-2);
   border-top:1px solid var(--line-2);display:flex;align-items:center;gap:12px;padding:10px 14px;z-index:var(--z-sticky)}
 .cartbar::before{content:"";position:absolute;inset:-1px 0 auto 0;height:1px;
-  background:linear-gradient(90deg, transparent, oklch(72% 0.15 var(--heat-h) / .55), transparent)}
+  background:linear-gradient(90deg, transparent, color-mix(in oklab, var(--heat-bar) 55%, transparent), transparent)}
 .cartbar .cicon{width:46px;height:46px;border-radius:50%;background:var(--surf-3);border:1px solid var(--line-2);
   display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;position:relative;flex:none;
   transition:background var(--dur-2),border-color var(--dur-2),transform var(--dur-2) var(--e-out-quart)}
-.cartbar .cicon:hover{background:oklch(30% 0.02 62)}
+.cartbar .cicon:hover{background:var(--hover-bg)}
 .cartbar .cicon.empty{opacity:.45}
 .cartbar .cicon.pulse{animation:cart-pulse var(--dur-3) var(--e-out-quart)}
 @keyframes cart-pulse{0%{transform:scale(1)}40%{transform:scale(1.14)}100%{transform:scale(1)}}
@@ -218,20 +296,20 @@ h1 .sim{display:inline-block;font-size:10.5px;font-weight:500;color:var(--brand)
 .btn:active{transform:scale(.97)}
 .btn:disabled{background:var(--surf-3);color:var(--ink-4);cursor:not-allowed;transform:none}
 .btn.ghost{background:var(--surf-3);color:var(--ink-2);box-shadow:inset 0 0 0 1px var(--line-2);font-weight:500}
-.btn.ghost:hover{background:oklch(30% 0.015 62);color:var(--ink-0)}
+.btn.ghost:hover{background:var(--hover-bg);color:var(--ink-0)}
 .btn.block{display:block;width:100%;border-radius:13px;padding:14px}
-.link{background:none;border:none;color:var(--brand);font-size:12px;cursor:pointer;padding:4px 2px;letter-spacing:.02em}
+.link{background:none;border:none;color:var(--brand-tx);font-size:12px;cursor:pointer;padding:4px 2px;letter-spacing:.02em}
 .link:hover{color:var(--brand-lt);text-decoration:underline}
 
 /* ═══ 07 弹层 ═══ */
-.sheet-mask{position:absolute;inset:0;background:oklch(6% 0.01 62 / .62);z-index:var(--z-sheet-mask);
+.sheet-mask{position:absolute;inset:0;background:color-mix(in oklab, var(--scrim) 62%, transparent);z-index:var(--z-sheet-mask);
   opacity:0;transition:opacity var(--dur-2) var(--e-out-quart);pointer-events:none}
 .sheet-mask.show{opacity:1;pointer-events:auto}
 .sheet{position:absolute;left:0;right:0;bottom:0;max-height:88%;background:var(--surf-1);
   border-radius:22px 22px 0 0;border-top:1px solid var(--line-2);z-index:var(--z-sheet);
   display:flex;flex-direction:column;visibility:hidden;transform:translate3d(0,100%,0);
   transition:transform var(--dur-3) var(--e-out-expo), visibility var(--dur-3) linear;
-  box-shadow:0 -18px 44px oklch(6% 0.01 62 / .5)}
+  box-shadow:0 -18px 44px color-mix(in oklab, var(--scrim) 50%, transparent)}
 .sheet.show{transform:none;visibility:visible;transition:transform var(--dur-3) var(--e-out-expo), visibility 0s}
 .sheet .s-head{padding:16px 18px 10px;display:flex;align-items:flex-start;gap:12px;border-bottom:1px solid var(--line)}
 .sheet .s-title{font-size:16px;font-weight:700;color:var(--ink-0);letter-spacing:.01em}
@@ -260,23 +338,23 @@ h1 .sim{display:inline-block;font-size:10.5px;font-weight:500;color:var(--brand)
   border-radius:10px;padding:8px 13px;font-size:12.5px;cursor:pointer;text-align:left;line-height:1.4;
   transition:color var(--dur-1),background var(--dur-2),box-shadow var(--dur-2)}
 .chip:hover{color:var(--ink-0);box-shadow:inset 0 0 0 1px var(--line-2);background:var(--surf-3)}
-.chip.active{background:oklch(79% 0.145 66 / .13);color:var(--brand-lt);font-weight:600;
-  box-shadow:inset 0 0 0 1px oklch(79% 0.145 66 / .50)}
+.chip.active{background:color-mix(in oklab, var(--brand) 13%, transparent);color:var(--brand-lt);font-weight:600;
+  box-shadow:inset 0 0 0 1px color-mix(in oklab, var(--brand) 50%, transparent)}
 .chip small{display:block;font-size:10.5px;color:var(--ink-4);margin-top:2px;font-variant-numeric:tabular-nums}
-.chip.active small{color:oklch(88% 0.09 70 / .78)}
+.chip.active small{color:var(--chip-sub)}
 .chip.sm{padding:7px 11px;font-size:12px}
-.spec-tag{display:inline-block;margin-left:7px;font-size:10.5px;font-weight:600;color:var(--brand);
-  border:1px solid oklch(79% 0.145 66 / .55);border-radius:4px;padding:0 5px;vertical-align:middle;font-style:normal}
+.spec-tag{display:inline-block;margin-left:7px;font-size:10.5px;font-weight:600;color:var(--brand-tx);
+  border:1px solid color-mix(in oklab, var(--brand) 55%, transparent);border-radius:4px;padding:0 5px;vertical-align:middle;font-style:normal}
 .spec-tag-sm{display:inline-block;margin-left:5px;font-size:9.5px;font-style:normal;font-weight:600;
-  color:var(--brand);border:1px solid oklch(79% 0.145 66 / .45);border-radius:3px;padding:0 3px;transform:translateY(-1px)}
-.default-line{margin-top:14px;padding:10px 12px;border-radius:11px;background:oklch(79% 0.145 66 / .08);
-  box-shadow:inset 0 0 0 1px oklch(79% 0.145 66 / .28);font-size:12px;color:var(--ink-2);line-height:1.6}
+  color:var(--brand-tx);border:1px solid color-mix(in oklab, var(--brand) 45%, transparent);border-radius:3px;padding:0 3px;transform:translateY(-1px)}
+.default-line{margin-top:14px;padding:10px 12px;border-radius:11px;background:color-mix(in oklab, var(--brand) 8%, transparent);
+  box-shadow:inset 0 0 0 1px color-mix(in oklab, var(--brand) 28%, transparent);font-size:12px;color:var(--ink-2);line-height:1.6}
 .default-line b{color:var(--brand-lt)}
 .mod-block{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
 .mod-toggle{width:100%;background:var(--surf-2);box-shadow:inset 0 0 0 1px var(--line-2);color:var(--ink-1);
   border:none;border-radius:11px;padding:11px;font-size:12.5px;cursor:pointer;text-align:left;
   transition:color var(--dur-1),box-shadow var(--dur-2)}
-.mod-toggle:hover{color:var(--brand-lt);box-shadow:inset 0 0 0 1px oklch(79% 0.145 66 / .45)}
+.mod-toggle:hover{color:var(--brand-lt);box-shadow:inset 0 0 0 1px color-mix(in oklab, var(--brand) 45%, transparent)}
 .mod-group{margin-top:14px}
 .og-title{font-size:12px;color:var(--ink-3);margin-bottom:8px}
 .og-title b{color:var(--ink-1);font-weight:600}
@@ -286,7 +364,7 @@ h1 .sim{display:inline-block;font-size:10.5px;font-weight:500;color:var(--brand)
   background:var(--surf-3);border:none;color:var(--ink-1);font-size:15px;cursor:pointer;line-height:1;position:relative;
   transition:background var(--dur-1),transform var(--dur-1) var(--e-out-quart)}
 .stepper button::before{content:"";position:absolute;inset:-7px}
-.stepper button:hover{background:oklch(30% 0.015 62)}
+.stepper button:hover{background:var(--hover-bg)}
 .stepper button:active{transform:scale(.92)}
 .stepper .q{font-size:14px;min-width:18px;text-align:center;font-weight:600;font-variant-numeric:tabular-nums}
 .cart-line{display:flex;gap:12px;align-items:center;padding:13px 0;border-bottom:1px solid var(--line)}
@@ -305,7 +383,7 @@ h1 .sim{display:inline-block;font-size:10.5px;font-weight:500;color:var(--brand)
 .co-sec{padding:16px 0;border-top:1px solid var(--line)}
 .co-sec:first-child{border-top:none;padding-top:6px}
 .co-h{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--ink-3);letter-spacing:.09em;margin-bottom:11px}
-.co-h .num{width:19px;height:19px;border-radius:6px;background:oklch(79% 0.145 66 / .14);color:var(--brand);
+.co-h .num{width:19px;height:19px;border-radius:6px;background:color-mix(in oklab, var(--brand) 14%, transparent);color:var(--brand-tx);
   font-size:10.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex:none;letter-spacing:0}
 .co-h .link{margin-left:auto;letter-spacing:.02em}
 .kv{display:flex;justify-content:space-between;gap:12px;font-size:13px;padding:5px 0;color:var(--ink-3)}
@@ -321,7 +399,7 @@ h1 .sim{display:inline-block;font-size:10.5px;font-weight:500;color:var(--brand)
 .remarks{width:100%;background:var(--surf-2);box-shadow:inset 0 0 0 1px var(--line-2);border:none;border-radius:11px;
   color:var(--ink-0);padding:11px 12px;font-size:12.5px;resize:none;height:60px;line-height:1.6}
 .remarks::placeholder{color:var(--ink-3)}
-.remarks:focus{outline:none;box-shadow:inset 0 0 0 1.5px oklch(79% 0.145 66 / .6)}
+.remarks:focus{outline:none;box-shadow:inset 0 0 0 1.5px color-mix(in oklab, var(--brand) 60%, transparent)}
 .co-foot{position:absolute;left:0;right:0;bottom:0;background:var(--surf-2);border-top:1px solid var(--line-2);
   padding:12px 16px;display:flex;align-items:center;gap:14px;z-index:var(--z-sticky);
   padding-bottom:max(12px,env(safe-area-inset-bottom))}
@@ -338,7 +416,7 @@ h1 .sim{display:inline-block;font-size:10.5px;font-weight:500;color:var(--brand)
 .panel:last-child{margin-bottom:0}
 .p-title{font-size:12px;font-weight:700;color:var(--ink-2);display:flex;align-items:center;gap:8px;
   margin:14px 0 16px;letter-spacing:.05em}
-.p-title .num{width:21px;height:21px;border-radius:6px;background:oklch(79% 0.145 66 / .14);color:var(--brand);
+.p-title .num{width:21px;height:21px;border-radius:6px;background:color-mix(in oklab, var(--brand) 14%, transparent);color:var(--brand-tx);
   font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex:none;letter-spacing:0}
 .p-title .hint{margin-left:auto;font-size:11px;color:var(--ink-4);font-weight:400;letter-spacing:.02em}
 .panel .seg{margin-bottom:18px}
@@ -348,9 +426,9 @@ h1 .sim{display:inline-block;font-size:10.5px;font-weight:500;color:var(--brand)
   color:var(--heat);font-variant-numeric:tabular-nums;letter-spacing:.01em}
 .heat-total .v small{font-family:var(--font-sans);font-size:12.5px;font-weight:400;color:var(--ink-3);margin-left:6px;letter-spacing:.06em}
 .verdict{font-size:12px;font-weight:600;padding:5px 11px;border-radius:999px;white-space:nowrap;margin-top:6px}
-.verdict.ok{color:var(--ok);background:oklch(76% 0.130 158 / .13)}
-.verdict.high{color:var(--bad);background:oklch(66% 0.180 26 / .14)}
-.verdict.low{color:var(--info);background:oklch(74% 0.115 252 / .14)}
+.verdict.ok{color:var(--ok);background:color-mix(in oklab, var(--ok) 13%, transparent)}
+.verdict.high{color:var(--bad);background:color-mix(in oklab, var(--bad) 14%, transparent)}
+.verdict.low{color:var(--info);background:color-mix(in oklab, var(--info) 14%, transparent)}
 .verdict.idle{color:var(--ink-3);background:var(--surf-2)}
 
 /* 仪表：刻度 + 目标区间 + 指针 */
@@ -359,9 +437,9 @@ h1 .sim{display:inline-block;font-size:10.5px;font-weight:500;color:var(--brand)
 .gauge .fill{position:absolute;top:0;left:0;bottom:0;background:var(--heat-bar);border-radius:3px;
   transition:width var(--dur-4) var(--e-out-quart)}
 .gauge .ticks{position:absolute;inset:0;background:repeating-linear-gradient(90deg,
-  oklch(45% 0.012 62 / .55) 0 1px, transparent 1px 10%);pointer-events:none}
-.gauge .band{position:absolute;top:13px;height:20px;border-left:1px solid oklch(70% 0.02 62 / .75);
-  border-right:1px solid oklch(70% 0.02 62 / .75);background:oklch(72% 0.150 var(--heat-h) / .12);
+  var(--tick) 0 1px, transparent 1px 10%);pointer-events:none}
+.gauge .band{position:absolute;top:13px;height:20px;border-left:1px solid var(--band-edge);
+  border-right:1px solid var(--band-edge);background:color-mix(in oklab, var(--heat-bar) 12%, transparent);
   transition:left var(--dur-4) var(--e-out-quart), width var(--dur-4) var(--e-out-quart)}
 .gauge .needle{position:absolute;top:4px;width:2px;height:38px;background:var(--ink-0);margin-left:-1px;
   transition:left var(--dur-4) var(--e-out-quart)}
@@ -369,12 +447,12 @@ h1 .sim{display:inline-block;font-size:10.5px;font-weight:500;color:var(--brand)
   color:var(--ink-1);white-space:nowrap;font-variant-numeric:tabular-nums;background:var(--surf-0);
   padding:1px 5px;border-radius:5px}
 .gauge .scale{position:absolute;top:34px;left:0;right:0;height:14px}
-.gauge .scale span{position:absolute;transform:translateX(-50%);font-size:10.5px;color:var(--ink-4);
+.gauge .scale span{position:absolute;transform:translateX(-50%);font-size:10.5px;color:var(--ink-3);
   white-space:nowrap;font-variant-numeric:tabular-nums}
 .gauge .scale span.on{color:var(--ink-2)}
 
 .mini-table{width:100%;border-collapse:collapse;font-size:12.5px}
-.mini-table th{color:var(--ink-4);font-weight:500;text-align:left;padding:6px;border-bottom:1px solid var(--line);letter-spacing:.05em}
+.mini-table th{color:var(--ink-3);font-weight:500;text-align:left;padding:6px;border-bottom:1px solid var(--line);letter-spacing:.05em}
 .mini-table td{padding:7px 6px;border-bottom:1px solid var(--line);color:var(--ink-3);vertical-align:top}
 .mini-table td.num,.mini-table th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .mini-table td.name{color:var(--ink-1);overflow-wrap:anywhere}
@@ -398,7 +476,7 @@ h1 .sim{display:inline-block;font-size:10.5px;font-weight:500;color:var(--brand)
 .reco .r-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;padding-top:9px;
   border-top:1px dashed var(--line-2)}
 .reco .r-price{font-size:13.5px;font-weight:700;color:var(--ink-1);font-variant-numeric:tabular-nums}
-.reco .use{background:none;border:1px solid oklch(79% 0.145 66 / .55);color:var(--brand);border-radius:8px;
+.reco .use{background:none;border:1px solid color-mix(in oklab, var(--brand) 55%, transparent);color:var(--brand-tx);border-radius:8px;
   padding:5px 11px;font-size:11.5px;cursor:pointer;transition:background var(--dur-1),color var(--dur-1)}
 .reco .use:hover{background:var(--brand);color:var(--brand-ink)}
 
@@ -407,15 +485,15 @@ h1 .sim{display:inline-block;font-size:10.5px;font-weight:500;color:var(--brand)
   border-left:2px solid var(--brand);animation:log-in var(--dur-3) var(--e-out-quart) both}
 @keyframes log-in{from{opacity:0;transform:translate3d(0,-6px,0)}to{opacity:1;transform:none}}
 .log.sys{border-left-color:var(--info)}
-.log .tool{font-family:var(--font-mono);font-size:11px;font-weight:700;color:var(--brand);letter-spacing:.01em;overflow-wrap:anywhere}
+.log .tool{font-family:var(--font-mono);font-size:11px;font-weight:700;color:var(--brand-tx);letter-spacing:.01em;overflow-wrap:anywhere}
 .log.sys .tool{color:var(--info)}
 .log .desc{color:var(--ink-2);margin-top:3px;line-height:1.6;overflow-wrap:anywhere}
 .log .time{color:var(--ink-4);font-size:10.5px;margin-top:2px;font-variant-numeric:tabular-nums}
 
 /* ═══ 10 确认弹窗（原生 dialog） ═══ */
 dialog{border:none;background:transparent;padding:0;max-width:none;max-height:none}
-dialog::backdrop{background:oklch(6% 0.01 62 / .68)}
-.modal{background:var(--surf-1);box-shadow:inset 0 0 0 1px var(--line-2), 0 30px 70px oklch(6% 0.01 62 / .6);
+dialog::backdrop{background:color-mix(in oklab, var(--scrim) 68%, transparent)}
+.modal{background:var(--surf-1);box-shadow:inset 0 0 0 1px var(--line-2), 0 30px 70px color-mix(in oklab, var(--scrim) 60%, transparent);
   border-radius:18px;padding:24px;width:min(420px,92vw);animation:modal-in var(--dur-3) var(--e-out-expo) both}
 @keyframes modal-in{from{opacity:0;transform:translate3d(0,14px,0) scale(.98)}to{opacity:1;transform:none}}
 .modal h3{font-size:17px;color:var(--ink-0);margin-bottom:5px;letter-spacing:.01em}
@@ -434,20 +512,20 @@ dialog::backdrop{background:oklch(6% 0.01 62 / .68)}
 
 /* ═══ 11 Toast ═══ */
 .toast{position:fixed;left:50%;bottom:26px;transform:translate3d(-50%,140%,0);z-index:var(--z-toast);
-  background:var(--surf-3);box-shadow:inset 0 0 0 1px var(--line-2), 0 14px 34px oklch(6% 0.01 62 / .5);
+  background:var(--surf-3);box-shadow:inset 0 0 0 1px var(--line-2), 0 14px 34px color-mix(in oklab, var(--scrim) 50%, transparent);
   border-radius:13px;padding:12px 16px;display:flex;align-items:center;gap:14px;font-size:12.5px;color:var(--ink-1);
   max-width:min(92vw,440px);transition:transform var(--dur-3) var(--e-out-expo), opacity var(--dur-2)}
 .toast.show{transform:translate3d(-50%,0,0)}
-.toast-act{background:none;border:none;color:var(--brand);font-weight:700;font-size:12.5px;cursor:pointer;padding:4px 2px}
+.toast-act{background:none;border:none;color:var(--brand-tx);font-weight:700;font-size:12.5px;cursor:pointer;padding:4px 2px}
 .toast-act:hover{color:var(--brand-lt);text-decoration:underline}
 
 /* ═══ 12 飞入购物车 ═══ */
 .fly{position:fixed;left:0;top:0;width:12px;height:12px;border-radius:50%;background:var(--brand);
   pointer-events:none;z-index:var(--z-toast);will-change:transform;
-  box-shadow:0 0 12px oklch(79% 0.145 66 / .6)}
+  box-shadow:0 0 12px color-mix(in oklab, var(--brand) 60%, transparent)}
 .fly i{display:block;width:100%;height:100%;border-radius:50%;background:inherit}
 
-footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);color:var(--ink-4);font-size:11.5px;
+footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);color:var(--ink-3);font-size:11.5px;
   display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;line-height:1.7}
 
 /* ═══ 降低动效偏好 ═══ */
@@ -1254,7 +1332,7 @@ function renderSpec(){
   const names = selNames(name, sel);
   const nu = nutriOf(names);
   const targets = modTargets(name, names);
-  const unitPrice = m.price + specDiff(name, sel) + modsPriceOf(state.sp, targets);
+  const unitPrice = priceOf(m) + specDiff(name, sel) + modsPriceOf(state.sp, targets);
   $("#spTitle").innerHTML = esc(name) + (targets.length ? '<span class="spec-tag">可特调</span>' : '');
   $("#spSub").innerHTML = `¥${unitPrice.toFixed(2)}${origOf(m) ? `<span class="orig">¥${origOf(m).toFixed(2)}</span>` : ""}` +
     ` · 约 <b>${nu.kcal}</b> 千卡${nu.unknown ? "（含未匹配项）" : ""}`;
