@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>热麦卡路里 · 点餐流程演示</title>
+<meta name="description" content="热麦卡路里：热量估算、档位对比、套餐推荐、目标场景预设与历史订单热量复盘的点餐流程演示（模拟数据）。">
+<!-- 站点入口：不复制页面正文，直接跳到单一数据源「点餐页.html」，避免两份内容各自漂移 -->
+<link rel="canonical" href="./%E7%82%B9%E9%A4%90%E9%A1%B5.html">
+<meta http-equiv="refresh" content="0; url=./%E7%82%B9%E9%A4%90%E9%A1%B5.html">
+<style>
+:root{
+  --bg:oklch(0.964 0.006 95); --fg:oklch(0.22 0.012 95); --dim:oklch(0.52 0.012 95);
+  --card:oklch(1 0 0); --line:oklch(0.88 0.008 95); --acc:oklch(0.52 0.16 28);
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:oklch(0.135 0.008 95); --fg:oklch(0.96 0.006 95); --dim:oklch(0.72 0.010 95);
+    --card:oklch(0.185 0.010 95); --line:oklch(0.30 0.012 95); --acc:oklch(0.66 0.15 28);
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  background:var(--bg); color:var(--fg); display:grid; place-items:center; padding:24px;
+  font:400 15px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+}
+main{
+  width:min(100%,420px); background:var(--card); border:1px solid var(--line);
+  border-radius:18px; padding:30px 26px; text-align:center;
+}
+h1{margin:0 0 6px; font-size:19px; letter-spacing:.01em}
+p{margin:0; color:var(--dim); font-size:13.5px}
+a{color:var(--acc); text-decoration:none; border-bottom:1px solid currentColor; padding-bottom:1px}
+.row{margin-top:18px}
+.bar{height:3px; border-radius:99px; background:var(--line); overflow:hidden; margin-top:18px}
+.bar i{display:block; height:100%; width:38%; border-radius:99px; background:var(--acc); animation:go 1.1s ease-in-out infinite}
+@keyframes go{0%{transform:translateX(-100%)}100%{transform:translateX(320%)}}
+@media(prefers-reduced-motion:reduce){.bar{display:none}}
+</style>
+</head>
+<body>
+<main>
+  <h1>热麦卡路里 · 点餐流程演示</h1>
+  <p>正在进入演示页…</p>
+  <div class="bar" aria-hidden="true"><i></i></div>
+  <p class="row">没有自动跳转？<a href="./%E7%82%B9%E9%A4%90%E9%A1%B5.html">手动打开「点餐页.html」</a></p>
+</main>
+<script>location.replace("./%E7%82%B9%E9%A4%90%E9%A1%B5.html");</script>
+</body>
+</html>

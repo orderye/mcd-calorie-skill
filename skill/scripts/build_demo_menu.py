@@ -21,6 +21,7 @@ build_demo_menu.py —— 用真实采集快照生成「点餐页.html」的产�
 """
 import json, os, re, glob, sys
 from collections import OrderedDict
+from pathlib import Path
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FX = os.path.join(BASE, "fixtures")
@@ -475,6 +476,7 @@ def emit_zero():
             "const ZERO = new Set([%s]);" % ",".join(js_str(n) for n in ZERO_NAMES))
 
 def emit_menu():
+    sc_cat = scene_cats()
     out = ["const MENU = ["]
     rows = []
     for it in menu:
@@ -482,6 +484,9 @@ def emit_menu():
              "c:[" + ",".join(js_str(c) for c in it["c"]) + "],"
              "dp:[" + ",".join(js_str(d) for d in it["dp"]) + "]",
              "p:{" + ",".join('%s:%s' % (js_str(d), js_num(v)) for d, v in it["p"].items()) + "}"]
+        # sc = 引擎候选池品类（主食/小食/饮品）。缺省 = 引擎不发候选（规格歧义/非食品/组合品/无营养）
+        if it["n"] in sc_cat:
+            f.append("sc:" + js_str(sc_cat[it["n"]]))
         if it.get("o"):
             f.append("o:{" + ",".join('%s:%s' % (js_str(d), js_num(v)) for d, v in it["o"].items()) + "}")
         if it.get("t"):
@@ -579,6 +584,286 @@ TIERS_JS = (
     "};"
 )
 
+# ────────────────────────── 9·A 场景候选池品类（引擎判定，非 UI 角色） ──────────────────────────
+# 页面菜单里的 role 是 **UI 角色**（按官方菜单分类推出来的展示分组）；
+# 而 mcd_combo.build_pools 的候选池用的是 data/category-rules.json 的映射，
+# 并且对「规格未写明」的歧义商品（薯条 / 可乐 / 雪碧 / 派 …）一律不发候选
+# ——SKILL 明确「无证据的歧义保持歧义让用户选择，禁止猜测」。
+# 两者实测不同（午餐：引擎 主/小/饮 = 11/6/6，页面 role = 8/8/7）。
+# 页面要做场景推荐就必须用**引擎自己的池**，否则同一场景两边给出不同结果。
+# 故直接复用引擎结果，不再另写一套归类。
+_SCENE_CATS = None
+
+def scene_cats():
+    """{商品名: "主食"|"小食"|"饮品"}；不在任何池里的商品不出现（= 引擎不发候选）。"""
+    global _SCENE_CATS
+    if _SCENE_CATS is not None:
+        return _SCENE_CATS
+    sys.path.insert(0, os.path.join(BASE, "scripts"))
+    from mcd_nutrition import Matcher, load_nutrition
+    import mcd_combo as C
+    m = Matcher(load_nutrition())
+    out = {}
+    for dp in DAYPARTS:
+        fx = DP_FILES.get(DP_ALIAS.get(dp, dp))
+        built = C.build_pools(Path(FX) / fx, m)
+        for cat, pool in built["pools"].items():
+            for x in pool:
+                if out.setdefault(x["name"], cat) != cat:
+                    raise SystemExit("跨餐段品类冲突：%s %s vs %s" % (x["name"], out[x["name"]], cat))
+    _SCENE_CATS = out
+    return out
+
+def emit_dessert_kw():
+    """甜品关键词：!allow_dessert 的场景要从「小食」池里剔掉这些（引擎 filter_pools 同规则）。"""
+    rules = json.load(open(os.path.join(BASE, "data", "category-rules.json"), encoding="utf-8"))
+    kw = rules.get("dessertKeywords", [])
+    return ("/* 甜品关键词（category-rules.json）—— 不允许甜品的场景按此从「小食」池剔除 */\n"
+            "const DESSERT_KW = [%s];" % ",".join(js_str(x) for x in kw))
+
+# ────────────────────────── 9. 目标场景预设（13 个，与 mcd_goal.py 同源） ──────────────────────────
+# 场景定义唯一来源是 scripts/mcd_goal.py；这里只做「搬运 + 压成页面紧凑格式」，
+# 不在构建脚本里另写一份场景逻辑，否则两边会漂移。
+GOAL_GROUPS = [
+    ("热量与体型", ["cut", "bulk", "post", "cheat"]),
+    ("单一营养素管控", ["low-sodium", "high-protein", "low-carb", "low-fat"]),
+    ("结构 / 人群 / 场景", ["vegetarian", "kids", "daily-budget", "allergen", "value"]),
+]
+# 策略要点短句：与 SKILL.md 工作流 G 表格「策略要点」列一致（展示用文案）
+GOAL_SHORT = {
+    "cut":           "蛋白密度优先 · 剔甜品 · 小食≤1",
+    "bulk":          "热量盈余 · 蛋白碳水双高 · 小食≤2",
+    "post":          "蛋白总量优先 · 必含主食回补碳水",
+    "cheat":         "热量上浮 · 允许甜品 · 性价比排序",
+    "low-sodium":    "钠硬上限（默认≤1000mg）· 钠升序",
+    "high-protein":  "蛋白密度优先 · 兼顾蛋白总量",
+    "low-carb":      "碳水硬上限（默认≤60g）· 碳水升序",
+    "low-fat":       "脂肪硬上限（默认≤30g）· 脂肪升序",
+    "vegetarian":    "关键词排除肉类/水产（蛋奶可食）",
+    "kids":          "热量下浮 ×0.85 · 单组≤2 件",
+    "daily-budget":  "按当日剩余预算 · 用满不超",
+    "allergen":      "按过敏原展开关键词排除（粗筛）",
+    "value":         "价格硬上限 · 价格升序",
+}
+
+def emit_goals():
+    """把 mcd_goal.GOALS 压成页面用的紧凑结构。
+
+    可选入参（页面上让用户填）：
+      sodium_max / carb_max / fat_max / price_max / budget / max_items / allergens
+    """
+    sys.path.insert(0, os.path.join(BASE, "scripts"))
+    import mcd_goal as G
+
+    order, group_of = [], {}
+    for gname, keys in GOAL_GROUPS:
+        for k in keys:
+            order.append(k)
+            group_of[k] = gname
+    # 与 mcd_goal.GOALS 对账：数量与键必须完全一致，防止只改了单边
+    assert len(order) == len(G.GOALS) == 13, (len(order), len(G.GOALS))
+    assert set(order) == set(G.GOALS), set(order) ^ set(G.GOALS)
+
+    blocks = []
+    for k in order:
+        d = G.GOALS[k]
+        f = ["label:%s" % js_str(d["label"]), "group:%s" % js_str(group_of[k]),
+             "tier:%s" % js_str(d["prefer_tier"]), "sort:%s" % js_str(d["sort"]),
+             "short:%s" % js_str(GOAL_SHORT[k]), "desc:%s" % js_str(G.GOAL_DESCRIPTIONS.get(k, ""))]
+        if "tolerance" in d:
+            f.append("tol:%s" % js_num(d["tolerance"]))
+        if "range_from" in d:
+            f.append("rf:%s" % js_num(d["range_from"]))
+        if "range_to" in d:
+            f.append("rt:%s" % js_num(d["range_to"]))
+        if d.get("target_scale"):
+            f.append("scale:%s" % js_num(d["target_scale"]))
+        f.append("snack:%d" % d.get("max_snacks", 2))
+        f.append("dessert:%s" % ("true" if d.get("allow_dessert") else "false"))
+        if d.get("max_items"):
+            f.append("items:%d" % d["max_items"])
+        if d.get("require_staple"):
+            f.append("staple:true")
+        if d.get("allow_snack_combo"):
+            f.append("snackcombo:true")
+        if d.get("min_protein_g"):
+            f.append("minp:%d" % d["min_protein_g"])
+        lim = {kk: vv for kk, vv in (d.get("limits") or {}).items() if vv}
+        if lim:
+            f.append("lim:{%s}" % ",".join("%s:%s" % (js_str(kk), js_num(vv)) for kk, vv in lim.items()))
+        if d.get("exclude_keywords"):
+            f.append("ex:[%s]" % ",".join(js_str(x) for x in d["exclude_keywords"]))
+        if d.get("param_exclude"):
+            f.append("param:%s" % js_str(d["param_exclude"]))
+        if d.get("target_from_param"):
+            f.append("budgetParam:%s" % js_str(d["target_from_param"]))
+        blocks.append("  %s:{%s}" % (js_str(k), ",".join(f)))
+
+    out = ["/* 13 个目标场景预设 —— 与 scripts/mcd_goal.py 的 GOALS 同源搬运，勿在此另写一套 */",
+           "const GOALS = {", ",\n".join(blocks), "};",
+           "const GOAL_ORDER = [%s];" % ",".join(js_str(k) for k in order),
+           "const GOAL_GROUPS = [%s];" % ",".join(
+               "[%s,[%s]]" % (js_str(n), ",".join(js_str(k) for k in ks)) for n, ks in GOAL_GROUPS)]
+    al = {k: v for k, v in sorted(G.ALLERGEN_KEYWORDS.items())}
+    out.append("/* 过敏原 → 关键词展开（粗筛；菜单无配料/过敏原表，必须带告警） */")
+    out.append("const ALLERGENS = {")
+    out.append(",\n".join("  %s:[%s]" % (js_str(k), ",".join(js_str(x) for x in v)) for k, v in al.items()))
+    out.append("};")
+    out.append(emit_dessert_kw())
+    return "\n".join(out)
+
+# ────────────────────────── 10. 历史订单（脱敏样本 + 逐项热量） ──────────────────────────
+def emit_history():
+    """把 data/history-orders.json 逐单展开 → 匹配营养表 → 逐项写死热量。
+
+    页面只做「求和 / 求平均 / 判档」这类聚合，**逐项热量不重算**——
+    复用 mcd_nutrition.Matcher（与 mcd_import.py 同一套归一/别名/默认规格），
+    这样页面与 skill 的结论逐项一致，不会因为 JS 侧另写一套匹配而漂移。
+    匹配不上 → kcal:null（页面标「热量未知」，绝不按 0 计）。
+    """
+    sys.path.insert(0, os.path.join(BASE, "scripts"))
+    from mcd_nutrition import Matcher, load_nutrition
+    from mcd_order import expand_order
+    import mcd_daypart as dp
+
+    raw = json.load(open(os.path.join(BASE, "data", "history-orders.json"), encoding="utf-8"))
+    matcher = Matcher(load_nutrition())
+    orders = []
+    for o in raw.get("list", []):
+        items, addons = expand_order(o)
+        ct = o.get("createTime") or ""
+        hhmm = ct.split()[1][:5] if len(ct.split()) > 1 else "12:00"
+        daypart = dp.resolve_daypart(hhmm, None)
+        rows = []
+        for nm in items:
+            res = matcher.match(nm, allow_defaults=True)
+            if res["status"] == "hit":
+                r = res["record"]
+                rows.append({"n": nm, "st": "hit", "k": int(r["kcal"]),
+                             "p": round(float(r["protein"]), 1), "na": int(r["sodium_mg"]),
+                             "m": r["name"]})
+            elif res["status"] == "ambiguous":
+                rows.append({"n": nm, "st": "ambiguous", "c": res["candidates"][:4]})
+            else:
+                rows.append({"n": nm, "st": "unknown"})
+        orders.append({
+            "time": ct, "store": o.get("store") or "", "daypart": daypart,
+            "amount": float(o.get("realTotalAmount") or 0),
+            "status": o.get("orderStatus") or "",
+            "items": rows, "addons": addons,
+        })
+
+    # 汇总口径与 mcd_import.summarize 对齐（供页面自检；页面也会自己再算一遍）
+    tot = [sum(r["k"] for r in o["items"] if r.get("st") == "hit") for o in orders]
+    std = [dp.tier_target(o["daypart"], "标准") for o in orders]
+    over = sum(1 for t, s in zip(tot, std) if t - s > s * 0.12)
+    unk = sum(1 for o in orders for r in o["items"] if r.get("st") == "unknown")
+    nitems = sum(len(o["items"]) for o in orders)
+
+    out = ["/* 历史订单（官方 order-list 导出后自动脱敏：无 orderId/storeCode/storeName/beCode，门店代称化）",
+           "   逐项热量由 scripts/mcd_import.py 同一套 Matcher 预解析；匹配不上者 kcal 省略 → 页面标「热量未知」 */",
+           "const HISTORY = {",
+           "  meta:{source:%s,deidentifiedAt:%s,orderCount:%d,itemCount:%d,unknownCount:%d,overStandard:%d}," % (
+               js_str(raw.get("_meta", {}).get("source", "")),
+               js_str(raw.get("_meta", {}).get("deidentifiedAt", "")),
+               len(orders), nitems, unk, over),
+           "  orders:["]
+    rows = []
+    for o in orders:
+        its = []
+        for r in o["items"]:
+            f = ["n:%s" % js_str(r["n"]), "st:%s" % js_str(r["st"])]
+            if r.get("st") == "hit":
+                f += ["k:%d" % r["k"], "p:%s" % js_num(r["p"]), "na:%d" % r["na"], "m:%s" % js_str(r["m"])]
+            if r.get("st") == "ambiguous":
+                f.append("c:[%s]" % ",".join(js_str(x) for x in r["c"]))
+            its.append("{%s}" % ",".join(f))
+        rows.append('    {time:%s,store:%s,daypart:%s,amount:%s,status:%s,items:[%s]}' % (
+            js_str(o["time"]), js_str(o["store"]), js_str(o["daypart"]),
+            js_num(o["amount"]), js_str(o["status"]), ",".join(its)))
+    out.append(",\n".join(rows))
+    out.append("  ]")
+    out.append("};")
+    return "\n".join(out)
+
+# ────────────────────────── 11. 注入页面 ──────────────────────────
+PAGE = os.path.join(os.path.dirname(BASE), "点餐页.html")
+
+def _block_span(src, name, endname=None):
+    """定位 `const NAME = … ;` 的字符区间（含分号）。
+
+    兼容三种右侧写法：对象字面量 `{…}`、数组字面量 `[…]`、`new Set([…])`。
+    取「= 之后第一个 { 或 [」作为值的起点——本文件所有数据块都满足该性质。
+
+    endname：一个发射器可能产出**多条连续声明**（如 GOALS 同时带
+    GOAL_ORDER / GOAL_GROUPS / ALLERGENS）。此时把整个区域视为一个整体替换，
+    区间终点取 endname 那条声明的末尾，避免只替换第一条而把其余条越叠越多。
+    """
+    m = re.search(r"^const %s\s*=\s*" % re.escape(name), src, re.M)
+    if not m:
+        return None
+    cands = [i for i in (src.find("{", m.end()), src.find("[", m.end())) if i >= 0]
+    if not cands:
+        return None
+    i = min(cands)
+    op = src[i]
+    cl = "}" if op == "{" else "]"
+    depth, j = 0, i
+    while j < len(src):
+        if src[j] == op:
+            depth += 1
+        elif src[j] == cl:
+            depth -= 1
+            if depth == 0:
+                break
+        j += 1
+    if j >= len(src):
+        return None
+    end = src.index(";", j) + 1
+    if endname and endname != name:
+        tail = _block_span(src[end:], endname)
+        if not tail:
+            return None
+        end += tail[1]
+    return (m.start(), end)
+
+def _strip_lead_comment(text, name):
+    """只保留 `const NAME = …` 那行及其之后的内容。
+
+    发射器返回的文本带前置 `/* … */` 说明注释（print 模式有用），
+    但页面里的注释是**静态作者内容**，若把注释一起参与替换，
+    每注入一次就会多叠一层注释。故注入前裁掉。
+    """
+    m = re.search(r"^const %s\s*=" % re.escape(name), text, re.M)
+    return text[m.start():] if m else text
+
+def inject(names):
+    """把生成的数据块写回「点餐页.html」。
+
+    改数据请改脚本后重跑，不要手改页面里的数组——手改下一次注入就被覆盖。
+    幂等：同样的数据源，反复 inject 结果逐字节一致。
+    """
+    src = open(PAGE, encoding="utf-8").read()
+    emitters = {"CATS": emit_cats, "ZERO": emit_zero, "NUTRI": emit_nutri, "TIERS": lambda: TIERS_JS,
+                "LISTS": emit_lists, "MENU": emit_menu, "ROUNDS": emit_rounds, "MODS": emit_mods,
+                "GOALS": emit_goals, "HISTORY": emit_history}
+    # 一个发射器产出多条连续声明时，声明「区域终点」
+    REGION_END = {"GOALS": "DESSERT_KW"}
+    report = []
+    for nm in names:
+        span = _block_span(src, nm, REGION_END.get(nm))
+        if not span:
+            report.append("  ✗ %-8s 未在页面中找到" % nm)
+            continue
+        new = _strip_lead_comment(emitters[nm](), nm)
+        old_len = span[1] - span[0]
+        src = src[:span[0]] + new + src[span[1]:]
+        report.append("  ✓ %-8s %6d → %6d 字符" % (nm, old_len, len(new)))
+    open(PAGE, "w", encoding="utf-8").write(src)
+    print("注入 %s：" % PAGE)
+    print("\n".join(report))
+    print("  页面总长 %d 字符" % len(src))
+
 if __name__ == "__main__":
     mode = sys.argv[1] if len(sys.argv) > 1 else "stats"
     if mode == "stats":
@@ -606,8 +891,15 @@ if __name__ == "__main__":
         print("\n未命中营养表（前 30）:")
         for u in unknown[:30]:
             print("  -", u)
+    elif mode == "inject":
+        # inject [块名...]；不给块名 = 全部重写
+        allnames = ["CATS", "ZERO", "NUTRI", "TIERS", "LISTS", "MENU", "ROUNDS", "MODS",
+                    "GOALS", "HISTORY"]
+        inject(sys.argv[2:] or allnames)
     else:
         key = {"nutri": emit_nutri, "menu": emit_menu, "rounds": emit_rounds, "lists": emit_lists,
                "mods": emit_mods, "cats": emit_cats, "zero": emit_zero,
+               "goals": emit_goals, "history": emit_history,
+               "dessert": emit_dessert_kw, "sc": lambda: json.dumps(scene_cats(), ensure_ascii=False, indent=1),
                "tiers": lambda: TIERS_JS}[mode]
         print(key())
