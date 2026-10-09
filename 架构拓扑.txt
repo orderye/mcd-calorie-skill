@@ -3,7 +3,7 @@
      │     MCP 工具：now-time-info · query-order / order-list · list-nutrition-foods      │
      │     query-meals(reservationDate) · query-meal-detail · 门店链 nearby/delivery      │
      │        query-store-coupons · calculate-price · create-order（下单确认闸门）        │
-     │       工作流：A 订单估算 / B 档位推荐 / C 替换 / D 一键导入 / E 下单 / F 目录      │
+│        工作流：A 估算 / B 推荐 / C 替换 / G 场景 / D 导入/复盘 / E 下单 / F 目录        │
      └────────────────────────────────────────────────────────────────────────────────────┘
                                                 │
                 ┌───────────────────────────────┼───────────────────────────────┐
@@ -25,13 +25,14 @@
                           └─────────────────────┬─────────────────────┘
                                                 ▼
         ┌──────────────────────────────────────────────────────────────────────────────┐
-        │          数据缓存层 · data/ + fixtures/ + docs/（纯本地 · 无网络）           │
-        │alias.json · category-rules.json · 营养表/菜单×2/套餐/订单样本×6 · 设计文档×4 │
+        │数据缓存层 · data/ + fixtures/ + docs/（纯本地 · 无网络）                     │
+        │alias.json · category-rules.json · catalog.json · nutrition-gaps.json         │
+        │营养表 / 菜单×4餐段+差量 / 套餐详情 / 订单样本×6 / 脱敏历史订单               │
         └──────────────────────────────────────────────────────────────────────────────┘
 
+※ mcd_goal.py：目标场景策略层（G）——13 场景：减脂/增重/练后餐/放纵餐/低钠/高蛋白/低碳/低脂/素食/儿童/预算/过敏原/性价比
 ※ mcd_import.py：一键导入历史订单（order-list 原始响应 → 自动脱敏 → 逐单热量与档位对比）
 ※ mcd_history.py：历史订单批量复盘（已脱敏样本 → 逐单热量与档位对比）
-※ mcd_goal.py：目标场景策略层（G）——13 场景：减脂/增重/练后餐/放纵餐/低钠/高蛋白/低碳/低脂/素食/儿童/预算/过敏原/性价比
 ※ tools/eval_match.py：匹配率评测（复用 nutrition + order）· 验收 ≥90% · 实测 92.3% PASS
 ※ 外部系统：麦当劳中国官方 MCP（M-China/mcd-mcp-server）· 限流 600 次/分 · Token 仅在客户端配置
 ※ 缓存策略：营养表 ≥24h · 菜单按 店+餐段 10min · 429 指数退避
