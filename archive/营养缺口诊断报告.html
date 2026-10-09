@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>营养表收录滞后 · 诊断与处置报告</title>
+<style>
+  :root{
+    --bg:#f7f7f5; --card:#ffffff; --ink:#1c1c1e; --ink2:#4a4a4f; --ink3:#8a8a90;
+    --line:#e6e6e1; --ok:#1f7a4d; --okbg:#eaf6ef; --warn:#9a5b00; --warnbg:#fdf3e3;
+    --err:#a32121; --errbg:#fbeaea; --info:#1f4e7a; --infobg:#eaf1f8;
+    --accent:#1c1c1e;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.72 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:960px;margin:0 auto;padding:56px 24px 96px}
+  header.hd{border-bottom:2px solid var(--accent);padding-bottom:22px;margin-bottom:8px}
+  .kicker{font-size:12px;letter-spacing:.14em;color:var(--ink3);text-transform:uppercase;margin-bottom:10px}
+  h1{font-size:31px;line-height:1.28;margin:0 0 14px;font-weight:650;letter-spacing:-.01em}
+  .meta{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;color:var(--ink3)}
+  .meta b{color:var(--ink2);font-weight:550}
+  h2{font-size:20px;margin:52px 0 14px;font-weight:640;letter-spacing:-.01em;
+     padding-left:12px;border-left:3px solid var(--accent)}
+  h3{font-size:15.5px;margin:26px 0 8px;font-weight:620;color:var(--ink)}
+  p{margin:11px 0;color:var(--ink2)}
+  ul,ol{margin:11px 0;padding-left:22px;color:var(--ink2)}
+  li{margin:6px 0}
+  code{background:#f0f0ec;padding:1.5px 5px;border-radius:4px;font-size:13px;
+       font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#333}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(184px,1fr));gap:12px;margin:18px 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 17px}
+  .card .n{font-size:29px;font-weight:660;letter-spacing:-.02em;line-height:1.1}
+  .card .l{font-size:12.5px;color:var(--ink3);margin-top:5px}
+  .card.ok .n{color:var(--ok)} .card.warn .n{color:var(--warn)} .card.err .n{color:var(--err)}
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13.5px;background:var(--card);
+        border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  th,td{text-align:left;padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:#f2f2ee;font-weight:600;font-size:12.5px;color:var(--ink2);letter-spacing:.02em}
+  tr:last-child td{border-bottom:none}
+  td code{font-size:12.5px}
+  .tag{display:inline-block;font-size:11.5px;padding:2px 8px;border-radius:999px;font-weight:600;
+       white-space:nowrap;line-height:1.6}
+  .t-ok{background:var(--okbg);color:var(--ok)} .t-warn{background:var(--warnbg);color:var(--warn)}
+  .t-err{background:var(--errbg);color:var(--err)} .t-info{background:var(--infobg);color:var(--info)}
+  .box{border-radius:10px;padding:15px 18px;margin:16px 0;border:1px solid}
+  .box.ok{background:var(--okbg);border-color:#cfe8d9}
+  .box.warn{background:var(--warnbg);border-color:#f0dcb8}
+  .box.err{background:var(--errbg);border-color:#f0c9c9}
+  .box.info{background:var(--infobg);border-color:#cfdfef}
+  .box h4{margin:0 0 7px;font-size:14px;font-weight:640}
+  .box.ok h4{color:var(--ok)} .box.warn h4{color:var(--warn)}
+  .box.err h4{color:var(--err)} .box.info h4{color:var(--info)}
+  .box p,.box ul{margin:6px 0;color:var(--ink2)}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;
+       border-radius:6px;background:var(--accent);color:#fff;font-size:12px;font-weight:700;
+       margin-right:8px;flex:0 0 auto}
+  .step{display:flex;gap:0;align-items:flex-start;margin:14px 0}
+  .step .body{flex:1}
+  .step .body b{display:block;margin-bottom:3px}
+  .prio{list-style:none;padding:0;counter-reset:p}
+  .prio li{counter-increment:p;position:relative;padding:13px 16px 13px 52px;margin:9px 0;
+           background:var(--card);border:1px solid var(--line);border-radius:10px}
+  .prio li::before{content:counter(p);position:absolute;left:15px;top:13px;width:24px;height:24px;
+           background:var(--accent);color:#fff;border-radius:6px;display:flex;align-items:center;
+           justify-content:center;font-size:12.5px;font-weight:700}
+  .prio b{color:var(--ink)}
+  .prio span{color:var(--ink3);font-size:13px}
+  footer{margin-top:56px;padding-top:18px;border-top:1px solid var(--line);
+         font-size:12.5px;color:var(--ink3)}
+  @media(max-width:600px){
+    .wrap{padding:36px 16px 64px} h1{font-size:24px} h2{font-size:18px}
+    table{font-size:12.5px} th,td{padding:8px 10px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hd">
+  <div class="kicker">麦当劳点餐 Skill · 技术诊断</div>
+  <h1>营养表收录滞后：诊断与处置报告</h1>
+  <div class="meta">
+    <span><b>门店样本</b> 3570190（到店自取）</span>
+    <span><b>报告时间</b> 2026-10-10 03:10（北京时间）</span>
+    <span><b>Skill 版本</b> v0.7.0 → v0.8</span>
+    <span><b>数据源</b> mcd-mcp 官方连接器实测</span>
+  </div>
+</header>
+
+<div class="box info" style="margin-top:26px">
+  <h4>一句话结论</h4>
+  <p>「营养表收录滞后」不是一个问题，是<b>两个</b>。真正卡住覆盖率的是<b>数据源缺失</b>（官方接口就是不给这些数据），而不是算法；本次把<b>算法侧能收敛的部分全部榨干</b>（新增 5 条默认规格、发现 2 条错误映射），并确认<b>自采集路径不通</b>——剩下的缺口只能靠官方补录或人工维护。</p>
+</div>
+
+<div class="cards">
+  <div class="card ok"><div class="n">5</div><div class="l">新增默认规格（有硬证据）</div></div>
+  <div class="card ok"><div class="n">2</div><div class="l">错误映射 · 已修正</div></div>
+  <div class="card warn"><div class="n">4</div><div class="l">保持歧义（冰/热，不补录）</div></div>
+  <div class="card"><div class="n">28</div><div class="l">真可锚定的估算候选</div></div>
+</div>
+
+<h2>一、先分清两类「滞后」</h2>
+<p>把两件事混在一起谈，会导致优化方向跑偏：</p>
+<table>
+  <thead><tr><th style="width:22%">类型</th><th style="width:36%">根因</th><th style="width:12%">数量</th><th>能否自愈</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><b>A · 数据源滞后</b></td>
+      <td>官方 <code>list-nutrition-foods</code> 未收录季节/联名新品（北非蛋系列、龙焰堡、蘸酱炸鸡等）</td>
+      <td>40 项</td>
+      <td><span class="tag t-err">否</span> 接口不给数据，算法再强也无用</td>
+    </tr>
+    <tr>
+      <td><b>B · 匹配器失配</b></td>
+      <td>营养表<b>有</b>该条目，但菜单名缺规格（「可乐」→ 中/大/小杯）</td>
+      <td>13 项</td>
+      <td><span class="tag t-ok">是</span> 可用证据消解</td>
+    </tr>
+  </tbody>
+</table>
+<div class="box warn">
+  <h4>关键判断</h4>
+  <p>覆盖率 44.4% 里，40 项是「接口根本没这条数据」，仅 13 项是「有数据但名字对不上」。因此<b>「优化匹配器」的收益天花板很低</b>；正确的投入方向是<b>消解 B 类歧义</b> + <b>接受 A 类并明确降级策略</b>。</p>
+</div>
+
+<h2>二、方法论：接口实测（先证伪，再动手）</h2>
+<p>不靠推测，直接调用官方接口看原始响应字段。排查了全部四个潜在营养来源：</p>
+<table>
+  <thead><tr><th style="width:26%">接口</th><th style="width:44%">最深层字段</th><th>含营养字段？</th></tr></thead>
+  <tbody>
+    <tr><td><code>list-nutrition-foods</code></td><td>productName / energyKj / energyKcal / protein / fat / carbohydrate / sodium / calcium</td><td><span class="tag t-ok">是 · 唯一来源</span></td></tr>
+    <tr><td><code>query-meals</code></td><td>name / image / currentPrice / originalPrice / discountType / withOrder</td><td><span class="tag t-err">否</span></td></tr>
+    <tr><td><code>query-meal-detail</code></td><td>rounds[].choices[].{code, name, isDefault, diffPrice, supportModify}</td><td><span class="tag t-err">否</span></td></tr>
+    <tr><td><code>query-order</code> / <code>order-list</code></td><td>productCodes / productName / quantity / comboItemList / realTotalAmount</td><td><span class="tag t-err">否</span></td></tr>
+  </tbody>
+</table>
+<div class="box err">
+  <h4>结论：自采集路径不通</h4>
+  <p>原先设想的「从套餐详情/订单接口回捞营养值」方案<b>作废</b>。官方 MCP 里营养数据只有 <code>list-nutrition-foods</code> 一个出口，且本地缓存（160 条）与线上完全一致——不是缓存旧了，是<b>源头就这些</b>。</p>
+</div>
+<p class="meta" style="font-size:12.5px">补充：<code>query-meal-detail</code> 的字段文档里还列了 <code>modification</code> / <code>supportModify</code>（特调）与 <code>image</code>，但均与营养无关。</p>
+
+<h2>三、突破口：code 级规格证据法</h2>
+<p>实测中发现一条<b>此前未被利用的线索</b>：菜单接口与套餐详情接口<b>共享商品 code</b>，同一 code 在同一门店唯一标识一个商品。</p>
+<div class="box ok">
+  <h4>原理</h4>
+  <p>菜单里商品写作「玉米杯」（缺规格，code 4437），而某个套餐的选项里同一个 code 4437 写作「小杯玉米杯」。因为 code 唯一，即可反推：<b>4437 = 小杯玉米杯</b>。这是一条<b>硬证据</b>，不是猜测。</p>
+  <p>验证强度：<code>4810</code> 在 35 个套餐中全部名为「中薯条」、<code>507409</code> 在 74 个套餐中全部名为「麦咖啡™冰奶铁中杯」——<b>一致率 100%，零例外</b>。</p>
+</div>
+<p>据此新增脚本 <code>scripts/mcd_spec_evidence.py</code>，把证据按可靠性分五级，只有最高级才允许自动落库：</p>
+<table>
+  <thead><tr><th style="width:14%">等级</th><th style="width:34%">判据</th><th>处置</th></tr></thead>
+  <tbody>
+    <tr><td><span class="tag t-ok">A</span></td><td>菜单名未命中，且是套餐规格名的真子串（「玉米杯」⊂「小杯玉米杯」）</td><td>写入 <code>alias.json#defaults</code></td></tr>
+    <tr><td><span class="tag t-warn">B</span></td><td>菜单名带多值标记（「（冰/热）」）或含冰热差异</td><td><b>保持歧义</b>，交用户选</td></tr>
+    <tr><td><span class="tag t-err">C1</span></td><td>现网命中条目 ≠ 套餐证据 → 疑似<b>错误映射</b></td><td>报告，<b>不自动改</b></td></tr>
+    <tr><td><span class="tag t-err">C2</span></td><td>同一 code 在不同套餐出现多个规格</td><td>禁止补录</td></tr>
+    <tr><td><span class="tag t-info">D</span></td><td>已命中且与证据一致</td><td>无需处理</td></tr>
+  </tbody>
+</table>
+<div class="box warn">
+  <h4>判据红线：「冰/热」是做法，不是规格</h4>
+  <p>冰奶铁 148 kcal / 热奶铁 186 kcal，差 38 kcal。菜单名省略冰/热时<b>不能替用户锁定</b>，否则温度一说错、热量直接偏低或偏高。故涉及冰热的证据一律归 B 级、保持歧义。</p>
+</div>
+
+<h2>四、已实施：新增 5 条默认规格</h2>
+<p>仅写入 <code>defaults</code>（只在订单/套餐上下文生效），<b>未改动 <code>mappings</code></b>：</p>
+<table>
+  <thead><tr><th>菜单名</th><th>code</th><th>证据规格</th><th>热量</th><th>套餐引用</th></tr></thead>
+  <tbody>
+    <tr><td>优品豆浆</td><td><code>1088</code></td><td>优品豆浆小杯</td><td>151 kcal</td><td>×19</td></tr>
+    <tr><td>怡泉+C</td><td><code>515520</code></td><td>中杯怡泉+C</td><td>110 kcal</td><td>×77</td></tr>
+    <tr><td>玉米杯</td><td><code>4437</code></td><td>小杯玉米杯</td><td>53 kcal</td><td>×38</td></tr>
+    <tr><td>鲜萃咖啡</td><td><code>520689</code></td><td>小杯鲜萃咖啡</td><td>15 kcal</td><td>×19</td></tr>
+    <tr><td>麦乐鸡</td><td><code>1401</code></td><td>麦乐鸡5块</td><td>213 kcal</td><td>×5</td></tr>
+  </tbody>
+</table>
+<div class="box ok">
+  <h4>回归验证通过</h4>
+  <ul>
+    <li>名称匹配评测：常见订单集 <b>13/13 = 100%</b>，命中方式中出现 3 个 <code>default-evidence</code>（新默认生效）</li>
+    <li>历史订单复盘：<b>无回归</b>（歧义 0 项、未知 4 项占 10.3%，全为已下架限定品）</li>
+    <li><code>alias.json</code> 已备份，改动可回退</li>
+  </ul>
+</div>
+
+<h2>五、待决策</h2>
+
+<h3>5.1 两条错误映射 · 已修正 <span class="tag t-ok" style="vertical-align:middle">已修复</span></h3>
+<p>这两条<b>不是</b>「缺规格」，而是「映射指错了商品」，热量差几十千卡，影响比缺规格更大。证据为同一 code 在套餐中命名一致率 100%（×40 / ×74），已按证据修正 <code>mappings</code>：</p>
+<table>
+  <thead><tr><th style="width:18%">菜单名</th><th style="width:12%">code</th><th style="width:22%">原映射（错）</th><th style="width:22%">修正为</th><th>差异</th></tr></thead>
+  <tbody>
+    <tr><td>牛奶</td><td><code>507394</code></td><td>纯牛奶（盒装）129</td><td><b>热牛奶中杯 176</b></td><td>+47 kcal</td></tr>
+    <tr><td>麦咖啡™奶铁</td><td><code>507409</code></td><td>热奶铁中杯 186</td><td><b>冰奶铁中杯 148</b></td><td>−38 kcal</td></tr>
+  </tbody>
+</table>
+<div class="box ok">
+  <h4>修正结果 · 回归全部通过</h4>
+  <ul>
+    <li>修正依据写入 <code>alias.json#_mappings_corrections</code>，可追溯、可回退</li>
+    <li>匹配评测 PASS（常见集 13/13）、历史订单复盘无回归、档位推荐正常输出、目录重聚合正常</li>
+    <li>边界确认：「纯牛奶（盒装）」「热奶铁中杯」作为独立商品仍走 <code>exact</code> 命中，<b>未被误伤</b></li>
+    <li>派生页面无需同步：「演示页.html」是 PRD §10 的独立模拟数据集（其「纯牛奶」是自有模拟条目）；「点餐页.html」已一致</li>
+  </ul>
+</div>
+
+<h3>5.2 估算模型 · 三个方案供选择</h3>
+<p>对 A 类缺口（官方不收录的新品），可行路径只有三条，各有取舍：</p>
+<table>
+  <thead><tr><th style="width:20%">方案</th><th style="width:34%">做法</th><th style="width:22%">优点</th><th>风险 / 成本</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><b>A · 同品类锚定估算</b></td>
+      <td>按品类锚定同类已知品（如「北非蛋风味猪柳蛋麦满分」锚定「猪柳蛋麦满分」）做估算，显式标注「估算值」</td>
+      <td>覆盖率提升最大</td>
+      <td><span class="tag t-err">合规风险</span> 与红线「不凭记忆给热量数字」张力大，须加标注 + 不进推荐候选</td>
+    </tr>
+    <tr>
+      <td><b>B · 只优化降级展示</b></td>
+      <td>未知项统一显示「热量未知」，但给出<b>下界</b>与品类提示（如「这是一款汉堡，通常 300–500 kcal」）</td>
+      <td>零合规风险；立即可做</td>
+      <td>不提升数值覆盖率</td>
+    </tr>
+    <tr>
+      <td><b>C · 人工补录表</b></td>
+      <td>新增 <code>data/nutrition-manual.json</code>，从官方包装/官网人工录入常见新品，标注来源与日期</td>
+      <td>最准，数据最权威</td>
+      <td>需人工维护，新品上架有滞后</td>
+    </tr>
+  </tbody>
+</table>
+<div class="box info">
+  <h4>建议：B + C 组合，A 暂缓</h4>
+  <p>先用 <b>B</b> 把未知项的体验做扎实（下界 + 品类提示），再用 <b>C</b> 逐步补录高频新品。方案 <b>A</b> 涉及「凭空估算热量」，与 PRD §8 合规条款冲突，建议仅在用户主动要求且明确标注的前提下考虑。<b>最终口径需你拍板。</b></p>
+</div>
+
+<h2>六、缺口构成（40 项 unknown 拆解）</h2>
+<table>
+  <thead><tr><th style="width:32%">类别</th><th style="width:12%">数量</th><th>说明与处置</th></tr></thead>
+  <tbody>
+    <tr><td>非食品 / 蘸酱类</td><td>7</td><td>玩具、单卖酱料应按 0 kcal（<code>_zeroKcal</code> 已覆盖）；其中 4 个「蘸酱炸鸡」<b>实为食品</b>，见附带发现</td></tr>
+    <tr><td>聚合 SKU</td><td>5</td><td>「牛肉堡单品精选」「BFF四宫格小食盘」本身是商品集合，<b>不该有单一营养值</b>，不列入估算</td></tr>
+    <tr><td>季节 / 联名新品</td><td>22</td><td>应季上市（北非蛋、龙焰、枫糖厚松饼等），是最适合补录 C 方案的部分</td></tr>
+    <tr><td>其他常规品</td><td>6</td><td>燕麦奶、芝芝火腿扒堡、高达吉士双牛堡等，可锚定估算</td></tr>
+  </tbody>
+</table>
+<p class="meta" style="font-size:12.5px">真正「可锚定估算」的约 <b>28 项</b>（22 + 6）；聚合 SKU 与纯非食品应排除，否则会引入错误数值。</p>
+
+<h2>七、附带发现</h2>
+<ul>
+  <li><b>「蘸酱」关键词隐患 · 已修复</b> <span class="tag t-ok">已修复</span>：<code>category-rules.json#excludeNamePatterns</code> 原把「组合品词」与「非食品词」混作一列<b>无条件</b>排除，「蘸酱炸鸡」「蘸酱麦麦脆汁鸡」「5块心形薯饼+韩式辣椒黄油风味酱」等含酱的<b>食物</b>会被挡在候选外。已拆为 <code>excludeNamePatterns</code>（组合品词，无条件排除）+ <code>excludeNonFoodPatterns</code>（非食品词，仅不与 <code>foodHintKeywords</code> 共存时排除），<code>mcd_combo._excluded</code> 同步改，判据与演示页 <code>is_zero()</code> 一致。验证：蘸酱炸鸡 / 蘸酱麦麦脆汁鸡 / 蘸酱韩式甜辣酱鸡块 <b>已保留</b>，日式鲜磨山葵酱、韩式烟熏芝士风味酱、蘸酱BFF四宫格小食盘、巨无霸三件套等<b>仍正确排除</b>。</li>
+  <li><b>订单侧无零热量逻辑</b>：<code>mcd_order.py</code> 不实现非食品归零，遇到蘸酱类走「热量未知」——属保守安全（不按 0 算），符合红线，无需改动。</li>
+</ul>
+
+<h2>八、优先级行动清单</h2>
+<ol class="prio">
+  <li><b>✔ 修正 2 条错误映射</b> <span class="tag t-ok">已完成</span> <span>— 「牛奶」→ 热牛奶中杯、「麦咖啡™奶铁」→ 冰奶铁中杯；回归全通</span></li>
+  <li><b>✔ 修正「蘸酱」排除规则</b> <span class="tag t-ok">已完成</span> <span>— 拆为组合品词 / 非食品词两类，含酱食物不再被误挡</span></li>
+  <li><b>敲定 A 类缺口的降级策略</b> <span>— 推荐 B + C 组合，A 暂缓（见 §5.2）</span></li>
+  <li><b>实现 B 方案的未知项展示</b> <span>— 未知项给下界与品类提示，零合规风险、立即可做</span></li>
+  <li><b>按 C 方案启动高频新品补录</b> <span>— 优先 22 个季节/联名新品；补录后从 <code>nutrition-gaps.json</code> 移除</span></li>
+</ol>
+
+<footer>
+  数据来源：mcd-mcp 官方连接器实测（门店 3570190，2026-10-10）· 分析脚本 <code>skill/scripts/mcd_spec_evidence.py</code> · 报告生成 2026-10-10 03:10 北京时间<br>
+  热量数据均为估算参考，不构成医学、减重或疾病相关建议。
+</footer>
+
+</div>
+</body>
+</html>
