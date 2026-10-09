@@ -30,10 +30,11 @@ def _is_addon(name: str) -> bool:
     return bool(re.search(ADDON_RE, name))
 
 
-def expand_order(order: dict) -> tuple[list[dict], list[dict], list[dict]]:
-    """展开套餐 → (主项, 加料项, 未匹配项结构由调用方按匹配结果判)。
+def expand_order(order: dict) -> tuple[list[str], list[str]]:
+    """展开套餐 → (单品名列表, 加料项列表)。
 
     comboItemList 展开为组成单品；无组成项按商品本身。
+    未命中/歧义项由调用方按匹配结果标注（UNKNOWN 保护）。
     """
     items, addons = [], []
     for p in order.get("orderProductList", []):
@@ -122,8 +123,11 @@ def print_report(res: dict) -> None:
     print("─" * 72)
     for r in res["items"]:
         if r["status"] == "hit":
+            kcal_txt = f"{r['kcal']:.0f} kcal"
+            if r["kcal"] == 0:  # 合法 0（无糖饮料/纯水），与「热量未知」严格区分
+                kcal_txt += "（确为无热量）"
             print(f"  ✓ {r['name']:<20} → {r['matched']:<12} [{r['method']}] "
-                  f"{r['kcal']:.0f} kcal｜钠 {r['sodium_mg']:.0f}mg")
+                  f"{kcal_txt}｜钠 {r['sodium_mg']:.0f}mg")
         elif r["status"] == "ambiguous":
             print(f"  ? {r['name']:<20} → 需确认规格：{' / '.join(r['candidates'])}")
         else:

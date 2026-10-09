@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import re
 import unicodedata
+from bisect import bisect_left, bisect_right
 from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Optional
@@ -22,6 +23,10 @@ ALIAS_FILE = SKILL_ROOT / "data" / "alias.json"
 # 数值列顺序（与表头一致）
 NUM_FIELDS = ("kj", "kcal", "protein", "fat", "carb", "sodium_mg", "calcium_mg")
 FUZZY_THRESHOLD = 0.85  # 兜底阈值，不得为提升命中率上调（见实施计划 R3）
+FUZZY_LEN_FLOOR = 0.80  # 长度窗口剪枝阈值 t：ratio 上界 2*min/(l1+l2) < t 的候选
+                        # 既不可能成为 best（需 ≥0.85），也不可能触发
+                        # best−second≥0.05 的失败分支（失败需 second > best−0.05 ≥ 0.80）。
+                        # 剪枝可证不改变匹配结果（见 __init__ 长度索引）
 
 
 # ────────────────────────── T6 营养表解析 ──────────────────────────
@@ -153,6 +158,9 @@ class Matcher:
         for r in self.records:
             self.by_key.setdefault(normalize_name(r["name"]), r)
         self.alias, self.defaults = _load_alias()
+        # 模糊匹配长度索引：按 key 长度排序，查询时仅遍历长度窗口内候选
+        self._by_len = sorted(self.by_key.items(), key=lambda kv: len(kv[0]))
+        self._lens = [len(k) for k, _r in self._by_len]
 
     def match(self, name: str, allow_defaults: bool = False) -> dict:
         """allow_defaults=True 时（订单/套餐上下文），歧义候选中若存在
@@ -190,10 +198,14 @@ class Matcher:
             return {"status": "ambiguous", "method": "spec-missing",
                     "record": None, "candidates": cand_names}
 
-        # 4) 模糊兜底
+        # 4) 模糊兜底（长度窗口剪枝：窗口外候选 ratio 上界 < 0.80，不影响判定）
+        t = FUZZY_LEN_FLOOR
+        klen = len(key)
+        i0 = bisect_left(self._lens, klen * t / (2 - t))
+        i1 = bisect_right(self._lens, klen * (2 - t) / t)
         best, best_ratio = None, 0.0
         second = 0.0
-        for k, r in self.by_key.items():
+        for k, r in self._by_len[i0:i1]:
             ratio = SequenceMatcher(None, key, k).ratio()
             if ratio > best_ratio:
                 second, best, best_ratio = best_ratio, r, ratio

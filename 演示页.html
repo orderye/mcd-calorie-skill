@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>热麦卡路里 · 订单热量与套餐推荐 Skill 演示</title>
+<style>
+  :root{
+    --bg:#0e1014; --panel:#161a21; --panel-2:#1c212b; --line:#262d3a;
+    --txt:#e8eaf0; --txt-2:#9aa3b2; --txt-3:#6b7484;
+    --amber:#f0a63c; --amber-dim:#3a2f1c;
+    --red:#e5534b; --green:#3fb27f; --blue:#4c8dff;
+    --radius:12px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--txt);font-family:-apple-system,"PingFang SC","Helvetica Neue","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.6}
+  .wrap{max-width:1440px;margin:0 auto;padding:24px 20px 60px}
+
+  /* ===== 01 页头 ===== */
+  header{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+  h1{font-size:22px;font-weight:700;letter-spacing:.5px}
+  h1 .badge{font-size:11px;font-weight:500;color:var(--amber);border:1px solid var(--amber);border-radius:4px;padding:1px 7px;vertical-align:middle;margin-left:10px}
+  .sub{color:var(--txt-2);font-size:12.5px;margin-top:4px}
+  .clock{color:var(--txt-3);font-size:12.5px;text-align:right}
+
+  /* ===== 02 标签页 ===== */
+  .tabs{display:flex;gap:4px;margin:20px 0 22px;border-bottom:1px solid var(--line)}
+  .tab{padding:9px 20px;font-size:14px;color:var(--txt-2);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px}
+  .tab.active{color:var(--amber);border-bottom-color:var(--amber);font-weight:600}
+  .page{display:none}
+  .page.active{display:block}
+
+  /* ===== 03 演示页三栏 ===== */
+  .grid3{display:grid;grid-template-columns:1fr 1.35fr .9fr;gap:18px}
+  @media(max-width:1100px){.grid3{grid-template-columns:1fr 1fr}.col-log{grid-column:1/-1}}
+  @media(max-width:760px){.grid3{grid-template-columns:1fr}}
+
+  section.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:18px}
+  .sec-title{font-size:13px;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:8px;margin-bottom:14px}
+  .sec-num{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:6px;background:var(--amber-dim);color:var(--amber);font-size:11px;font-weight:700;flex:none}
+  .sec-title .hint{font-weight:400;color:var(--txt-3);font-size:11.5px;margin-left:auto}
+
+  /* ===== 控件 ===== */
+  select,button.seg{font-family:inherit}
+  select{background:var(--panel-2);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:13px;width:100%;cursor:pointer}
+  .btn{display:inline-block;background:var(--amber);color:#1a1408;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer}
+  .btn.ghost{background:var(--panel-2);color:var(--txt-2);border:1px solid var(--line);font-weight:500}
+  .btn:hover{filter:brightness(1.08)}
+  .seg-group{display:flex;gap:6px;flex-wrap:wrap}
+  button.seg{background:var(--panel-2);color:var(--txt-2);border:1px solid var(--line);border-radius:8px;padding:6px 13px;font-size:12.5px;cursor:pointer}
+  button.seg.active{background:var(--amber-dim);color:var(--amber);border-color:var(--amber)}
+  .field-label{font-size:12px;color:var(--txt-3);margin:12px 0 6px}
+  .field-label:first-of-type{margin-top:0}
+
+  /* ===== 订单明细表 ===== */
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{color:var(--txt-3);font-weight:500;text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+  td{padding:7px 8px;border-bottom:1px solid var(--line);color:var(--txt-2)}
+  td.name{color:var(--txt)}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  .combo-tag{font-size:10.5px;color:var(--blue);border:1px solid var(--blue);border-radius:3px;padding:0 4px;margin-right:5px}
+  .unknown{color:var(--red)}
+  .note{font-size:11.5px;color:var(--txt-3);margin-top:8px}
+
+  /* ===== 合计与档位对比 ===== */
+  .total-row{display:flex;align-items:baseline;justify-content:space-between;margin:16px 0 10px}
+  .total-kcal{font-size:30px;font-weight:800;font-variant-numeric:tabular-nums}
+  .total-kcal small{font-size:13px;font-weight:400;color:var(--txt-3);margin-left:4px}
+  .verdict{font-size:12.5px;font-weight:600;padding:3px 10px;border-radius:6px}
+  .verdict.ok{color:var(--green);background:rgba(63,178,127,.12)}
+  .verdict.high{color:var(--red);background:rgba(229,83,75,.12)}
+  .verdict.low{color:var(--blue);background:rgba(76,141,255,.12)}
+  .bar-wrap{margin-top:6px}
+  .bar-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--txt-3);margin-bottom:4px}
+  .bar{position:relative;height:10px;border-radius:5px;background:linear-gradient(90deg,#1d3a2e 0%,#234434 33%,#3a3a1d 33%,#4a4420 66%,#452323 66%,#522a2a 100%)}
+  .bar-marker{position:absolute;top:-4px;width:2.5px;height:18px;background:var(--txt);border-radius:2px;transform:translateX(-50%)}
+  .bar-marker span{position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:10.5px;color:var(--txt);white-space:nowrap}
+
+  /* ===== 推荐卡片 ===== */
+  .reco-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+  .reco{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:8px}
+  .reco .items{font-size:13px;font-weight:600;line-height:1.5}
+  .reco .items .plus{color:var(--txt-3);font-weight:400;margin:0 3px}
+  .reco .kcal-line{display:flex;align-items:baseline;gap:8px}
+  .reco .kcal{font-size:22px;font-weight:800;color:var(--amber);font-variant-numeric:tabular-nums}
+  .reco .delta{font-size:11.5px;font-weight:600}
+  .delta.up{color:var(--red)} .delta.down{color:var(--green)}
+  .nutri{display:grid;grid-template-columns:1fr 1fr;gap:2px 10px;font-size:11.5px;color:var(--txt-2)}
+  .nutri b{color:var(--txt);font-weight:600;font-variant-numeric:tabular-nums}
+  .reco .price-row{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:8px;border-top:1px dashed var(--line)}
+  .reco .price{font-size:15px;font-weight:700}
+  .reco .price small{font-size:11px;color:var(--txt-3);font-weight:400}
+  .coupon{font-size:10.5px;color:var(--green);border:1px solid var(--green);border-radius:3px;padding:0 5px}
+  .reco .order-btn{background:none;border:1px solid var(--amber);color:var(--amber);border-radius:6px;padding:4px 12px;font-size:12px;cursor:pointer}
+  .reco .order-btn:hover{background:var(--amber);color:#1a1408}
+  .empty{color:var(--txt-3);font-size:12.5px;padding:22px;text-align:center;border:1px dashed var(--line);border-radius:10px}
+
+  /* ===== 替换建议 ===== */
+  .replace-box{background:rgba(63,178,127,.07);border:1px solid rgba(63,178,127,.3);border-radius:10px;padding:14px;font-size:12.5px}
+  .replace-box .r-title{color:var(--green);font-weight:700;margin-bottom:6px}
+  .replace-box .r-line{color:var(--txt-2);margin:3px 0}
+  .replace-box b{color:var(--txt)}
+
+  /* ===== 工具日志 ===== */
+  .log-list{display:flex;flex-direction:column;gap:8px;max-height:640px;overflow-y:auto}
+  .log{background:var(--panel-2);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:8px;padding:9px 12px;font-size:12px}
+  .log .tool{font-weight:700;color:var(--amber);font-family:"SF Mono",Menlo,monospace;font-size:11.5px}
+  .log .desc{color:var(--txt-2);margin-top:2px}
+  .log .time{color:var(--txt-3);font-size:10.5px;margin-top:2px}
+  .log.sys{border-left-color:var(--blue)} .log.sys .tool{color:var(--blue)}
+
+  /* ===== 下单确认弹窗 ===== */
+  .mask{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:50}
+  .mask.show{display:flex}
+  .modal{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;width:min(420px,92vw)}
+  .modal h3{font-size:16px;margin-bottom:12px}
+  .modal .m-items{color:var(--txt-2);font-size:13px;margin-bottom:10px}
+  .modal .m-price{display:flex;justify-content:space-between;font-size:14px;padding:10px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:16px}
+  .modal .m-price b{font-size:18px;color:var(--amber)}
+  .modal .m-actions{display:flex;gap:10px;justify-content:flex-end}
+  .pay-link{color:var(--blue);font-size:12.5px;word-break:break-all}
+
+  /* ===== Skill 设计页 ===== */
+  .flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+  .flow .step{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:14px;position:relative}
+  .flow .step .s-num{font-size:11px;color:var(--amber);font-weight:700}
+  .flow .step .s-name{font-weight:700;margin:3px 0 5px}
+  .flow .step .s-desc{font-size:12px;color:var(--txt-2)}
+  pre.code{background:#0a0c10;border:1px solid var(--line);border-radius:10px;padding:16px;font-size:12px;line-height:1.7;overflow-x:auto;color:#b8c0ce;font-family:"SF Mono",Menlo,monospace;white-space:pre}
+  .tool-table td:first-child{font-family:"SF Mono",Menlo,monospace;font-size:11.5px;color:var(--amber);white-space:nowrap}
+  footer{margin-top:30px;padding-top:14px;border-top:1px solid var(--line);color:var(--txt-3);font-size:11.5px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 01 页头 -->
+  <header>
+    <div>
+      <h1>热麦卡路里<span class="badge">模拟数据演示</span></h1>
+      <div class="sub">订单热量估算 · 餐段识别 · 档位推荐 · 替换建议 —— 订单热量与套餐推荐 Skill 前端演示页（v0.1）</div>
+    </div>
+    <div class="clock" id="clock">--</div>
+  </header>
+
+  <!-- 02 标签页 -->
+  <div class="tabs">
+    <button class="tab active" data-page="demo">演 示</button>
+    <button class="tab" data-page="design">Skill 设计</button>
+  </div>
+
+  <!-- ============ 页一：演示 ============ -->
+  <div class="page active" id="page-demo">
+    <div class="grid3">
+
+      <!-- 左栏：订单热量估算 -->
+      <div>
+        <section class="card">
+          <div class="sec-title"><span class="sec-num">03</span>订单热量估算<span class="hint">F1 · P0</span></div>
+          <div class="field-label">选择示例订单（模拟）</div>
+          <select id="orderSelect"></select>
+          <div class="field-label">所处餐段（默认按当前时间，可手动指定）</div>
+          <div class="seg-group" id="daypartSeg"></div>
+          <div style="margin-top:14px"><button class="btn" id="btnReadOrder">读取订单（query-order）</button></div>
+        </section>
+
+        <section class="card" id="orderResult" style="display:none">
+          <div class="sec-title"><span class="sec-num">04</span>单品明细与合计</div>
+          <table id="orderTable"><thead><tr>
+            <th>餐品</th><th class="num">数量</th><th class="num">热量(千卡)</th>
+          </tr></thead><tbody></tbody></table>
+          <div class="note" id="orderNote"></div>
+          <div class="total-row">
+            <div class="total-kcal" id="totalKcal">0<small>千卡</small></div>
+            <div class="verdict ok" id="verdict">--</div>
+          </div>
+          <div class="bar-wrap">
+            <div class="bar-labels"><span id="tierL">轻量</span><span id="tierM">标准</span><span id="tierH">吃饱</span></div>
+            <div class="bar"><div class="bar-marker" id="barMarker" style="left:50%"><span id="barMarkerTxt"></span></div></div>
+          </div>
+        </section>
+
+        <section class="card" id="replaceCard" style="display:none">
+          <div class="sec-title"><span class="sec-num">05</span>替换建议<span class="hint">F4 · P1</span></div>
+          <div class="replace-box" id="replaceBox"></div>
+        </section>
+      </div>
+
+      <!-- 中栏：档位推荐 -->
+      <div>
+        <section class="card">
+          <div class="sec-title"><span class="sec-num">06</span>套餐推荐<span class="hint">F3 · P0 · 当前门店可售（模拟）</span></div>
+          <div class="field-label">热量档位（目标 ±12% 筛选）</div>
+          <div class="seg-group" id="tierSeg"></div>
+          <div class="field-label">排序方式</div>
+          <div class="seg-group" id="sortSeg"></div>
+          <div style="margin-top:14px"><button class="btn" id="btnReco">生成推荐（query-meals）</button></div>
+        </section>
+        <div class="reco-grid" id="recoGrid"><div class="empty">先选择餐段与档位，点击「生成推荐」。</div></div>
+      </div>
+
+      <!-- 右栏：工具调用日志 -->
+      <div class="col-log">
+        <section class="card">
+          <div class="sec-title"><span class="sec-num">07</span>工具调用日志<span class="hint">Skill → MCP</span></div>
+          <div class="log-list" id="logList"></div>
+        </section>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============ 页二：Skill 设计 ============ -->
+  <div class="page" id="page-design">
+    <section class="card">
+      <div class="sec-title"><span class="sec-num">08</span>工作流程</div>
+      <div class="flow">
+        <div class="step"><div class="s-num">STEP 1</div><div class="s-name">门店与渠道</div><div class="s-desc">外送取地址→门店，到店取附近门店，得到 storeCode / beCode。</div></div>
+        <div class="step"><div class="s-num">STEP 2</div><div class="s-name">营养表加载</div><div class="s-desc">list-nutrition-foods 拉取紧凑格式营养表，解析并缓存。</div></div>
+        <div class="step"><div class="s-num">STEP 3</div><div class="s-name">订单热量估算</div><div class="s-desc">query-order 读单，套餐展开为单品，名称归一化后匹配营养表，匹配不上标「热量未知」。</div></div>
+        <div class="step"><div class="s-num">STEP 4</div><div class="s-name">餐段与档位对比</div><div class="s-desc">now-time-info 判断餐段，整单热量与该餐段轻量/标准/吃饱三档对比。</div></div>
+        <div class="step"><div class="s-num">STEP 5</div><div class="s-name">组合推荐</div><div class="s-desc">query-meals 取可售餐品，按规则拼组合，档位 ±12% 筛选，四种方式排序，展示 3–4 组。</div></div>
+        <div class="step"><div class="s-num">STEP 6</div><div class="s-name">替换与下单</div><div class="s-desc">偏高自动给标准档替换；calculate-price 报价、用户确认后才 create-order。</div></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="sec-title"><span class="sec-num">09</span>SKILL.md 草稿（节选）</div>
+      <pre class="code">---
+name: mcd-calorie-advisor
+description: 读取麦当劳订单估算整单热量，按餐段与热量档位推荐当前门店可买套餐，并给出替换建议。
+---
+
+# 流程
+1. 用户提供订单号 → query-order 读取订单；无订单号则直接进入推荐流程。
+2. list-nutrition-foods 获取营养表并解析（紧凑格式，自行解析）。
+3. 套餐按 comboItemList 展开；名称去掉「-poolN」后缀与「加……(加)」加料描述。
+4. 精确匹配优先；匹配不上标注「热量未知」，不得按 0 计算；加料热量不计入并告知。
+5. now-time-info 判断餐段（早餐 06:00–10:29 / 午餐 10:30–15:29 / 下午茶 15:30–17:59 / 夜市 18:00 起）。
+6. 档位目标（千卡）：早餐 300/450/600；午晚餐 500/750/1000；随便吃吃 150/300/450。
+7. 候选只来自 query-meals 当前可售；档位上下 12% 筛选；排序四选一。
+8. 下单前必须 calculate-price 报价并获得用户明确确认，再 create-order。
+
+# 红线
+- 不做医学、减重或疾病相关建议；热量仅为估算参考。
+- 营养表调用失败时只提示稍后重试，不凭记忆给出热量数字。</pre>
+    </section>
+
+    <section class="card">
+      <div class="sec-title"><span class="sec-num">10</span>用到的 MCP 工具</div>
+      <table class="tool-table"><thead><tr><th>工具</th><th>用途</th></tr></thead><tbody>
+        <tr><td>list-nutrition-foods</td><td>营养表，无入参，紧凑格式字符串返回</td></tr>
+        <tr><td>query-order</td><td>按 orderId 读取订单明细（orderProductList / comboItemList）</td></tr>
+        <tr><td>query-meals</td><td>当前门店可售餐品（分类、daypart、编码、名称、价格）</td></tr>
+        <tr><td>query-meal-detail</td><td>套餐组成（rounds / choices）</td></tr>
+        <tr><td>query-store-coupons</td><td>当前门店可用券</td></tr>
+        <tr><td>calculate-price / create-order</td><td>报价与下单（确认后执行）</td></tr>
+        <tr><td>now-time-info</td><td>当前时间，用于餐段识别</td></tr>
+        <tr><td>delivery-query-addresses / delivery-query-stores / query-nearby-stores</td><td>取得门店参数 storeCode / beCode</td></tr>
+      </tbody></table>
+    </section>
+  </div>
+
+  <!-- 11 页脚 -->
+  <footer>
+    <span>本页菜单、营养值、价格与订单均为模拟数据，仅「猪柳麦满分」数值取自官方文档示例；不使用任何品牌商标与官方图片。</span>
+    <span>热量为估算参考，不构成医学或减重建议。</span>
+  </footer>
+</div>
+
+<!-- 下单确认弹窗 -->
+<div class="mask" id="mask">
+  <div class="modal">
+    <h3 id="mTitle">确认下单</h3>
+    <div class="m-items" id="mItems"></div>
+    <div class="m-price"><span>应付金额（calculate-price 报价，含可用券）</span><b id="mPrice">¥0.00</b></div>
+    <div id="mPay" style="display:none;margin-bottom:14px">
+      <div style="font-size:12.5px;color:var(--green);font-weight:600;margin-bottom:4px">✅ 订单已创建（create-order），请前往支付：</div>
+      <div class="pay-link" id="payLink"></div>
+    </div>
+    <div class="m-actions">
+      <button class="btn ghost" id="mCancel">取消</button>
+      <button class="btn" id="mConfirm">确认下单</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================= 模拟数据层 ================= */
+/* 营养表（千卡/克/毫克，取自官方文档示例口径的模拟子集） */
+const NUTRITION = {
+  "猪柳麦满分":      {kcal:308,p:16,f:16,c:24,na:781},
+  "猪柳蛋麦满分":    {kcal:387,p:23,f:21,c:25,na:846},
+  "烟肉蛋麦满分":    {kcal:260,p:16,f:10,c:24,na:483},
+  "火腿扒麦满分":    {kcal:261,p:14,f:12,c:24,na:608},
+  "中薯条":          {kcal:289,p:4, f:12,c:38,na:165},
+  "小薯条":          {kcal:210,p:3, f:9, c:28,na:120},
+  "麦乐鸡5块":       {kcal:213,p:12,f:12,c:13,na:422},
+  "麦辣鸡翅-2块":    {kcal:224,p:13,f:15,c:9, na:537},
+  "大杯玉米杯":      {kcal:87, p:4, f:1, c:12,na:2},
+  "苹果片":          {kcal:32, p:0, f:0, c:8, na:0},
+  "圆筒冰淇淋":      {kcal:93, p:2, f:3, c:14,na:36},
+  "香芋派":          {kcal:232,p:2, f:12,c:28,na:159},
+  "麦辣鸡腿汉堡":    {kcal:485,p:24,f:24,c:42,na:1208},
+  "板烧鸡腿堡":      {kcal:391,p:23,f:17,c:35,na:1041},
+  "麦香鸡":          {kcal:369,p:15,f:17,c:39,na:731},
+  "麦香鱼":          {kcal:325,p:16,f:13,c:35,na:556},
+  "吉士汉堡包":      {kcal:294,p:16,f:12,c:30,na:673},
+  "双层吉士汉堡":    {kcal:429,p:27,f:22,c:31,na:1017},
+  "巨无霸":          {kcal:513,p:27,f:26,c:42,na:961},
+  "可乐中杯":        {kcal:150,p:0, f:0, c:38,na:0},
+  "雪碧中杯":        {kcal:148,p:0, f:0, c:37,na:0},
+  "零度可乐中杯":    {kcal:0,  p:0, f:0, c:0, na:12},
+  "鲜煮咖啡":        {kcal:6,  p:0, f:0, c:1, na:5},
+  "热红茶":          {kcal:2,  p:0, f:0, c:0, na:0},
+  "纯牛奶":          {kcal:135,p:7, f:7, c:10,na:105},
+  "豆浆":            {kcal:80, p:5, f:3, c:9, na:40}
+};
+/* 菜单（模拟当前门店可售，含分类/餐段/价格） */
+const MENU = [
+  {name:"猪柳麦满分",   cat:"主食", dp:["早餐"], price:12.5},
+  {name:"猪柳蛋麦满分", cat:"主食", dp:["早餐"], price:14.5},
+  {name:"烟肉蛋麦满分", cat:"主食", dp:["早餐"], price:13.0},
+  {name:"火腿扒麦满分", cat:"主食", dp:["早餐"], price:11.5},
+  {name:"麦辣鸡腿汉堡", cat:"主食", dp:["午餐","晚餐"], price:21.0},
+  {name:"板烧鸡腿堡",   cat:"主食", dp:["午餐","晚餐"], price:22.0},
+  {name:"麦香鸡",       cat:"主食", dp:["午餐","晚餐"], price:15.0},
+  {name:"麦香鱼",       cat:"主食", dp:["午餐","晚餐"], price:16.5},
+  {name:"吉士汉堡包",   cat:"主食", dp:["午餐","晚餐"], price:13.5},
+  {name:"双层吉士汉堡", cat:"主食", dp:["午餐","晚餐"], price:19.5},
+  {name:"巨无霸",       cat:"主食", dp:["午餐","晚餐"], price:24.0},
+  {name:"中薯条",       cat:"小食", dp:["早餐","午餐","随便吃吃","晚餐"], price:11.0},
+  {name:"小薯条",       cat:"小食", dp:["午餐","随便吃吃","晚餐"], price:9.0},
+  {name:"麦乐鸡5块",    cat:"小食", dp:["午餐","随便吃吃","晚餐"], price:12.0},
+  {name:"麦辣鸡翅-2块", cat:"小食", dp:["午餐","随便吃吃","晚餐"], price:11.5},
+  {name:"大杯玉米杯",   cat:"小食", dp:["早餐","午餐","随便吃吃","晚餐"], price:8.0},
+  {name:"苹果片",       cat:"小食", dp:["早餐","午餐","随便吃吃","晚餐"], price:6.0},
+  {name:"圆筒冰淇淋",   cat:"甜品", dp:["午餐","随便吃吃","晚餐"], price:5.0},
+  {name:"香芋派",       cat:"甜品", dp:["早餐","午餐","随便吃吃","晚餐"], price:7.5},
+  {name:"可乐中杯",     cat:"饮品", dp:["早餐","午餐","随便吃吃","晚餐"], price:8.5},
+  {name:"雪碧中杯",     cat:"饮品", dp:["午餐","随便吃吃","晚餐"], price:8.5},
+  {name:"零度可乐中杯", cat:"饮品", dp:["午餐","随便吃吃","晚餐"], price:8.5},
+  {name:"鲜煮咖啡",     cat:"饮品", dp:["早餐","午餐","随便吃吃","晚餐"], price:9.0},
+  {name:"热红茶",       cat:"饮品", dp:["早餐","随便吃吃"], price:8.0},
+  {name:"纯牛奶",       cat:"饮品", dp:["早餐"], price:8.0},
+  {name:"豆浆",         cat:"饮品", dp:["早餐"], price:7.0}
+];
+/* 宵夜单列（2026-10-10 决策）：与晚餐共享可售餐品 */
+MENU.forEach(m=>{ if(m.dp.includes("晚餐") && !m.dp.includes("宵夜")) m.dp.push("宵夜"); });
+/* 档位目标（千卡） */
+const TIERS = {
+  "早餐":    {轻量:300, 标准:450, 吃饱:600},
+  "午餐":    {轻量:500, 标准:750, 吃饱:1000},
+  "随便吃吃":{轻量:150, 标准:300, 吃饱:450},
+  "晚餐":    {轻量:500, 标准:750, 吃饱:1000},
+  "宵夜":    {轻量:300, 标准:450, 吃饱:600}
+};
+/* 示例订单（对应 skill/fixtures 样本的简化版） */
+const ORDERS = [
+  {id:"SAMPLE-20261009-05", label:"样本05 · 午餐典型（三件套+苹果片）", dp:"午餐",
+   items:[{name:"麦辣鸡腿汉堡",qty:1,combo:"麦辣鸡腿汉堡三件套"},{name:"中薯条",qty:1,combo:"麦辣鸡腿汉堡三件套"},{name:"可乐中杯",qty:1,combo:"麦辣鸡腿汉堡三件套"},{name:"苹果片",qty:1}]},
+  {id:"SAMPLE-20261009-02", label:"样本02 · 早餐单品（猪柳麦满分）", dp:"早餐",
+   items:[{name:"猪柳麦满分",qty:1}]},
+  {id:"SAMPLE-20261009-03", label:"样本03 · 晚餐偏重（巨无霸+大薯+甜品）", dp:"晚餐",
+   items:[{name:"巨无霸",qty:1,combo:"巨无霸四件套"},{name:"中薯条",qty:2,combo:"巨无霸四件套"},{name:"可乐中杯",qty:1,combo:"巨无霸四件套"},{name:"香芋派",qty:1,combo:"巨无霸四件套"}]},
+  {id:"SAMPLE-20261009-04", label:"样本04 · 含未知商品（限时新品）", dp:"午餐",
+   items:[{name:"板烧鸡腿堡",qty:1},{name:"星球限定扭扭薯（新品）",qty:1},{name:"可乐中杯",qty:1}]},
+  {id:"SAMPLE-20261009-06", label:"样本06 · 早餐典型（麦满分+咖啡）", dp:"早餐",
+   items:[{name:"烟肉蛋麦满分",qty:1},{name:"鲜煮咖啡",qty:1}]}
+];
+/* 模拟可用券 */
+const COUPONS = {"板烧鸡腿堡":2, "巨无霸":3, "猪柳蛋麦满分":1.5};
+
+/* ================= 状态与工具 ================= */
+const state = {daypart:null, tier:"标准", sort:"最接近档位", order:null, orderTotal:0};
+const $ = s => document.querySelector(s);
+const now = () => new Date().toLocaleString("zh-CN",{timeZone:"Asia/Shanghai",hour12:false});
+
+function tick(){ $("#clock").textContent = "北京时间 " + now(); }
+tick(); setInterval(tick, 1000);
+
+function log(tool, desc, sys){
+  const el = document.createElement("div");
+  el.className = "log" + (sys ? " sys" : "");
+  el.innerHTML = `<div class="tool">${tool}</div><div class="desc">${desc}</div><div class="time">${now()}</div>`;
+  $("#logList").prepend(el);
+}
+
+/* 餐段按当前时间判断（PRD F2） */
+function detectDaypart(){
+  const h = +new Date().toLocaleString("en-US",{timeZone:"Asia/Shanghai",hour:"numeric",hour12:false});
+  const m = +new Date().toLocaleString("en-US",{timeZone:"Asia/Shanghai",minute:"numeric"});
+  const t = h*60+m;
+  if(t>=360 && t<=629) return "早餐";
+  if(t>=630 && t<=929) return "午餐";
+  if(t>=930 && t<=1079) return "随便吃吃";
+  if(t>=1334 || t<=285) return "宵夜";   /* 22:14 起至次日 04:45 */
+  return "晚餐";
+}
+
+/* ================= 渲染：分段控件 ================= */
+function buildSeg(elId, options, current, onPick){
+  const el = $(elId); el.innerHTML = "";
+  options.forEach(o=>{
+    const b = document.createElement("button");
+    b.className = "seg" + (o===current ? " active" : "");
+    b.textContent = o;
+    b.onclick = ()=>{ onPick(o); buildSeg(elId, options, o, onPick); };
+    el.appendChild(b);
+  });
+}
+
+/* ================= 订单读取与热量估算 ================= */
+function initOrders(){
+  const sel = $("#orderSelect");
+  ORDERS.forEach((o,i)=>{
+    const op = document.createElement("option");
+    op.value = i; op.textContent = `${o.label}（${o.id}）`;
+    sel.appendChild(op);
+  });
+}
+
+function readOrder(){
+  const o = ORDERS[+$("#orderSelect").value];
+  state.order = o;
+  if(!state.daypart) setDaypart(o.dp, true);
+  log("query-order", `读取订单 ${o.id}，共 ${o.items.length} 个商品行`, false);
+  log("list-nutrition-foods", "拉取营养表（模拟 160 项，紧凑格式解析）", false);
+
+  const tbody = $("#orderTable tbody"); tbody.innerHTML = "";
+  let total = 0, unknown = 0;
+  o.items.forEach(it=>{
+    const n = NUTRITION[it.name];
+    const tr = document.createElement("tr");
+    if(n){
+      const k = n.kcal * it.qty; total += k;
+      tr.innerHTML = `<td class="name">${it.combo?`<span class="combo-tag">套餐·${it.combo}</span>`:""}${it.name}</td>
+        <td class="num">${it.qty}</td><td class="num">${k}</td>`;
+    }else{
+      unknown++;
+      tr.innerHTML = `<td class="name">${it.name}</td><td class="num">${it.qty}</td>
+        <td class="num unknown">热量未知</td>`;
+    }
+    tbody.appendChild(tr);
+  });
+  state.orderTotal = total;
+  $("#orderNote").innerHTML =
+    (unknown ? `⚠️ ${unknown} 项未匹配到营养表，已标注「热量未知」，实际热量高于合计。<br>` : "") +
+    "加料（如「加芝士(加)」）热量不计入合计。";
+  $("#totalKcal").innerHTML = total + "<small>千卡</small>";
+
+  /* 档位对比（PRD F1/F2） */
+  const tiers = TIERS[state.daypart];
+  const {轻量:L, 标准:M, 吃饱:H} = tiers;
+  $("#tierL").textContent = `轻量 ${L}`; $("#tierM").textContent = `标准 ${M}`; $("#tierH").textContent = `吃饱 ${H}`;
+  const max = H*1.2;
+  const pos = Math.min(total/max*100, 100);
+  $("#barMarker").style.left = pos + "%";
+  $("#barMarkerTxt").textContent = total + " 千卡";
+  const v = $("#verdict");
+  if(total > M*1.12){ v.className="verdict high"; v.textContent = `偏高 · 超出标准档 ${total-M} 千卡`; }
+  else if(total < L*0.88){ v.className="verdict low"; v.textContent = `偏低 · 距轻量档还差 ${L-total} 千卡`; }
+  else{ v.className="verdict ok"; v.textContent = "处于合理区间"; }
+  $("#orderResult").style.display = "";
+
+  renderReplace();
+}
+
+/* ================= 组合枚举与推荐 ================= */
+function enumCombos(dp){
+  const avail = MENU.filter(m=>m.dp.includes(dp) && NUTRITION[m.name]);
+  const mains = avail.filter(m=>m.cat==="主食");
+  const snacks = avail.filter(m=>m.cat==="小食");
+  const desserts = avail.filter(m=>m.cat==="甜品");
+  const drinks = avail.filter(m=>m.cat==="饮品");
+  const combos = [];
+  const sum = arr => arr.reduce((a,m)=>({
+    kcal:a.kcal+NUTRITION[m.name].kcal, p:a.p+NUTRITION[m.name].p,
+    f:a.f+NUTRITION[m.name].f, c:a.c+NUTRITION[m.name].c,
+    na:a.na+NUTRITION[m.name].na, price:a.price+m.price
+  }),{kcal:0,p:0,f:0,c:0,na:0,price:0});
+  if(dp==="随便吃吃"){
+    const pool = [...snacks, ...desserts];
+    const pickSets = [];
+    pool.forEach(s=>pickSets.push([s]));
+    for(let i=0;i<pool.length;i++) for(let j=i+1;j<pool.length;j++) pickSets.push([pool[i],pool[j]]);
+    const withDrink = [];
+    pickSets.forEach(set=>{
+      withDrink.push(set);
+      drinks.forEach(d=>{ if(set.length<3) withDrink.push([...set,d]); });
+    });
+    drinks.forEach(d=>withDrink.push([d]));
+    withDrink.forEach(set=>combos.push({items:set, ...sum(set)}));
+  }else{
+    mains.forEach(m=>{
+      const bases = [[m]];
+      snacks.forEach(s=>bases.push([m,s]));
+      const expanded = [];
+      bases.forEach(b=>{
+        expanded.push(b);
+        drinks.forEach(d=>expanded.push([...b,d]));
+      });
+      expanded.forEach(set=>combos.push({items:set, ...sum(set)}));
+    });
+  }
+  return combos;
+}
+
+const SORTS = ["最接近档位","蛋白质更高","钠更低","价格更低"];
+let lastReco = [];
+
+function genReco(){
+  const dp = state.daypart, target = TIERS[dp][state.tier];
+  log("query-meals", `查询当前门店可售餐品（模拟 ${MENU.length} 项，${dp}时段）`, false);
+  let combos = enumCombos(dp);
+  const lo = target*0.88, hi = target*1.12;
+  combos = combos.filter(c=>c.kcal>=lo && c.kcal<=hi);
+  const key = state.sort;
+  combos.sort((a,b)=>{
+    if(key==="蛋白质更高") return b.p-a.p;
+    if(key==="钠更低") return a.na-b.na;
+    if(key==="价格更低") return a.price-b.price;
+    return Math.abs(a.kcal-target)-Math.abs(b.kcal-target);
+  });
+  lastReco = combos.slice(0,4);
+  renderReco(lastReco, target);
+  log("query-store-coupons", "查询可用券，标注「有可用券」，不影响热量排序", false);
+  if(!lastReco.length) log("skill:guard", "档位内无合适组合，提示换档位（不放宽筛选范围）", true);
+}
+
+function renderReco(list, target){
+  const g = $("#recoGrid"); g.innerHTML = "";
+  if(!list.length){
+    g.innerHTML = `<div class="empty">当前门店在「${state.daypart} · ${state.tier}档（${target} 千卡 ±12%）」内没有合适组合，请换一个餐段或档位。</div>`;
+    return;
+  }
+  list.forEach((c,idx)=>{
+    const delta = state.orderTotal ? c.kcal - state.orderTotal : null;
+    const hasCoupon = c.items.some(m=>COUPONS[m.name]);
+    const card = document.createElement("div");
+    card.className = "reco";
+    card.innerHTML = `
+      <div class="items">${c.items.map(m=>m.name).join('<span class="plus">+</span>')}</div>
+      <div class="kcal-line">
+        <span class="kcal">${c.kcal}</span><span style="font-size:11.5px;color:var(--txt-3)">千卡 / 目标 ${target}</span>
+        ${delta!==null?`<span class="delta ${delta>0?"up":"down"}">${delta>0?"▲ 较本单 +"+delta:"▼ 较本单 "+delta}</span>`:""}
+      </div>
+      <div class="nutri">
+        <span>蛋白质 <b>${c.p}g</b></span><span>脂肪 <b>${c.f}g</b></span>
+        <span>碳水 <b>${c.c}g</b></span><span>钠 <b>${c.na}mg</b></span>
+      </div>
+      <div class="price-row">
+        <span class="price">¥${c.price.toFixed(2)} <small>参考价</small></span>
+        ${hasCoupon?'<span class="coupon">有可用券</span>':""}
+        <button class="order-btn" data-idx="${idx}">下单</button>
+      </div>`;
+    g.appendChild(card);
+  });
+  g.querySelectorAll(".order-btn").forEach(b=>b.onclick=()=>openModal(lastReco[+b.dataset.idx]));
+}
+
+/* ================= 替换建议 ================= */
+function renderReplace(){
+  if(!state.order) return;
+  const dp = state.daypart, M = TIERS[dp]["标准"];
+  const box = $("#replaceBox");
+  if(state.orderTotal <= M*1.12){
+    const target = TIERS[dp][state.orderTotal < TIERS[dp]["轻量"]*0.88 ? "轻量" : "标准"];
+    $("#replaceCard").style.display = "";
+    box.innerHTML = `<div class="r-title">本单未超出标准档</div>
+      <div class="r-line">如需调整，可参考右侧「${dp} · ${state.tier}档」推荐组合。</div>`;
+    return;
+  }
+  /* 偏高 → 自动切标准档找替换 */
+  let combos = enumCombos(dp).filter(c=>c.kcal>=M*0.88 && c.kcal<=M*1.12);
+  combos.sort((a,b)=>Math.abs(a.kcal-M)-Math.abs(b.kcal-M));
+  const best = combos[0];
+  $("#replaceCard").style.display = "";
+  if(!best){
+    box.innerHTML = `<div class="r-title">本单偏高</div><div class="r-line">标准档内暂无合适替换组合，建议换餐段或档位。</div>`;
+    return;
+  }
+  const saved = state.orderTotal - best.kcal;
+  const diff = best.price - state.order.items.reduce((a,it)=>{
+    const m = MENU.find(x=>x.name===it.name); return a + (m?m.price*it.qty:0);
+  },0);
+  box.innerHTML = `<div class="r-title">本单较标准档偏高，推荐替换（F4）</div>
+    <div class="r-line">替换为：<b>${best.items.map(m=>m.name).join(" + ")}</b></div>
+    <div class="r-line">替换后少摄入 <b>${saved} 千卡</b>（${state.orderTotal} → ${best.kcal}）</div>
+    <div class="r-line">价格${diff>=0?"增加":"减少"} <b>¥${Math.abs(diff).toFixed(2)}</b>（参考价 ¥${best.price.toFixed(2)}）</div>`;
+  log("skill:replace", `订单偏高，自动切换至「${dp} · 标准档」生成替换方案`, true);
+}
+
+/* ================= 下单确认（模拟 F6/F7） ================= */
+let pending = null;
+function openModal(combo){
+  pending = combo;
+  log("calculate-price", `报价：${combo.items.map(m=>m.name).join(" + ")}`, false);
+  let couponCut = 0;
+  combo.items.forEach(m=>{ if(COUPONS[m.name]) couponCut += COUPONS[m.name]; });
+  const pay = Math.max(combo.price - couponCut, 0);
+  $("#mItems").innerHTML = combo.items.map(m=>`· ${m.name}（${NUTRITION[m.name].kcal} 千卡）`).join("<br>") +
+    (couponCut?`<br><span style="color:var(--green);font-size:12px">已用券抵扣 ¥${couponCut.toFixed(2)}</span>`:"");
+  $("#mPrice").textContent = "¥" + pay.toFixed(2);
+  $("#mPay").style.display = "none";
+  $("#mConfirm").style.display = "";
+  $("#mask").classList.add("show");
+}
+$("#mCancel").onclick = ()=>{ $("#mask").classList.remove("show"); log("skill:order", "用户取消下单，未调用 create-order", true); };
+$("#mConfirm").onclick = ()=>{
+  log("create-order", "用户明确确认，创建订单并返回支付链接（模拟）", false);
+  $("#payLink").textContent = "https://pay.example-mock.cn/order/" + Date.now();
+  $("#mPay").style.display = "";
+  $("#mConfirm").style.display = "none";
+};
+
+/* ================= 状态切换 ================= */
+function setDaypart(dp, silent){
+  state.daypart = dp;
+  buildSeg("#daypartSeg", Object.keys(TIERS), dp, d=>setDaypart(d));
+  if(!silent) log("now-time-info", `餐段指定为「${dp}」`, false);
+}
+function init(){
+  initOrders();
+  setDaypart(detectDaypart(), true);
+  log("now-time-info", `按当前北京时间自动识别餐段：${state.daypart}`, false);
+  buildSeg("#tierSeg", ["轻量","标准","吃饱"], state.tier, t=>{ state.tier=t; log("skill:config", `档位切换为「${t}」（目标 ${TIERS[state.daypart][t]} 千卡）`, true); });
+  buildSeg("#sortSeg", SORTS, state.sort, s=>{ state.sort=s; });
+  $("#btnReadOrder").onclick = readOrder;
+  $("#btnReco").onclick = genReco;
+}
+init();
+
+/* ================= 标签页切换 ================= */
+document.querySelectorAll(".tab").forEach(t=>{
+  t.onclick = ()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+    document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+    t.classList.add("active");
+    $("#page-"+t.dataset.page).classList.add("active");
+  };
+});
+</script>
+</body>
+</html>

@@ -142,7 +142,11 @@ def recommend(pools: dict, daypart: str, tier: str,
               tolerance: float = 0.12) -> dict:
     target = dp.tier_target(daypart, tier)
     lo, hi = target * (1 - tolerance), target * (1 + tolerance)
-    staples, snacks, drinks = pools["主食"], pools["小食"], pools["饮品"]
+    # R4 剪枝：热量均非负，单项 > hi 的商品不可能出现在任何档内组合中；
+    # 0 kcal 条目（无糖饮料等）合法保留。枚举前先剪，避免先爆炸后筛选。
+    staples = [x for x in pools["主食"] if x["kcal"] <= hi]
+    snacks = [x for x in pools["小食"] if x["kcal"] <= hi]
+    drinks = [x for x in pools["饮品"] if x["kcal"] <= hi]
 
     combos: list[list[dict]] = []
     if daypart == "随便吃吃":
