@@ -19,8 +19,18 @@
 <div align="center">
   <img src="assets/demo-first-screen.svg" alt="点餐流程演示页 · 首屏（模拟数据）" width="820">
   <br>
-  <sub>▲ 演示页首屏（模拟数据 · 纯代码 SVG 静态重绘，无 JS / 无外部资源）· <a href="https://orderye.github.io/mcd-calorie-skill/%E7%82%B9%E9%A4%90%E9%A1%B5.html">在线交互版点餐页 →</a></sub>
+  <sub>▲ 演示页首屏（模拟数据 · 纯代码 SVG 静态重绘，无 JS / 无外部资源）</sub>
 </div>
+
+## 在线演示
+
+| 入口 | 地址 |
+|---|---|
+| 演示首页（自动跳转点餐页） | <https://orderye.github.io/mcd-calorie-skill/> |
+| 点餐页直达 | <https://orderye.github.io/mcd-calorie-skill/%E7%82%B9%E9%A4%90%E9%A1%B5.html> |
+
+- 演示页为**单文件静态托管**（GitHub Pages）：CSS / JS / 数据全部内联，无外部依赖，手机浏览器可直接打开交互。
+- 内容为 10 个编号面板的**模拟数据演示**（菜单 / 订单 / 价格均为脱敏模拟），不代表任何真实门店实时状态；接入真实数据请按[第 2 节](#2-快速开始)配置 MCP。
 
 ---
 
@@ -28,6 +38,7 @@
 
 | 分区 | 内容 |
 |---|---|
+| [在线演示](#在线演示) | GitHub Pages 演示页地址（模拟数据，可直接打开交互） |
 | [1. 30 秒看懂](#1-30-秒看懂) | 一句话定位、能力矩阵（A–F + G / D2）、适合谁 |
 | [2. 快速开始](#2-快速开始) | 3 步跑起来（含 MCP 配置） |
 | [3. 核心能力](#3-核心能力) | 八项能力的输入 / 输出口径 |
