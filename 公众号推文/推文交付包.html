@@ -135,7 +135,7 @@
 
 <div class="topbar"><div class="topbar-inner">
   <div class="brand"><span class="dot"></span>热麦卡路里 · 推文交付包</div>
-  <span class="mode">v4.1 · 引子精简版</span>
+  <span class="mode">v4.2 · README 嵌入版</span>
   <nav class="nav">
     <a href="#titles">标题</a><a href="#article">正文</a><a href="#tags">标签</a>
     <a href="#images">配图</a><a href="#covers">封面</a><a href="#compliance">合规</a><a href="#checklist">Checklist</a>
@@ -149,9 +149,9 @@
     <h1>参加麦当劳 MCP 开发大赛，<br>我被 <span class="acc">92.3%</span> 的假故障卡住了</h1>
     <p>以「麦当劳程序员创意开发大赛」一句带过作为引子，随即进入选题导出与技术主体：架构 / 算法 / 接口陷阱 / 验收的完整工程复盘。已去除互动引导类语句。</p>
     <div class="meta">
-      <span class="chip">正文 ≈ 3900 字</span>
-      <span class="chip">9 节 · 4 表格 · 3 代码块</span>
-      <span class="chip">阅读 ≈ 12 分钟</span>
+      <span class="chip">正文 ≈ 5200 字</span>
+      <span class="chip">10 节 · 4 表格 · 3 代码块</span>
+      <span class="chip">阅读 ≈ 15 分钟</span>
       <span class="chip">目标读者：开发者 / MCP 实践者 / 参赛者</span>
     </div>
   </div>
@@ -238,7 +238,7 @@
   <!-- ===================== 正文 ===================== -->
   <div class="card" id="article">
     <h2><span class="idx">2</span>正文内容</h2>
-    <div class="sub">引子精简版：大赛一笔带过，段一起即进入选题与工程主体。全文无互动引导类语句。</div>
+    <div class="sub">大赛一笔带过作引子；已嵌入 README 的核心能力、工作流 A–F、架构拓扑与项目结构。全文无互动引导类语句。</div>
     <div style="margin-bottom:16px"><button class="btn" onclick="cpRich(this)">一键复制正文（纯文本）</button></div>
 
     <div class="article" id="artBody">
@@ -255,9 +255,32 @@
         <li>拉取营养表，逐项匹配热量；</li>
         <li>与该餐段的热量档位比较，输出结论。</li>
       </ol>
-      <p>这五步没有任何一步可以省略，也没有任何一个现成工具能替代。这篇记录三部分内容：架构设计、核心算法，以及对接过程中接口暴露出的五个陷阱。</p>
+      <p>这五步没有任何一步可以省略，也没有任何一个现成工具能替代。这篇记录：核心能力与工作流、架构与项目结构、核心算法，以及接口暴露出的五个陷阱。</p>
 
-      <h4>二、范围与能力收窄</h4>
+      <h4>二、核心能力与工作流（A–F）</h4>
+      <p>作为可直接对话的 Agent Skill，它对外提供六项能力：</p>
+      <ul>
+        <li><strong>订单热量估算</strong> — 按 <code>comboItemList</code> 展开套餐，「加…(加)」类加料剥离且热量不计入并明确告知；匹配不上的项标注「热量未知」，合计改口为「<strong>≥ N kcal</strong>」，绝不按 0 计算。</li>
+        <li><strong>餐段识别</strong> — 默认按当前时间判定（早餐 / 午餐 / 随便吃吃 / 晚餐 / 宵夜），也支持显式指定；门店实际时段优先于固定兜底（各店不同，且宵夜存在跨零点段）。</li>
+        <li><strong>档位推荐</strong> — 按「餐段 + 档位（轻量 / 标准 / 吃饱）」枚举当前可售组合（1 主食 + 0~1 小食 + 0~1 饮品），四种排序：最接近档位 / 蛋白质更高 / 钠更低 / 价格更低。</li>
+        <li><strong>替换建议</strong> — 整单高于该餐段标准档时，给出更轻的替换组合与「少多少 kcal」的对比。</li>
+        <li><strong>历史复盘与一键导入</strong> — <code>order-list</code> 原始响应自动脱敏落盘，逐单估算热量，输出热量排行、超标准档的单子、平均热量与未知项占比。</li>
+        <li><strong>安全下单</strong> — 查券（只标注，不参与排序）→ 报价 → <strong>必须展示金额并获得用户明确确认</strong> → 创建订单，返回支付链接由用户自付。</li>
+      </ul>
+      <p>六项能力对应六条对话工作流，每条都有明确的触发语：</p>
+      <table>
+        <tr><th>阶段</th><th>触发语</th><th>说明</th></tr>
+        <tr><td><strong>A</strong> 订单热量估算</td><td>「这单多少热量？」</td><td>订单号 → 展开套餐 → 逐项匹配营养表 → 整单合计 + 档位对比</td></tr>
+        <tr><td><strong>B</strong> 档位推荐</td><td>「想吃 300 大卡左右的早餐」</td><td>取该餐段菜单 → 枚举组合 → 按档位 ±12% 筛选 → 展示 Top 3–4</td></tr>
+        <tr><td><strong>C</strong> 替换建议</td><td>「昨天那单偏高」</td><td>高于标准档则切标准档，输出替换组合 + 少多少 kcal</td></tr>
+        <tr><td><strong>D</strong> 一键导入历史订单</td><td>「导入我的历史订单分析热量」</td><td><code>order-list</code> 原始响应 → 自动脱敏落盘 → 逐单热量 → 排行与汇总</td></tr>
+        <tr><td><strong>D2</strong> 历史订单复盘</td><td>「我最近都吃了些什么」</td><td>已脱敏样本 → 逐单热量 → 餐段比对 → 排行与汇总</td></tr>
+        <tr><td><strong>E</strong> 下单</td><td>用户明确要求</td><td>查券（仅标注）→ 报价 → 确认闸门 → 创建订单</td></tr>
+        <tr><td><strong>F</strong> 全量目录</td><td>离线兜底</td><td>多份菜单快照聚合为 <code>catalog.json</code> / <code>nutrition-gaps.json</code></td></tr>
+      </table>
+      <p>其中 E 是唯一产生资金动作的流程，闸门设计见第七节；F 生成的目录只用于离线匹配与兜底——推荐候选必须取自当次 <code>query-meals</code> 实时返回，价格随餐段浮动，目录价会过期。</p>
+
+      <h4>三、范围与能力收窄</h4>
       <p>官方连接器实际提供 20 多个工具——券包、积分账户、团餐、积分商城一应俱全。本项目主动只使用了 11 个，优惠券只做标注、不介入核销。</p>
       <table>
         <tr><th>工具</th><th>用途</th><th>调用阶段</th></tr>
@@ -276,26 +299,46 @@
       <p>收窄的理由：<strong>每多接一个工具，就多一份字段口径要对齐，多一块合规面。</strong>最小可行不是偷懒，是控制不确定性。</p>
       <p>同时明确不做三件事：医学与减重建议（热量只作为估算参考）、自定义套餐换品交互（接口自 1.0.5 起已支持，本期收窄）、历史订单批量分析（能力存在，但会引入额外的匹配与校准成本）。这三条"不做"写进了 PRD，后面每一次需求扩张都拿它对表。</p>
 
-      <h4>三、架构：把计算和数据源分开</h4>
-      <p>三层结构：</p>
-<pre><span class="c">对话编排层   SKILL.md           —— 只调 MCP、串流程，不直接算数</span>
-                 │
-<span class="g">本地计算层   scripts/*.py       —— 纯 Python 3.10+，零第三方依赖，无网络</span>
-                 │
-<span class="a">数据缓存层   data/ + fixtures/  —— 全部是 MCP 实测响应落盘</span></pre>
-      <p>这么分只有一个目的：<strong>让计算能被离线评测。</strong>实时数据交给 MCP，保证准确与合规；热量匹配、组合枚举、档位筛选这些逻辑下沉到本地脚本，就能在没有 Token、没有网络的环境里跑回归。最终常见订单集的名称匹配率 92.3%——这个数字是离线跑出来的，任何人 clone 仓库都能复现。如果计算逻辑写在对话层里，只能靠"多聊几次看看对不对"来验证。</p>
-      <p>本地计算层共 8 个脚本，职责单一：</p>
-      <table>
-        <tr><th>脚本</th><th>职责</th></tr>
-        <tr><td><code>mcd_nutrition.py</code></td><td>营养表解析 / 名称归一化 / 四级匹配器</td></tr>
-        <tr><td><code>mcd_daypart.py</code></td><td>餐段时段解析 + 档位表</td></tr>
-        <tr><td><code>mcd_combo.py</code></td><td>品类归类 + 组合枚举 + 筛选排序</td></tr>
-        <tr><td><code>mcd_order.py</code></td><td>订单展开 + 加料剥离 + 合计与档位对比</td></tr>
-        <tr><td><code>mcd_replace.py</code></td><td>替换建议</td></tr>
-        <tr><td><code>mcd_history.py</code></td><td>历史订单批量复盘</td></tr>
-        <tr><td><code>mcd_catalog.py</code></td><td>全量目录聚合 + 营养缺口导出</td></tr>
-        <tr><td><code>eval_match.py</code></td><td>匹配率评测</td></tr>
-      </table>
+      <h4>四、架构与项目结构</h4>
+      <p>三层结构（完整拓扑如下，<code>▼</code> 表示调用 / 依赖方向）：</p>
+<pre>     ┌────────────────────────────────────────────────────────────────────────────────────┐
+     │                     对话编排层 · SKILL.md（mcd-calorie-combo）                     │
+     │     MCP 工具：now-time-info · query-order / order-list · list-nutrition-foods      │
+     │     query-meals(reservationDate) · query-meal-detail · 门店链 nearby/delivery      │
+     │        query-store-coupons · calculate-price · create-order（下单确认闸门）        │
+     │       工作流：A 订单估算 / B 档位推荐 / C 替换 / D 历史复盘 / E 下单 / F 目录       │
+     └────────────────────────────────────────────────────────────────────────────────────┘
+                                                │
+                ┌───────────────────────────────┼───────────────────────────────┐
+                ▼                               ▼                               ▼
+┌──────────────────────────┐    ┌──────────────────────────┐    ┌──────────────────────────┐
+│       mcd_order.py       │    │       mcd_combo.py       │    │      mcd_replace.py      │
+│   订单展开 · 加料剥离    │    │ 三级品类归类 · 组合枚举  │    │替换建议 · 差异输出（F4） │
+│ 估算 · 档位对比（F1/F2） │    │  ±12% 筛选 · 排序（F3）  │    │       超标切标准档       │
+└──────────────────────────┘    └──────────────────────────┘    └──────────────────────────┘
+                │                               │                               │
+                └─────────┬─────────────────────┴─────────────────────┬─────────┘
+                          ▼                                           ▼
+┌──────────────────────────────────┐        ┌──────────────────────────────────┐
+│         mcd_nutrition.py         │        │          mcd_daypart.py          │
+│      营养解析 · 名称归一化       │        │     门店时段解析 · 餐段判定      │
+│     四级匹配 · UNKNOWN 保护      │        │     档位表 TIERS · 宵夜单列      │
+└──────────────────────────────────┘        └──────────────────────────────────┘
+                          │                                           │
+                          └─────────────────────┬─────────────────────┘
+                                                ▼
+        ┌──────────────────────────────────────────────────────────────────────────────┐
+        │          数据缓存层 · data/ + fixtures/ + docs/（纯本地 · 无网络）           │
+        │alias.json · category-rules.json · catalog.json · nutrition-gaps.json         │
+        │营养表 / 菜单×5餐段 / 套餐详情 / 订单样本×6 / 脱敏历史订单                   │
+        └──────────────────────────────────────────────────────────────────────────────┘
+
+※ mcd_import.py：一键导入历史订单（order-list 原始响应 → 自动脱敏 → 逐单热量与档位对比）
+※ mcd_history.py：历史订单批量复盘（已脱敏样本 → 逐单热量与档位对比）
+※ tools/eval_match.py：匹配率评测（复用 nutrition + order）· 验收 ≥90% · 实测 92.3% PASS
+※ 外部系统：麦当劳中国官方 MCP（M-China/mcd-mcp-server）· 限流 600 次/分 · Token 仅在客户端配置
+※ 缓存策略：营养表 ≥24h · 菜单按 店+餐段 10min · 429 指数退避</pre>
+      <p>这么分只有一个目的：<strong>让计算能被离线评测。</strong>实时数据交给 MCP，保证准确与合规；热量匹配、组合枚举、档位筛选这些逻辑下沉到本地脚本，就能在没有 Token、没有网络的环境里跑回归。最终常见订单集的名称匹配率 92.3%——这个数字是离线跑出来的，任何人 clone 仓库都能复现。如果计算逻辑写在对话层里，只能靠"多聊几次看看对不对"来验证。各脚本的职责已标注在拓扑图中，不再单独列表。</p>
       <p>缓存与限流策略：</p>
       <ul>
         <li>营养表无入参、全量返回，缓存 <strong>≥24h</strong>，不重复拉取；</li>
@@ -303,9 +346,28 @@
         <li>连接器限流 <strong>600 次/分钟</strong>，超限返回 429，指数退避重试；Token 无效返回 401；</li>
         <li>Token 仅配置在 MCP 客户端，不写入代码、对话、日志或演示页。</li>
       </ul>
+      <p>项目结构上，核心交付物是 <code>skill/</code> 目录——其余文件分别承担 PRD 与工程实施记录（过程）、<code>MCP_INTEGRATION.md</code>（MCP 使用口径）、<code>CONTEST_DECLARATION.md</code>（参赛声明）与演示材料（均标注「模拟」）：</p>
+<pre>热麦卡路里/
+├── skill/                          # Agent Skill 源码（核心交付物）
+│   ├── SKILL.md                    # Skill 定义：触发词 / 工具链 / 工作流 A–F / 边界
+│   ├── data/
+│   │   ├── alias.json              # 别名表 + 有证据的默认规格
+│   │   ├── category-rules.json     # 品类兜底关键词
+│   │   ├── catalog.json            # 全量目录（179 商品 / 89 套餐，按餐段价格）
+│   │   └── nutrition-gaps.json     # 营养缺口：未收录单品 + 规格歧义
+│   ├── docs/                       # nutrition-schema / store-chain / order-flow
+│   │                               # catalog-collection / e2e-run
+│   ├── fixtures/                   # 实测快照
+│   │                               # 营养表 / 菜单×5 餐段 / 套餐详情×3
+│   │                               # 订单样本×6 / 脱敏历史订单
+│   ├── scripts/                    # 本地计算脚本（Python 3.10+，无第三方依赖）
+│   └── tools/eval_match.py         # 名称匹配率评测
+├── README.md / CONTEST_DECLARATION.md / MCP_INTEGRATION.md
+├── 订单热量与套餐推荐 Skill PRD.md / project-engineering-file.md / workbuddy.md
+└── 实施计划.html / 演示页.html / 点餐页.html   # 演示材料（均标注「模拟」）</pre>
 
-      <h4>四、三个核心算法</h4>
-      <p><strong>4.1 名称匹配：四级，且必须保护"不知道"</strong></p>
+      <h4>五、三个核心算法</h4>
+      <p><strong>5.1 名称匹配：四级，且必须保护"不知道"</strong></p>
       <p>跨来源匹配一律以<strong>归一化名称</strong>为主键，code 只在同一个来源内部做校验。原因很直接：同一个可乐，在菜单里是 <code>9900008751</code>，在套餐子项里是 <code>3050</code> 或 <code>3100</code>，跨来源对不上。</p>
       <p>归一化规则：剥离品牌前缀、括号内容、多余空格，以及 <code>-poolN</code> 后缀与「加……(加)」加料描述。加料热量不计入并明确告知用户；减料与换料特调沿用基础商品热量，文案说明方向（加料低估、减料换料高估）。</p>
       <p>四级匹配：</p>
@@ -319,7 +381,7 @@
       <p>UNKNOWN 不是防御性冗余，而是由数据现状决定的。营养表对当前在售单品的覆盖率实测只有 <strong>44.4%</strong>：179 个商品（89 套餐 / 90 单品）中，单品命中 40、规格歧义 13、未收录 37，缺口集中在季节限定与联名新品（北非蛋风味系列、爆脆星星堡、德克萨斯风味三层肉霸堡、举杯邀月柚桂茶等）。在这种覆盖率下，"按 0 算"不是小误差，是系统性低估。</p>
       <p>缺口处理也是工程化的：未收录与歧义项落盘到 <code>data/nutrition-gaps.json</code>（含 <code>origin=history-order</code> 标记的历史已下架品），作为补录与反馈清单，避免每次重新发现。历史订单的 unknown 项由 <code>mcd_catalog.collect_history_gaps()</code> 自动展开登记，不靠手工维护。</p>
 
-      <p><strong>4.2 组合枚举：先归类，再剪枝</strong></p>
+      <p><strong>5.2 组合枚举：先归类，再剪枝</strong></p>
       <p>推荐不是搜索，是枚举加筛选。</p>
       <p>品类判定用三级兜底：菜单分类名映射 → 套餐 rounds 反查（借助 <code>isDefault=1</code> 的默认搭配反查单品品类与默认规格）→ 关键词规则（<code>category-rules.json</code>）。之所以要三级，是因为接口的 <code>category</code> 字段时有时无（实测两个套餐详情，一个有、一个没有）。</p>
       <p>组合规则：正餐与宵夜为「1 主食 + 0~1 小食 + 0~1 饮品」，主食位<strong>只取 tags 含「单品」的成品</strong>——tags 含「套餐」的商品不得进入主食位，否则会与小食、饮品重复计算；下午茶不含主食，由 1~3 个小食、甜品、饮品拼成，其中饮品最多 1 个。菜单中混入的非食品条目（实测有「按摩捶痒痒挠」「风味酱」）一律剔除。</p>
@@ -333,11 +395,11 @@
         <tr><td>随便吃吃</td><td>150</td><td>300</td><td>450</td></tr>
       </table>
 
-      <p><strong>4.3 餐段判定：实测优先，处理跨零点</strong></p>
+      <p><strong>5.3 餐段判定：实测优先，处理跨零点</strong></p>
       <p>餐段来源的优先级：用户显式指定 &gt; 订单自带信息（<code>createTime</code> / <code>expectedDaypart</code>，订单是历史事实，不该用当前时刻去判）&gt; 门店 <code>reservationTimeOptions</code> 逐店解析 &gt; PRD 固定值兜底。</p>
       <p>逐店解析是必须的：各店时段差异很大，早餐最早 05:14 起供应，宵夜段约 22:14 起，部分门店跨过零点到 04:45。「宵夜」是单列的第五餐段，档位 300/450/600 kcal，不并入晚餐——这是开发中一个被明确拍板的决策（ADR-003），代价是需要处理跨零点的时段判定。</p>
 
-      <h4>五、五个接口陷阱</h4>
+      <h4>六、五个接口陷阱</h4>
       <p><strong>坑 1：<code>query-meals</code> 没有 daypart 字段</strong></p>
       <p>想按餐段取菜单，文档里找不到任何餐段参数，返回值中也没有。最终解法：传 <code>reservationDate</code> 为"该餐段的代表时刻"，让接口按时间去命中餐段。此外分类里还可能出现 <code>meals{}</code> 中不存在的 code（夜市 9900000881），必须保留 UNKNOWN 兜底。</p>
       <p><strong>坑 2：字段名不一致，92.3% 的"假故障"</strong></p>
@@ -400,9 +462,9 @@
       </ol>
 
       <h4>十、结语</h4>
-      <p>回到比赛本身。麦当劳把整条点单链路拆成 20 多个原子工具开放出来，WorkBuddy 把它们接进对话编排——能力是现成的，但"从拿到数据到回答用户一个问题"之间的编排，工具不会替你做。</p>
+      <p>回到开头：能力是现成的，但"从拿到数据到回答用户一个问题"之间的编排，工具不会替你做。</p>
       <p>MCP 把能力拆成原子，编排的责任落到开发者身上。编排的难点不在调通接口——调通只要几分钟——而在于为每一处"接口没说清楚"的地方做出决定，并为这些决定建立可验证的机制：匹配器有 UNKNOWN 兜底，下单有确认闸门，评测有离线回归，数据有快照可回溯。</p>
-      <p>10 月 26 日定榜，Star 数是比赛的结果。对 Skill 本身而言，更长期的事实只有一条：接口的返回值比想象中更不可信，而系统要在这个前提下依然可靠。</p>
+      <p>接口的返回值比想象中更不可信，而系统要在这个前提下依然可靠——这是这次参赛给我的最大收获。</p>
 
       <div class="decl"><strong>声明：</strong>本文所述「热麦卡路里」为个人参加「麦当劳程序员创意开发大赛」的参赛作品，非麦当劳官方产品，与麦当劳及其关联公司无隶属、代理或背书关系；WorkBuddy 亦仅为本文所使用的开发工具，本文与 WorkBuddy 无推广关系。文中接口字段与数据均来自公开文档与实测快照，热量数据为估算参考，不构成营养、医学或减重建议；数据口径基于门店 3570190 实测快照与 8 笔历史订单样本。商品信息、价格与供应状态请以官方渠道实时结果为准。演示材料均为模拟数据。</div>
     </div>
@@ -433,8 +495,10 @@
     <table class="meta">
       <tr><th>位置</th><th>配图内容</th><th>说明</th></tr>
       <tr><td>封面</td><td>见「五、封面方案」</td><td>900×383</td></tr>
-      <tr><td>段一（比赛）</td><td>大赛信息卡：时间线 / 赛制 / 文件要求，全部自绘</td><td>不使用官方活动海报与商标素材</td></tr>
-      <tr><td>段四（架构）</td><td>三层架构图（对话层 / 计算层 / 数据层）</td><td>标注"零依赖 / 无网络 / 可离线评测"</td></tr>
+      <tr><td>段一（引子）</td><td>大赛信息卡：MCP 开放 + 官方示例方向，全部自绘</td><td>不使用官方活动海报与商标素材</td></tr>
+      <tr><td>段二（工作流）</td><td>A–F 六条链路横向流程条</td><td>触发语要露出，E 的确认闸门高亮</td></tr>
+      <tr><td>段四（架构）</td><td>三层架构拓扑（对话层 / 计算层 / 数据层）</td><td>标注"零依赖 / 无网络 / 可离线评测"</td></tr>
+      <tr><td>段四（项目结构）</td><td>仓库文件树示意</td><td>突出 skill/ 是核心交付物</td></tr>
       <tr><td>段五（匹配器）</td><td>四级匹配流程图 L1 → L1.5 → L2 → L3 → UNKNOWN</td><td>突出 UNKNOWN 是终点而非异常</td></tr>
       <tr><td>段六（坑 2）</td><td>字段名对比代码块：name vs productName</td><td>一眼看懂的对比图</td></tr>
       <tr><td>段六（坑 3）</td><td>715 → 928 kcal 对比</td><td>标注「+213 kcal」</td></tr>
@@ -472,7 +536,7 @@
     </div>
 
     <div class="cover">
-      <h4>方案 D｜大赛节点 · 1024（新增）</h4>
+      <h4>方案 D｜大赛节点 · 1024</h4>
       <div class="swatches"><span class="sw" style="background:#101014"></span><span class="sw" style="background:#FF8A3D"></span></div>
       <p><strong>构图</strong>：居中大号等宽字符 1024，内嵌小字 "mcd-mcp · 11 tools · 1 skill"，右下角自绘回车键轮廓（键帽内简笔汉堡线条，不用官方奖品实物图）。</p>
       <p><strong>主文案</strong>：用 MCP 交一份 1024 作业。适用时效向发布（10.24–10.26 定榜期最佳）。</p>
@@ -497,7 +561,7 @@
     <h4 style="font-size:14px;margin:18px 0 8px"><span class="risk-m">中风险</span>（建议调整）</h4>
     <table class="meta">
       <tr><th>#</th><th>位置</th><th>问题</th><th>处理建议</th></tr>
-      <tr><td>4</td><td>段一</td><td>引用大赛赛制与奖励信息</td><td>以官方仓库 README 实时内容为准，发布前核对截止与定榜日期</td></tr>
+      <tr><td>4</td><td>引子</td><td>提及大赛与官方 MCP 开放信息</td><td>大赛细节从简，以官方仓库 README 实时内容为准</td></tr>
       <tr><td>5</td><td>坑 3 段</td><td>表述强度</td><td>技术语境下可接受；面向泛读者可再弱化</td></tr>
       <tr><td>6</td><td>验收段</td><td>92.3% / 44.4% / 1059 kcal</td><td>已补口径说明（门店 3570190 快照 + 8 笔历史订单），保留</td></tr>
       <tr><td>7</td><td>全文</td><td>提及 mcd-mcp 接口与字段名</td><td>来自公开文档与实测可保留；不得披露 Token、订单号、门店编码</td></tr>
@@ -533,8 +597,9 @@
     <ul class="check">
       <li onclick="tg(this)"><span class="box"></span><span>替换含官方金拱门标的封面图</span></li>
       <li onclick="tg(this)"><span class="box"></span><span>文末追加"非官方产品 / 热量仅为估算参考 / 与 WorkBuddy 无推广关系"声明</span></li>
-      <li onclick="tg(this)"><span class="box"></span><span>核对大赛赛制信息与官方仓库 README 一致（截止 10.25 23:59 / 定榜 10.26 00:00）</span></li>
+      <li onclick="tg(this)"><span class="box"></span><span>引子中大赛信息已从简，如需展开以官方仓库 README 为准</span></li>
       <li onclick="tg(this)"><span class="box"></span><span>数据口径补充样本范围说明</span></li>
+      <li onclick="tg(this)"><span class="box"></span><span>嵌入的架构拓扑 / 文件树与 README 当前版本一致（已核对）</span></li>
       <li onclick="tg(this)"><span class="box"></span><span>代码块中的接口字段名与实际调用保持一致（已核对）</span></li>
       <li onclick="tg(this)"><span class="box"></span><span>标题选定后二次过一遍违禁词检测（配置 REDFOX_API_KEY 后可用）</span></li>
       <li onclick="tg(this)"><span class="box"></span><span>全文无 Token / 订单号 / 门店编码等敏感信息（已确认）</span></li>
@@ -543,7 +608,7 @@
   </div>
 
   <div class="foot">
-    热麦卡路里 · 公众号推文交付包 v4（大赛导出版 · 技术向详实）<br>
+    热麦卡路里 · 公众号推文交付包 v4.2（README 四块嵌入版 · 技术向详实）<br>
     由 WorkBuddy 生成 · 2026-10-10 · 数据口径：门店 3570190 快照 + 8 笔历史订单样本
   </div>
 

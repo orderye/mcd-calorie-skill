@@ -1,0 +1,80 @@
+{
+ "_meta": {
+  "source": "order-list（官方历史订单查询）· 已自动脱敏",
+  "deidentifiedAt": "2026-10-10 02:22:03",
+  "deidentified": "★ 已脱敏：去除 orderId / storeCode / storeName / beCode，门店以「门店A/B/C」代称；保留 createTime、商品与组成、实付金额。原始响应（含敏感字段）不落盘。",
+  "orderCount": 2
+ },
+ "list": [
+  {
+   "orderType": "1",
+   "beType": "1",
+   "createTime": "2026-03-20 18:32:42",
+   "store": "门店A",
+   "orderStatus": "订单已完成",
+   "realTotalAmount": "69.9",
+   "orderProductList": [
+    {
+     "productCode": "9900012064",
+     "productName": "三层肉霸堡大堡口福三件套",
+     "quantity": 1,
+     "comboItemList": [
+      {
+       "productCode": "521341",
+       "name": "德克萨斯风味三层肉霸堡",
+       "quantity": 1
+      },
+      {
+       "productCode": "514782",
+       "name": "脆脆薯条",
+       "quantity": 1
+      },
+      {
+       "productCode": "3050",
+       "name": "可乐中杯",
+       "quantity": 1
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "orderType": "1",
+   "beType": "1",
+   "createTime": "2025-10-11 13:26:14",
+   "store": "门店A",
+   "orderStatus": "订单已完成",
+   "realTotalAmount": "55.5",
+   "orderProductList": [
+    {
+     "productCode": "9900005425",
+     "productName": "脆汁鸡大套餐",
+     "quantity": 1,
+     "comboItemList": [
+      {
+       "productCode": "505416",
+       "name": "麦麦脆汁鸡-琵琶腿",
+       "quantity": 1
+      },
+      {
+       "productCode": "4820",
+       "name": "大薯条",
+       "quantity": 1
+      },
+      {
+       "productCode": "2430",
+       "name": "【美汁源】“黄金橙橙”",
+       "quantity": 1
+      }
+     ]
+    },
+    {
+     "productCode": "1217",
+     "productName": "奥利奥麦旋风",
+     "quantity": 1,
+     "comboItemList": []
+    }
+   ]
+  }
+ ]
+}

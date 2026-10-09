@@ -55,7 +55,7 @@
 
 ## 3. 调用流程
 
-Skill 把分散的 MCP 能力串成 6 条对话式工作流（与 `skill/SKILL.md` 工作流 A–F 对齐）；本地脚本（`skill/scripts/*.py`）负责计算，MCP 负责实时数据：
+Skill 把分散的 MCP 能力串成 7 条对话式工作流（与 `skill/SKILL.md` 工作流 A–G 对齐）；本地脚本（`skill/scripts/*.py`）负责计算，MCP 负责实时数据：
 
 ### A. 订单热量估算（"这单多少热量？"）
 1. `now-time-info` → 判定餐段（订单是历史事实，**优先取订单自带** `createTime`/`expectedDaypart`，否则用当前时刻）。
@@ -73,10 +73,11 @@ Skill 把分散的 MCP 能力串成 6 条对话式工作流（与 `skill/SKILL.m
 1. 本地 `mcd_replace.py` 结合 `query-order` 明细与 `query-meals` 菜单（支持 `--daypart/--time` 透传，替换基准不再是固定午餐）。
 2. 整单高于标准档 → 切标准档，输出替换组合与「少多少 kcal」。
 
-### D. 历史订单批量复盘（"我最近都吃了些什么"）
-1. `order-list`（无入参）→ 取订单列表；**落盘前必须脱敏**（去 `orderId`/`storeCode`/`storeName`/`beCode`）。
-2. `mcd_history.py --path <脱敏样本>` → 逐单展开套餐 → 匹配营养表 → 合计 → 按 `createTime` 推断餐段 → 与标准档对比 → 按期排序汇总。
-3. 输出：热量排行、超档订单、平均热量、未知项占比；对超档订单再接 C 生成更轻方案。
+### D. 一键导入历史订单并分析热量（"导入我的历史订单分析热量"）
+1. `order-list`（无入参）→ 取历史订单**原始响应**（含 orderId / storeCode / storeName / beCode 等敏感字段）。
+2. 本地 `mcd_import.py --raw <原始响应>` → **自动脱敏**（去敏感字段、门店以「门店A/B/C」代称）→ 落盘脱敏样本 → 逐单展开套餐 → 匹配营养表 → 合计 → 按 `createTime` 推断餐段 → 与标准档对比 → 汇总（排行/超档/平均/未知占比，`--json` 导出）。
+3. 已有脱敏样本时用 `--no-deidentify` 直接复盘（同 D2 历史复盘）。对超档订单再接 C 生成更轻方案。
+4. **脱敏是硬红线**：原始响应（含敏感字段）绝不落盘，只落脱敏后的样本。
 
 ### E. 下单（用户明确要求时）
 1. `query-store-coupons` 查券（仅标注）。
@@ -88,6 +89,13 @@ Skill 把分散的 MCP 能力串成 6 条对话式工作流（与 `skill/SKILL.m
 ### F. 全量目录（离线匹配 / 兜底，非实时推荐）
 `scripts/mcd_catalog.py` 把多份 `query-meals` 快照 + `meal-detail` 聚合成 `data/catalog.json`（179 商品 / 89 套餐 / 90 单品，按餐段价格）并导出 `data/nutrition-gaps.json`（未收录单品 + 规格歧义 UNKNOWN 白名单，含 `origin=history-order` 的历史已下架品）。
 **纪律**：目录只用于匹配与兜底；**推荐候选仍必须取自当次 `query-meals` 实时返回**（价格随餐段浮动，目录价会过期）。
+
+### G. 目标场景推荐（"减脂吃什么" / "想控盐" / "今天还剩 600 卡"）
+1. `now-time-info` → 餐段；`query-meals(...)` 取该餐段实时菜单（同 B）。
+2. 本地 `mcd_goal.py` 把「餐段 × 档位 × 场景 × 入参」解析成推荐计划（`resolve_plan`）：13 场景各自决定推荐档位、排序评分器、整组硬上限（钠/碳水/脂肪/价格/预算）、池级关键词排除（素食/过敏原）与组合结构（件数上限、必含主食、纯小食拼组）。
+3. 本地 `mcd_combo.py --goal <场景> [--sodium-max/--carb-max/--fat-max/--price-max/--budget/--allergens/--max-items]` 枚举并筛选，输出 Top 3–4 组。
+4. 场景（减脂/增重/练后餐/放纵餐/低钠控盐/高蛋白增肌/低糖低碳水/低脂清淡/素食蛋奶素/儿童小份量/热量预算日控/过敏原规避/性价比省钱）自动切换档位与排序，无需手动传 `--tier/--sort`。
+5. **粗筛告警**：素食与过敏原基于名称关键词（菜单无配料/过敏原表），结果不完整，须提示以门店配料与员工确认为准。
 
 ---
 

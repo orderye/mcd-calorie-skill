@@ -67,6 +67,15 @@
   --heat-glow:   oklch(70% 0.16 var(--heat-h) / .20);
   --shadow-phone:0 32px 70px oklch(8% 0.02 62 / .55);
   --edge-hi:     oklch(60% 0.02 62 / .10);
+
+  /* —— 机身中框（自然钛，参照 iPhone 18 Pro）—— */
+  --ti-lo:   oklch(40% 0.008 70);
+  --ti-mid:  oklch(56% 0.010 70);
+  --ti-hi:   oklch(74% 0.012 70);
+  --ti-edge: oklch(84% 0.010 70 / .60);   /* 外缘抛光高光 */
+  --ti-in:   oklch(20% 0.006 70 / .85);   /* 内缘暗线 */
+  --bezel:   oklch(9% 0.003 260);         /* 屏幕黑边 */
+  --island:  oklch(5% 0.002 260);         /* 微动岛 */
   --chip-sub:    oklch(88% 0.09 70 / .78);
 
   --font-sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "HarmonyOS Sans SC", "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
@@ -132,6 +141,15 @@
     --shadow-phone:0 24px 56px oklch(35% 0.020 62 / .16);
     --edge-hi:     oklch(72% 0.015 68 / .40);
     --chip-sub:    oklch(42% 0.020 62);
+
+    /* —— 机身中框（浅色下压暗一档，否则贴在近白底上会「消失」）—— */
+    --ti-lo:   oklch(52% 0.012 70);
+    --ti-mid:  oklch(68% 0.012 70);
+    --ti-hi:   oklch(84% 0.010 70);
+    --ti-edge: oklch(93% 0.008 70 / .85);
+    --ti-in:   oklch(30% 0.008 70 / .55);
+    --bezel:   oklch(10% 0.003 260);
+    --island:  oklch(6% 0.002 260);
   }
 }
 html{ transition: --heat-h var(--dur-4) var(--e-out-quart) }
@@ -156,18 +174,9 @@ button,textarea{font:inherit;color:inherit}
 .page{max-width:1240px;margin:0 auto;padding:clamp(20px,3vw,34px) clamp(14px,3vw,26px) 56px}
 .head{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;
       padding-bottom:18px;border-bottom:1px solid var(--line);margin-bottom:26px}
-.head-lead{display:flex;gap:14px;align-items:flex-start}
-.seal{
-  width:36px;height:36px;flex:none;display:grid;place-items:center;
-  background:oklch(50% 0.190 30); color:oklch(97% 0.010 70);
-  font-family:var(--font-serif); font-size:13px; font-weight:700; letter-spacing:.02em; line-height:1;
-  border-radius:3px; transform:rotate(-4deg);
-  box-shadow:inset 0 0 0 1.5px oklch(97% 0.010 70 / .38);
-}
 h1{font-size:clamp(17px,2.1vw,21px);font-weight:700;letter-spacing:.01em;color:var(--ink-0);line-height:1.4}
 h1 .sim{display:inline-block;font-size:10.5px;font-weight:500;color:var(--brand-tx);
         border:1px solid color-mix(in oklab, var(--brand) 55%, transparent);border-radius:4px;padding:1px 6px;margin-left:9px;vertical-align:middle;letter-spacing:.06em}
-.head .sub{color:var(--ink-3);font-size:12.5px;margin-top:5px;max-width:68ch;line-height:1.7}
 .head .clock{color:var(--ink-3);font-size:12px;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .head .clock b{display:block;color:var(--ink-2);font-weight:500;font-size:12.5px}
 
@@ -179,33 +188,65 @@ h1 .sim{display:inline-block;font-size:10.5px;font-weight:500;color:var(--brand-
   .side{width:100%;max-width:none;position:static}
 }
 
-/* ═══ 03 手机 ═══ */
+/* ═══ 03 手机：机身 ═══
+   参照 iPhone 18 Pro（2026-09 发布）：150.0 × 71.9 × 8.75mm，钛金属中框，
+   屏幕四周非显示区 ≈1.4mm，第二代「微动岛」比上代小 25–35%。
+   按 71.9mm → 432px 等比换算，1mm ≈ 6.0px：机身 432×877 / 屏幕 410×855（比例 0.4795，与真机 0.4793 一致）。*/
+.device{
+  position:relative; flex:none; width:432px; height:877px; padding:11px;   /* 11px ≈ 1.8mm 中框 */
+  border-radius:64px;
+  background:linear-gradient(148deg,
+    var(--ti-hi) 0%, var(--ti-mid) 16%, var(--ti-lo) 40%,
+    var(--ti-mid) 62%, var(--ti-hi) 86%, var(--ti-mid) 100%);
+  box-shadow:
+    var(--shadow-phone),
+    inset 0 0 0 1px var(--ti-edge),   /* 外缘抛光高光 */
+    inset 0 0 0 3px var(--ti-in);     /* 内缘暗线，与黑边衔接 */
+}
+/* 侧键：左＝操作按钮 + 音量；右＝电源 + 相机控制（真机布局）*/
+.dbtn{position:absolute; width:4px; z-index:2;
+  background:linear-gradient(180deg, var(--ti-hi), var(--ti-mid) 28%, var(--ti-lo) 72%, var(--ti-mid));
+  box-shadow:inset 0 0 0 1px oklch(0% 0 0 / .20), 0 1px 3px oklch(0% 0 0 / .40)}
+.dbtn.l{left:-4px; border-radius:3px 1px 1px 3px}
+.dbtn.r{right:-4px; border-radius:1px 3px 3px 1px}
+.dbtn.action{top:16.4%; height:8.6%}
+.dbtn.vol-up{top:30.6%; height:10.6%}
+.dbtn.vol-dn{top:42.8%; height:10.6%}
+.dbtn.power{top:35.8%; height:12.2%}
+.dbtn.camera{top:55.4%; height:9.2%}
+
 .phone{
-  width:404px;flex:none;height:812px;position:relative;overflow:hidden;
-  background:var(--surf-1); border:1px solid var(--line-2); border-radius:34px;
+  width:100%; height:100%; position:relative; overflow:hidden;
+  background:var(--surf-1); border-radius:53px;
+  box-shadow:0 0 0 5px var(--bezel);   /* 5px ≈ 1.4mm 屏幕黑边 */
   display:flex;flex-direction:column;
-  box-shadow:var(--shadow-phone), inset 0 1px 0 var(--edge-hi);
 }
 .phone-glow{position:absolute;inset:0 0 auto 0;height:210px;pointer-events:none;
   background:radial-gradient(115% 100% at 50% 0%, var(--heat-glow), transparent 72%);}
-@media(max-width:1000px){ .phone{width:min(100%,420px);height:min(812px,88svh)} }
+@media(max-width:1000px){ .device{width:min(100%,432px);height:min(877px,88svh)} }
 @media(max-width:440px){
-  .phone{height:min(812px,86svh);border-radius:28px}
+  .device{height:min(877px,86svh);padding:8px;border-radius:52px}
+  .dbtn{width:3px}
+  .dbtn.l{left:-3px} .dbtn.r{right:-3px}
+  .phone{border-radius:44px;box-shadow:0 0 0 3px var(--bezel)}
   .rail{width:94px}
   .rail button{font-size:11.5px}
   .thumb{width:56px;height:56px;font-size:22px}
   .items{padding:12px 11px 100px}
 }
 
-.statusbar{display:flex;justify-content:space-between;align-items:center;gap:8px;
-           padding:11px 20px 6px;font-size:11.5px;color:var(--ink-3);flex:none;font-variant-numeric:tabular-nums}
+.statusbar{position:relative;display:flex;justify-content:space-between;align-items:center;gap:8px;
+           padding:15px 20px 11px;font-size:11.5px;color:var(--ink-3);flex:none;font-variant-numeric:tabular-nums}
 .statusbar .sim{color:var(--brand-tx);border:1px solid color-mix(in oklab, var(--brand) 50%, transparent);border-radius:3px;padding:0 5px;letter-spacing:.05em}
-.appbar{display:flex;align-items:center;gap:10px;padding:4px 18px 13px;flex:none;border-bottom:1px solid var(--line)}
-.appbar .back{background:none;border:none;color:var(--ink-1);font-size:22px;line-height:1;cursor:pointer;
-              padding:6px 8px;margin-left:-8px;border-radius:8px;transition:color var(--dur-1),background var(--dur-1)}
-.appbar .back:hover{color:var(--ink-0);background:var(--surf-2)}
-.appbar .title{font-size:16px;font-weight:700;color:var(--ink-0);letter-spacing:.01em}
-.appbar .sub{font-size:11.5px;color:var(--ink-3)}
+.sb-r{display:flex;align-items:center;gap:8px}
+/* 微动岛：绝对居中，不参与状态栏排版 */
+.island{position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:96px; height:28px; border-radius:99px; background:var(--island); pointer-events:none;
+  box-shadow:inset 0 0 0 1px oklch(100% 0 0 / .07), 0 1px 3px oklch(0% 0 0 / .30);
+  display:flex; align-items:center; justify-content:flex-end; padding-right:8px}
+.island::after{content:""; width:9px; height:9px; border-radius:50%;
+  background:radial-gradient(circle at 34% 30%, oklch(46% 0.070 250), oklch(12% 0.030 255) 68%);
+  box-shadow:inset 0 0 2px oklch(72% 0.060 250 / .55)}
 .viewport{flex:1;overflow-y:auto;overflow-x:hidden;position:relative;overscroll-behavior:contain}
 .viewport::-webkit-scrollbar{width:0}
 .screen{animation:screen-in var(--dur-3) var(--e-out-quart) both}
@@ -591,103 +632,101 @@ footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);color:v
 
   <!-- 01 页头 -->
   <header class="head">
-    <div class="head-lead">
-      <div class="seal" aria-hidden="true">热麦</div>
-      <div>
-        <h1>热麦卡路里 · 点餐流程演示<span class="sim">模拟数据</span></h1>
-        <p class="sub">按点餐客户端的操作顺序重制：门店与取餐方式 → 分类菜单 → 规格选择 → 购物车 → 结算 → 提交确认，全程实时估算热量。餐品与价格取自 mcd-mcp 实时菜单（五餐段快照，去重 179 项）。右侧强调色随本单热量在冷青 ↔ 琥珀 ↔ 赤之间连续变化。</p>
-      </div>
-    </div>
+    <h1>热麦卡路里 · 点餐流程演示<span class="sim">模拟数据</span></h1>
     <div class="clock"><b id="clockTime">--:--</b><span id="clock">--</span></div>
   </header>
 
   <div class="stage" id="stage" tabindex="-1">
     <!-- ══════════ 手机 ══════════ -->
-    <div class="phone">
-      <div class="phone-glow" aria-hidden="true"></div>
-      <div class="statusbar"><span id="statusTime">--:--</span><span class="sim">演示 · 模拟</span><span>100%</span></div>
-
-      <div class="appbar">
-        <button class="back" id="btnBack" aria-label="返回菜单" hidden>‹</button>
-        <div>
-          <div class="title" id="appTitle">点餐</div>
-          <div class="sub" id="appSub">选择你想要的餐品</div>
+    <!-- 机身：iPhone 18 Pro 中框 + 侧键（左：操作/音量　右：电源/相机控制）-->
+    <div class="device">
+      <span class="dbtn l action" aria-hidden="true"></span>
+      <span class="dbtn l vol-up" aria-hidden="true"></span>
+      <span class="dbtn l vol-dn" aria-hidden="true"></span>
+      <span class="dbtn r power" aria-hidden="true"></span>
+      <span class="dbtn r camera" aria-hidden="true"></span>
+      <div class="phone">
+        <div class="phone-glow" aria-hidden="true"></div>
+        <div class="statusbar">
+          <span id="statusTime">--:--</span>
+          <span class="island" aria-hidden="true"></span>
+          <span class="sb-r"><span class="sim">演示 · 模拟</span><span>100%</span></span>
         </div>
-      </div>
 
-      <div class="viewport" id="viewport">
-        <!-- 菜单屏 -->
-        <section class="screen" id="screenMenu" aria-label="点餐菜单">
-          <div class="storecard">
-            <div class="row1">
-              <div>
-                <div class="sname" id="storeName">热麦餐厅 · 陆家嘴中心店</div>
-                <div class="smeta" id="storeMeta">距你 480m · 营业中 · 取餐预计 12 分钟</div>
+        <div class="viewport" id="viewport">
+          <!-- 菜单屏 -->
+          <section class="screen" id="screenMenu" aria-label="点餐菜单">
+            <div class="storecard">
+              <div class="row1">
+                <div>
+                  <div class="sname" id="storeName">热麦餐厅 · 陆家嘴中心店</div>
+                  <div class="smeta" id="storeMeta">距你 480m · 营业中 · 取餐预计 12 分钟</div>
+                </div>
+                <button class="change" id="btnChangeStore">切换门店</button>
               </div>
-              <button class="change" id="btnChangeStore">切换门店</button>
+              <div class="seg" id="segService" role="group" aria-label="取餐方式">
+                <button type="button" data-s="到店取餐" class="active" aria-pressed="true">到店取餐</button>
+                <button type="button" data-s="外送" aria-pressed="false">外送</button>
+              </div>
             </div>
-            <div class="seg" id="segService" role="group" aria-label="取餐方式">
-              <button type="button" data-s="到店取餐" class="active" aria-pressed="true">到店取餐</button>
-              <button type="button" data-s="外送" aria-pressed="false">外送</button>
+            <div class="menu-body">
+              <nav class="rail" id="rail" aria-label="餐品分类"></nav>
+              <div class="items" id="items"></div>
             </div>
+          </section>
+
+          <!-- 结算屏 -->
+          <section class="screen" id="screenCheckout" hidden aria-label="确认订单">
+            <div class="co" id="coBody"></div>
+          </section>
+        </div>
+
+        <!-- 吸底购物车栏（仅菜单屏） -->
+        <div class="cartbar" id="cartbar">
+          <button class="cicon empty" id="cartIcon" aria-label="查看已选餐品">🛒<span class="badge" id="cartBadge" hidden>0</span></button>
+          <div class="csum">
+            <div class="ctotal" id="cartTotal">¥0.00</div>
+            <div class="ckcal" id="cartKcal" aria-live="polite"><span class="dot"></span>本单约 0 千卡</div>
           </div>
-          <div class="menu-body">
-            <nav class="rail" id="rail" aria-label="餐品分类"></nav>
-            <div class="items" id="items"></div>
+          <button class="btn" id="btnCheckout" disabled>去结算</button>
+        </div>
+        <div class="co-foot" id="coFoot" hidden>
+          <div class="csum">
+            <div class="ctotal" id="coTotal">¥0.00</div>
+            <div class="co-heat" id="coHeat"><span class="dot"></span>本单约 <b>0</b> 千卡</div>
           </div>
-        </section>
-
-        <!-- 结算屏 -->
-        <section class="screen" id="screenCheckout" hidden aria-label="确认订单">
-          <div class="co" id="coBody"></div>
-        </section>
-      </div>
-
-      <!-- 吸底购物车栏（仅菜单屏） -->
-      <div class="cartbar" id="cartbar">
-        <button class="cicon empty" id="cartIcon" aria-label="查看已选餐品">🛒<span class="badge" id="cartBadge" hidden>0</span></button>
-        <div class="csum">
-          <div class="ctotal" id="cartTotal">¥0.00</div>
-          <div class="ckcal" id="cartKcal" aria-live="polite"><span class="dot"></span>本单约 0 千卡</div>
+          <button class="btn" id="btnSubmit">提交订单</button>
         </div>
-        <button class="btn" id="btnCheckout" disabled>去结算</button>
-      </div>
-      <div class="co-foot" id="coFoot" hidden>
-        <div class="csum">
-          <div class="ctotal" id="coTotal">¥0.00</div>
-          <div class="co-heat" id="coHeat"><span class="dot"></span>本单约 <b>0</b> 千卡</div>
-        </div>
-        <button class="btn" id="btnSubmit">提交订单</button>
-      </div>
 
-      <!-- 规格弹层 -->
-      <div class="sheet" id="sheetSpec" role="dialog" aria-modal="true" aria-labelledby="spTitle" inert>
-        <div class="s-head">
-          <div style="min-width:0">
-            <div class="s-title" id="spTitle">商品</div>
-            <div class="s-sub" id="spSub"></div>
+        <!-- 规格弹层 -->
+        <div class="sheet" id="sheetSpec" role="dialog" aria-modal="true" aria-labelledby="spTitle" inert>
+          <div class="s-head">
+            <div style="min-width:0">
+              <div class="s-title" id="spTitle">商品</div>
+              <div class="s-sub" id="spSub"></div>
+            </div>
+            <button class="x" id="spClose" aria-label="关闭" data-autofocus>✕</button>
           </div>
-          <button class="x" id="spClose" aria-label="关闭" data-autofocus>✕</button>
-        </div>
-        <div class="s-body" id="spBody"></div>
-        <div class="s-foot">
-          <div class="stepper">
-            <button class="minus" id="spMinus" aria-label="减少数量">−</button><span class="q" id="spQty" aria-live="polite">1</span><button id="spPlus" aria-label="增加数量">＋</button>
+          <div class="s-body" id="spBody"></div>
+          <div class="s-foot">
+            <div class="stepper">
+              <button class="minus" id="spMinus" aria-label="减少数量">−</button><span class="q" id="spQty" aria-live="polite">1</span><button id="spPlus" aria-label="增加数量">＋</button>
+            </div>
+            <button class="btn" id="spAdd">加入购物车 ¥0.00</button>
           </div>
-          <button class="btn" id="spAdd">加入购物车 ¥0.00</button>
         </div>
-      </div>
 
-      <!-- 购物车弹层 -->
-      <div class="sheet" id="sheetCart" role="dialog" aria-modal="true" aria-label="已选餐品" inert>
-        <div class="s-head">
-          <div style="min-width:0"><div class="s-title">已选餐品</div></div>
-          <button class="x" id="ctClear" data-autofocus>清空</button>
+        <!-- 购物车弹层 -->
+        <div class="sheet" id="sheetCart" role="dialog" aria-modal="true" aria-label="已选餐品" inert>
+          <div class="s-head">
+            <div style="min-width:0"><div class="s-title">已选餐品</div></div>
+            <button class="x" id="ctClear" data-autofocus>清空</button>
+          </div>
+          <div class="s-body" id="ctBody"></div>
         </div>
-        <div class="s-body" id="ctBody"></div>
-      </div>
 
-      <div class="sheet-mask" id="sheetMask"></div>
+        <div class="sheet-mask" id="sheetMask"></div>
+      </div>
     </div>
 
     <!-- ══════════ 右侧面板 ══════════ -->
@@ -2477,16 +2516,12 @@ function goScreen(name){
   target.classList.remove("screen"); void target.offsetWidth; target.classList.add("screen");  /* 重放入场动画 */
   $("#cartbar").hidden = name !== "menu";
   $("#coFoot").hidden = name !== "checkout";
-  $("#btnBack").hidden = name === "menu";
-  $("#appTitle").textContent = name === "menu" ? "点餐" : "确认订单";
-  $("#appSub").textContent = name === "menu" ? "选择你想要的餐品" : `${state.service} · ${state.daypart}`;
   $("#viewport").scrollTop = 0;
   if(name === "checkout"){
     renderCheckout();
     log("calculate-price", "结算页：计算商品小计、优惠、配送费与应付金额", false);
   }
 }
-$("#btnBack").onclick = ()=> goScreen("menu");
 $("#btnCheckout").onclick = ()=>{ closeSheet("#sheetCart"); goScreen("checkout"); };
 
 $("#segService").querySelectorAll("button").forEach(b=>{

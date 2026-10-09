@@ -3,9 +3,10 @@ name: mcd-calorie-combo
 description: >
   麦当劳订单热量估算与餐段档位套餐推荐。用户问"这单多少热量""300 大卡左右吃什么"
   "想吃轻一点""帮我换个更低的组合"时使用。基于官方 MCP（M-China/mcd-mcp-server）。
-  支持目标场景：减脂、增重、练后餐、放纵餐。
+  支持 13 个目标场景：减脂、增重、练后餐、放纵餐、低钠控盐、高蛋白增肌、低糖低碳水、
+  低脂清淡、素食/蛋奶素、儿童/小份量、热量预算日控、过敏原规避、性价比/省钱。
   不提供医学、减重或疾病相关建议，热量仅为估算参考。
-version: 0.3.0
+version: 0.7.0
 ---
 
 # 订单热量与套餐推荐 Skill
@@ -19,7 +20,10 @@ version: 0.3.0
 - "300 大卡左右吃什么" / "早餐想吃轻一点" / "别超过 200 大卡"
 - "换个低热量的" / "昨天那单偏高，今天来点轻的"
 - "吃饱但钠低一点"
+- **一键导入历史订单**："导入我的历史订单分析热量" / "把我最近的订单都算一下热量" / "一键分析历史订单卡路里"
 - **目标场景**："减脂吃什么" / "想增重/增肌" / "练完吃什么/练后餐" / "今天想放纵一下/随便吃点好的"
+  / "想控盐/钠低一点" / "想多吃蛋白" / "低碳水/少糖" / "清淡点/少油" / "吃素/素食"
+  / "给孩子点/小份量" / "今天还剩 X 卡能吃" / "花生过敏/不吃奶" / "便宜点/省钱"
 
 ## 工具链（MCP）
 
@@ -28,7 +32,7 @@ version: 0.3.0
 | 当前时间 | `now-time-info` | 餐段判定的时钟 |
 | 门店 | `query-nearby-stores` / `delivery-query-addresses` + `delivery-query-stores` | 取 `storeCode`（+`beCode`） |
 | 订单 | `query-order`（单号） / `order-list`（历史，无入参） | **字段差异**：order-list 的套餐子项名称字段是 `name`，query-order 是 `productName`，展开时必须兼容两者 |
-| 营养表 | `list-nutrition-foods` | 全量缓存 ≥24h，勿重复拉取；**对当前在售单品覆盖率约 44%**（实测），缺口见 `data/nutrition-gaps.json` |
+| 营养表 | `list-nutrition-foods` | 全量缓存 ≥24h，勿重复拉取；**对当前在售单品覆盖率 44.4%（单品 40/90，实测门店 3570190）**，全量（含套餐）命中 60/179，缺口见 `data/nutrition-gaps.json` |
 | 菜单 | `query-meals` | **按餐段取菜单：传 `reservationDate`=目标餐段代表时刻**（接口无 daypart 字段，已实测）；价格随餐段浮动，**必须用当次返回值** |
 | 套餐组成 | `query-meal-detail` | `rounds[].name` 只是轮次名、**不是品类**（可能叫「新升级巨无霸」）；品类优先取 `rounds[].category`，该字段可能缺失 → 缺失时按名称反查。`choices[]` 的 `diffPrice` 即换品差价 |
 | 换品 vs 特调 | `query-meal-detail` | **换品**在 rounds/choices 层；**特调**看 `supportModify`/`modification`（去冰、换燕麦奶等）。特调传参：含 `unselectedKey` 的组，选中项传 `selectedKey`、未选中项传 `unselectedKey`，两者都要传给报价与下单 |
@@ -67,28 +71,48 @@ version: 0.3.0
 2. 整单 > 该餐段标准档 → 切标准档；否则用最接近的档位。
 3. 输出替换组合 + 少多少 kcal + 参考价；价格差在未接真实订单金额前显示"需按实付口径计算"。
 
-### G. 目标场景推荐（"减脂吃什么" / "练完吃什么"）
+### G. 目标场景推荐（"减脂吃什么" / "练完吃什么" / "想控盐"）
 
-在餐段 × 档位之上叠加一个**目标场景（goal）**，各自是一套营养策略。四个场景：
+在餐段 × 档位之上叠加一个**目标场景（goal）**，各自是一套营养策略。共 13 个场景：
 
-| 场景 | goal | 推荐档位 | 目标热量 | 策略要点 |
+| 场景 | goal | 推荐档位 | 策略要点 | 场景入参 |
 |---|---|---|---|---|
-| 减脂 | `cut` | 轻量 | 该餐段轻量档 | 蛋白密度优先 + 钠偏低 + 剔甜品、小食 ≤1 |
-| 增重 | `bulk` | 吃饱 | 该餐段吃饱档 | 蛋白与碳水双高 + 小食 ≤2、允许甜品 |
-| 练后餐 | `post` | 标准 | 该餐段标准档 | 蛋白总量优先 + 必含主食回补碳水 |
-| 放纵餐 | `cheat` | 吃饱 | 该餐段吃饱档（容差 ±15%） | 热量上浮 + 允许甜品 + 性价比排序 |
+| 减脂 | `cut` | 轻量 | 蛋白密度优先 + 钠偏低 + 剔甜品、小食 ≤1 | — |
+| 增重 | `bulk` | 吃饱 | 蛋白与碳水双高 + 小食 ≤2、允许甜品 | — |
+| 练后餐 | `post` | 标准 | 蛋白总量优先 + 必含主食回补碳水 | — |
+| 放纵餐 | `cheat` | 吃饱（容差 ±15%） | 热量上浮 + 允许甜品 + 性价比排序 | — |
+| 低钠控盐 | `low-sodium` | 轻量 | 钠硬上限（默认 ≤1000mg）+ 钠升序 | `--sodium-max` |
+| 高蛋白增肌 | `high-protein` | 标准 | 蛋白密度优先 + 蛋白总量（日常版） | — |
+| 低糖低碳水 | `low-carb` | 轻量 | 碳水硬上限（默认 ≤60g）+ 碳水升序 | `--carb-max` |
+| 低脂清淡 | `low-fat` | 轻量 | 脂肪硬上限（默认 ≤30g）+ 脂肪升序 | `--fat-max` |
+| 素食/蛋奶素 | `vegetarian` | 轻量 | 关键词排除肉类/水产（蛋奶可食）+ 无主食时拼小食达档 | — |
+| 儿童/小份量 | `kids` | 轻量（×0.85） | 热量下浮 + 单组 ≤2 件 | `--max-items` |
+| 热量预算日控 | `daily-budget` | 按剩余预算 | 用满预算但不超；区间 [0.7B, B] | `--budget` |
+| 过敏原规避 | `allergen` | 标准 | 按过敏原展开关键词排除（粗筛，带告警） | `--allergens` |
+| 性价比/省钱 | `value` | 标准 | 价格硬上限 + 价格升序 | `--price-max` |
 
 1. `now-time-info` → 餐段（用户显式指定优先，同 B）。
 2. `query-meals(...)` 取该餐段菜单（同 B）。
-3. `scripts/mcd_combo.py --menu <菜单> --daypart <餐段> --goal <cut|bulk|post|cheat> [--top N]`。
+3. `scripts/mcd_combo.py --menu <菜单> --daypart <餐段> --goal <场景> [场景入参] [--top N]`。
+   例：`--goal low-sodium --sodium-max 800`、`--goal daily-budget --budget 600`、
+   `--goal allergen --allergens 花生,乳制品`、`--goal value --price-max 30`。
 4. 场景会自动切换推荐档位与排序器（如减脂→轻量档 + 蛋白密度排序），无需手动传 `--tier`/`--sort`；显式传参可覆盖。
-5. 输出 Top 3–4 组，含总热量/蛋白/脂肪/碳水/钠/参考价，并注明场景策略一句话说明。
-6. **红线不变**：候选仍 100% 来自 query-meals 当前可售；营养表无记录不进入候选；档位内无解提示换档位、不放宽筛选；热量为估算参考，不构成减重/增肌处方。
+5. 输出 Top 3–4 组，含总热量/蛋白/脂肪/碳水/钠/参考价，并注明场景策略与生效约束（硬上限/排除项）。
+6. **场景入参**：`--sodium-max/--carb-max/--fat-max/--price-max` 传 0 表示关闭该上限；`--budget` 为当日剩余热量预算。
+7. **红线不变**：候选仍 100% 来自 query-meals 当前可售；营养表无记录不进入候选；档位内无解提示换档位、不放宽筛选；热量为估算参考，不构成减重/增肌处方。
+8. **两处粗筛告警（输出必须带）**：素食与过敏原均基于**名称关键词**，菜单无配料/过敏原表 → 结果不完整，须提示用户以门店配料与员工确认为准。
 
-### D. 历史订单批量复盘（"我最近都吃了些什么 / 哪天吃重了"）
+### D. 一键导入历史订单并分析热量（"导入我的历史订单分析热量"）
 
-1. `order-list`（无入参）→ 取订单列表；**落盘前必须脱敏**（去 orderId / storeCode / storeName / beCode）。
-2. `scripts/mcd_history.py --path <脱敏样本>` → 逐单：展开套餐 → 匹配营养表 → 合计热量 → 按 `createTime` 推断餐段 → 与标准档对比 → 按期排序并汇总。
+1. `order-list`（无入参）→ 取历史订单**原始响应**（含 orderId / storeCode / storeName / beCode 等敏感字段）。
+2. `scripts/mcd_import.py --raw <原始响应JSON> [--out <落盘路径>]` → **自动脱敏**（去敏感字段，门店以「门店A/B/C」代称）→ 落盘本地脱敏样本 → 逐单展开套餐 → 匹配营养表 → 计算热量 → 按 `createTime` 推断餐段 → 与标准档对比 → 汇总报告。
+3. 输出：热量排行、超标准档的单子、平均热量、未知项占比；对超档订单再接 C 生成更轻方案。加 `--json` 导出可二次处理的结构化报告。
+4. **脱敏是硬红线**：原始响应（含敏感字段）绝不落盘；只落盘脱敏后的样本。未知项照旧标「热量未知」，不得按 0 计算。
+
+### D2. 历史订单批量复盘（"我最近都吃了些什么 / 哪天吃重了"）
+
+1. 已有脱敏样本（`data/history-orders.json` / `fixtures/order-list.sample.json`）时，`scripts/mcd_import.py --raw <脱敏样本> --no-deidentify` 直接复盘（跳过脱敏）。
+2. 逐单：展开套餐 → 匹配营养表 → 合计热量 → 按 `createTime` 推断餐段 → 与标准档对比 → 按期排序并汇总。
 3. 输出：热量排行、超标准档的单子、平均热量、未知项占比；对超档订单再接 C 生成更轻方案。
 4. 未知项照旧标「热量未知」，不得按 0 计算。
 
@@ -130,16 +154,17 @@ version: 0.3.0
 ```
 scripts/mcd_nutrition.py   营养表解析 / 名称归一化 / 四级匹配器（UNKNOWN 保护）
 scripts/mcd_daypart.py     餐段时段解析（门店实测 > 固定兜底）+ 档位表
-scripts/mcd_goal.py        目标场景策略层（减脂/增重/练后餐/放纵餐 + 场景评分器）
-scripts/mcd_combo.py       品类三级归类 + 组合枚举 + ±12% 筛选 + 四种排序 + 场景推荐
+scripts/mcd_goal.py        目标场景策略层（13 场景定义 + 场景评分器 + 硬上限/关键词排除/计划解析）
+scripts/mcd_combo.py       品类三级归类 + 组合枚举 + 档位筛选 + 排序 + 场景推荐
 scripts/mcd_order.py       订单展开（兼容 productName / name）+ 加料剥离 + 合计与档位对比
 scripts/mcd_replace.py     替换建议（标准档触发规则）
-scripts/mcd_history.py     历史订单批量复盘（order-list → 逐单热量与档位对比）
+scripts/mcd_import.py      一键导入历史订单（order-list 原始响应 → 自动脱敏 → 落盘 → 逐单热量与档位对比）
+scripts/mcd_history.py     历史订单批量复盘（已脱敏样本 → 逐单热量与档位对比）
 scripts/mcd_catalog.py     全量目录聚合（多快照 → catalog.json / nutrition-gaps.json）
 tools/eval_match.py        匹配率评测（常见订单集 ≥90% 验收）
 data/alias.json            别名表 + 有证据默认规格（query-meal-detail isDefault=1）
 data/category-rules.json   品类兜底关键词
-data/catalog.json          全量目录（179 商品 / 89 套餐，按餐段价格）
+data/catalog.json          全量目录（179 商品：单品 90 / 套餐 SKU 89；套餐组成详情仅 2 份快照，见 comboDetails）
 data/nutrition-gaps.json   营养缺口：未收录单品 + 规格歧义（UNKNOWN 兜底白名单）
                            含 `origin=history-order` 条目（历史订单里的已下架/限定品）
 fixtures/                  实测快照（营养表/菜单×3餐段/套餐详情/订单样本/脱敏历史订单）

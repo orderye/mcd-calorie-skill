@@ -111,17 +111,15 @@ def build_pools(menu_path: Path, matcher: Matcher) -> dict:
 
 # ────────────────────────── 组合枚举与推荐 ──────────────────────────
 
-SORTERS = {
-    "near":    lambda t, target: (abs(t["kcal"] - target), t["kcal"]),
-    "protein": lambda t, target: (-t["protein"], abs(t["kcal"] - target)),
-    "sodium":  lambda t, target: (t["sodium_mg"], abs(t["kcal"] - target)),
-    "price":   lambda t, target: (t["price"], abs(t["kcal"] - target)),
-    # 场景排序器（G1）：接收完整 totals，按场景营养策略评分。见 mcd_goal.GOAL_SCORERS。
-    "cut":     goalmod._cut_score,
-    "bulk":    goalmod._bulk_score,
-    "post":    goalmod._post_score,
-    "cheat":   goalmod._cheat_score,
+# 基础排序器 + 场景评分器。统一签名 (totals, ctx)，ctx 至少含 target。
+BASE_SORTERS = {
+    "near":    lambda t, ctx: (abs(t["kcal"] - ctx["target"]), t["kcal"]),
+    "protein": lambda t, ctx: (-t["protein"], abs(t["kcal"] - ctx["target"])),
+    "sodium":  lambda t, ctx: (t["sodium_mg"], abs(t["kcal"] - ctx["target"])),
+    "price":   lambda t, ctx: (t["price"], abs(t["kcal"] - ctx["target"])),
 }
+# 合并场景评分器（cut/bulk/post/cheat/low-sodium/... 见 mcd_goal.GOAL_SCORERS）
+SORTERS = {**BASE_SORTERS, **goalmod.GOAL_SCORERS}
 
 
 def _agg(items: list[dict]) -> dict:
@@ -132,17 +130,21 @@ def _agg(items: list[dict]) -> dict:
 def recommend(pools: dict, daypart: str, tier: str,
               sort_by: str = "near", top: int = 4,
               tolerance: float = 0.12,
-              goal: str = None) -> dict:
-    # 场景策略：目标热量（场景有自己的推荐档位）与容差。
-    target = dp.tier_target(daypart, tier)
-    tier_used = tier
-    if goal:
-        target, tier_used = goalmod.goal_target(daypart, tier, goal)
-        tolerance = goalmod.goal_tolerance(goal)
+              goal: str = None,
+              params: Optional[dict] = None) -> dict:
+    """推荐主入口。
 
-    lo, hi = target * (1 - tolerance), target * (1 + tolerance)
-    # 场景化候选池过滤（减脂/练后餐剔除甜品等）
-    pools = goalmod.apply_goal_filters(pools, goal)
+    goal 指定目标场景；params 提供场景入参（budget / sodium_max / carb_max /
+    fat_max / price_max / allergens / max_items）。未指定 goal 时走纯档位模式。
+    """
+    params = dict(params or {})
+    if tolerance != 0.12:
+        params.setdefault("tolerance", tolerance)
+    plan = goalmod.resolve_plan(daypart, tier, goal, params)
+
+    target, lo, hi = plan["target"], plan["lo"], plan["hi"]
+    # 场景化候选池过滤（素食/过敏原关键词排除、减脂/低钠等剔除甜品）
+    pools = goalmod.filter_pools(pools, plan)
 
     # R4 剪枝：热量均非负，单项 > hi 的商品不可能出现在任何档内组合中；
     # 0 kcal 条目（无糖饮料等）合法保留。枚举前先剪，避免先爆炸后筛选。
@@ -150,11 +152,10 @@ def recommend(pools: dict, daypart: str, tier: str,
     snacks = [x for x in pools["小食"] if x["kcal"] <= hi]
     drinks = [x for x in pools["饮品"] if x["kcal"] <= hi]
 
-    # 场景组合规则（G1）：
-    # - 练后餐要求必须含主食（碳水回补），去掉"纯小食/纯饮品"组合；
-    # - 场景限制小食数量（减脂 0~1、增重/放纵 0~2）。
-    require_staple = bool(goal and goalmod.get_goal(goal).get("require_staple"))
-    max_snacks = goalmod.get_goal(goal)["max_snacks"] if goal else 2
+    # 组合结构规则：练后餐必含主食；小食数量受场景 max_snacks 约束。
+    require_staple = plan["require_staple"]
+    max_snacks = plan["max_snacks"]
+    allow_snack_combo = plan["allow_snack_combo"]
 
     combos: list[list[dict]] = []
     if daypart == "随便吃吃":
@@ -181,7 +182,7 @@ def recommend(pools: dict, daypart: str, tier: str,
             for s in snacks:
                 for d in drinks:
                     base.append([st, s, d])                 # 主食 + 小食 + 饮品
-            # 增重/放纵餐：主食 + 2 小食（无饮品）
+            # 增重/放纵等放开小食的场景：主食 + 2 小食（无饮品）
             if max_snacks >= 2:
                 for i, s1 in enumerate(snacks):
                     for s2 in snacks[i + 1:]:
@@ -196,37 +197,60 @@ def recommend(pools: dict, daypart: str, tier: str,
                     combos.append([s, d])
             for d in drinks:
                 combos.append([d])
+            # 素食等"无主食可拼"场景：放开 2~3 件小食/甜品达档
+            if allow_snack_combo and max_snacks >= 2:
+                for i, s1 in enumerate(snacks):
+                    for s2 in snacks[i + 1:]:
+                        combos.append([s1, s2])
+                        for d in drinks:
+                            combos.append([s1, s2, d])
+                if max_snacks >= 3:
+                    for i, s1 in enumerate(snacks):
+                        for j, s2 in enumerate(snacks[i + 1:], i + 1):
+                            for s3 in snacks[j + 1:]:
+                                combos.append([s1, s2, s3])
+                                for d in drinks:
+                                    combos.append([s1, s2, s3, d])
 
-    # 去重（同名组合）+ 档位筛选（不放宽）
+    # 去重（同名组合）+ 档位筛选（不放宽）+ 组合级/整组级硬约束
     seen: set[tuple] = set()
     in_range = []
     for c in combos:
+        if not goalmod.combo_allowed(c, plan):
+            continue
         key = tuple(sorted(x["name"] for x in c))
         if key in seen:
             continue
         seen.add(key)
         t = _agg(c)
-        if lo <= t["kcal"] <= hi:
-            # 场景软目标：蛋白下限（不硬筛，仅排序时由 scorer 体现；这里做轻量标记）
+        if lo <= t["kcal"] <= hi and goalmod.totals_allowed(t, plan):
             in_range.append({"items": c, "totals": t})
 
-    in_range.sort(key=lambda t: SORTERS.get(sort_by, SORTERS["near"])(t["totals"], target))
-    return {"target": target, "range": [round(lo), round(hi)],
+    ctx = {"target": target, **plan}
+    scorer = SORTERS.get(sort_by) or BASE_SORTERS["near"]
+    in_range.sort(key=lambda r: scorer(r["totals"], ctx))
+    return {"target": target, "range": [lo, hi],
             "count": len(in_range), "results": in_range[:top],
-            "tier_used": tier_used, "goal": goal}
+            "tier_used": plan["tier_used"], "goal": goal, "plan": plan}
 
 
 def print_recommendation(res: dict, daypart: str, tier: str, sort_by: str) -> None:
-    goal_txt = f" · {goalmod.get_goal(res['goal'])['label']}" if res.get("goal") else ""
+    plan = res.get("plan") or {}
+    goal_txt = f" · {plan.get('label')}" if res.get("goal") else ""
     # 场景会自动切换推荐档位（如减脂→轻量档），标题显示实际生效档位而非入参 tier。
     shown_tier = res.get("tier_used") or tier
     print(f"\n推荐 · {daypart} · {shown_tier} 档{goal_txt}（目标 {res['target']} kcal，"
           f"区间 {res['range'][0]}–{res['range'][1]}，命中 {res['count']} 组，排序 {sort_by}）")
     if res.get("goal"):
         print(f"  场景策略：{goalmod.describe_goal(res['goal'])}")
+        lim = goalmod.format_limits(plan)
+        if lim:
+            print(f"  生效约束：{lim}")
+        if plan.get("warning"):
+            print(f"  ⚠ {plan['warning']}")
     print("─" * 72)
     if not res["results"]:
-        print("  档位内没有合适组合 → 建议换一个档位（不放宽筛选范围）")
+        print("  该条件下没有合适组合 → 建议放宽上限、换档位或换场景（不放宽热量筛选范围）")
         return
     for i, r in enumerate(res["results"], 1):
         names = " + ".join(x["name"] for x in r["items"])
@@ -236,15 +260,38 @@ def print_recommendation(res: dict, daypart: str, tier: str, sort_by: str) -> No
               f"碳水 {t['carb']:.0f}g｜钠 {t['sodium_mg']:.0f}mg｜≈¥{t['price']:.1f}")
 
 
+def _parse_allergens(raw: Optional[str]) -> list[str]:
+    if not raw:
+        return []
+    return [s.strip() for s in raw.replace("，", ",").split(",") if s.strip()]
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description="档位套餐推荐（基于菜单 fixture）")
     ap.add_argument("--menu", required=True, help="菜单 fixture 路径")
     ap.add_argument("--daypart", required=True, choices=list(dp.TIERS))
     ap.add_argument("--tier", default="标准", choices=["轻量", "标准", "吃饱"])
-    ap.add_argument("--goal", default=None, choices=[None, "cut", "bulk", "post", "cheat"],
-                    help="目标场景：cut 减脂 / bulk 增重 / post 练后餐 / cheat 放纵餐")
+    ap.add_argument("--goal", default=None, choices=goalmod.GOAL_ORDER,
+                    help="目标场景（减脂/增重/练后餐/放纵餐/低钠控盐/高蛋白增肌/"
+                         "低糖低碳水/低脂清淡/素食蛋奶素/儿童小份量/热量预算日控/"
+                         "过敏原规避/性价比省钱）")
     ap.add_argument("--sort", default="near", choices=list(SORTERS))
     ap.add_argument("--top", type=int, default=4)
+    # 场景入参（0 = 关闭该上限）
+    ap.add_argument("--sodium-max", dest="sodium_max", type=float, default=None,
+                    help="整组钠上限 mg（覆盖低钠控盐默认值；0=关闭）")
+    ap.add_argument("--carb-max", dest="carb_max", type=float, default=None,
+                    help="整组碳水上限 g（覆盖低糖低碳水默认值；0=关闭）")
+    ap.add_argument("--fat-max", dest="fat_max", type=float, default=None,
+                    help="整组脂肪上限 g（覆盖低脂清淡默认值；0=关闭）")
+    ap.add_argument("--price-max", dest="price_max", type=float, default=None,
+                    help="整组价格上限 元（性价比/省钱）")
+    ap.add_argument("--budget", type=float, default=None,
+                    help="当日剩余热量预算 kcal（热量预算日控）")
+    ap.add_argument("--allergens", default=None,
+                    help="过敏原，逗号分隔，如 花生,乳制品,蛋（过敏原规避）")
+    ap.add_argument("--max-items", dest="max_items", type=int, default=None,
+                    help="组合总件数上限")
     a = ap.parse_args()
 
     matcher = Matcher(load_nutrition())
@@ -253,9 +300,16 @@ if __name__ == "__main__":
           f"饮品 {len(built['pools']['饮品'])}")
     print(f"剔除：组合/非食品 {len(built['dropped']['非食品/组合品'])} 项，"
           f"营养未知 {len(built['dropped']['营养未知'])} 项")
+
+    params = {
+        "sodium_max": a.sodium_max, "carb_max": a.carb_max, "fat_max": a.fat_max,
+        "price_max": a.price_max, "budget": a.budget, "max_items": a.max_items,
+        "allergens": _parse_allergens(a.allergens),
+    }
     # 场景默认排序器（若未显式指定 --sort）
     sort_by = a.sort
     if a.goal and a.sort == "near":
         sort_by = goalmod.get_goal(a.goal)["sort"]
-    res = recommend(built["pools"], a.daypart, a.tier, sort_by, a.top, goal=a.goal)
+    res = recommend(built["pools"], a.daypart, a.tier, sort_by, a.top,
+                    goal=a.goal, params=params)
     print_recommendation(res, a.daypart, a.tier, sort_by)

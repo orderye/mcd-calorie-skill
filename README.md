@@ -8,7 +8,7 @@
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
 ![MCP](https://img.shields.io/badge/MCP-streamable--http-4B8BBE)
-![Skill](https://img.shields.io/badge/Skill-v0.2.0-FFC72C)
+![Skill](https://img.shields.io/badge/Skill-v0.7.0-FFC72C)
 
 「热麦卡路里」是一套以对话方式运行的 **Agent Skill**：读取一笔麦当劳订单 → 估算整单热量 → 对照所处餐段的热量档位给出结论 → 按餐段与档位推荐门店当前可售的套餐 → 给出更轻的替换方案 → 在用户确认金额后下单。
 
@@ -25,7 +25,7 @@
 | [1. 30 秒看懂](#1-30-秒看懂) | 一句话定位、能力矩阵、适合谁 |
 | [2. 快速开始](#2-快速开始) | 3 步跑起来（含 MCP 配置） |
 | [3. 核心能力](#3-核心能力) | 六项能力的输入 / 输出口径 |
-| [4. 工作流](#4-工作流af) | A–F 六条链路的触发语与流程 |
+| [4. 工作流](#4-工作流ag) | A–G 链路的触发语与流程 |
 | [5. 餐段与档位口径](#5-餐段与档位口径) | 档位热量表、±12% 筛选规则 |
 | [6. 对话示例](#6-对话示例) | 4 个真实对话样例（含实测输出） |
 | [7. 离线命令行自测](#7-离线命令行自测) | 不装 MCP 也能跑的脚本与评测 |
@@ -47,7 +47,8 @@
 | A. 订单热量估算 | 「这单多少热量？订单号 xxx」 | 展开套餐 → 逐项匹配营养表 → 整单合计 + 档位结论 | `query-order` |
 | B. 档位推荐 | 「想吃 300 大卡左右的早餐」 | 取该餐段实时菜单 → 枚举组合 → ±12% 筛选 → Top 3–4 | `query-meals` |
 | C. 替换建议 | 「昨天那单偏高，今天来点轻的」 | 高于标准档则切标准档 → 输出更轻组合 + 少多少 kcal | `query-meals` |
-| D. 历史订单复盘 | 「我最近都吃了些什么」 | `order-list` 脱敏后逐单算热量、按餐段比对、出排行 | `order-list` |
+| D. 一键导入历史订单 | 「导入我的历史订单分析热量」 | `order-list` 原始响应 → 自动脱敏落盘 → 逐单算热量 → 排行与汇总 | `order-list` |
+| D2. 历史订单复盘 | 「我最近都吃了些什么」 | 已脱敏样本逐单算热量、按餐段比对、出排行 | `mcd_import.py --no-deidentify` |
 | E. 安全下单 | 「就按推荐第 1 组帮我下单」 | 查券（只标注）→ 报价 → **确认闸门** → 创建订单 | `calculate-price` / `create-order` |
 | F. 全量目录（离线兜底） | —（后台能力） | 多份菜单快照聚合为 `catalog.json` + 营养缺口清单 | `query-meals` 快照 |
 
@@ -116,22 +117,26 @@ cp -r skill/ ~/.workbuddy/skills/mcd-calorie-combo/
 - **订单热量估算** — 按 `comboItemList` 展开套餐，「加…(加)」类加料剥离且热量不计入并明确告知；匹配不上的项标注「热量未知」，合计改口为「**≥ N kcal**」，**绝不按 0 计算**。
 - **餐段识别** — 默认取当前时间判定（早餐 / 午餐 / 随便吃吃 / 晚餐 / 宵夜），也支持用户显式指定；门店实际时段优先于固定兜底（各店不同，且宵夜存在跨零点段）。
 - **档位推荐** — 按「餐段 + 档位（轻量 / 标准 / 吃饱）」枚举当前餐段菜单里的可行组合（1 主食 + 0~1 小食 + 0~1 饮品），四种排序：最接近档位 / 蛋白质更高 / 钠更低 / 价格更低。
+- **目标场景推荐** — 在餐段档位之上叠加 13 个目标场景：减脂 / 增重 / 练后餐 / 放纵餐 / 低钠控盐 / 高蛋白增肌 / 低糖低碳水 / 低脂清淡 / 素食蛋奶素 / 儿童小份量 / 热量预算日控 / 过敏原规避 / 性价比省钱。场景自动切换档位、排序策略与硬上限（如低钠 ≤1000mg、低碳 ≤60g、按剩余预算配餐）。
 - **替换建议** — 整单高于该餐段标准档时，给出更轻的替换组合与「少多少 kcal」的对比。
 - **历史复盘** — 批量回顾近期订单，输出热量排行、超标准档的单子、平均热量与未知项占比。
+- **一键导入历史订单** — 把 `order-list` 的原始响应（含订单号/门店等敏感字段）交给脚本，自动完成脱敏、落盘、逐单热量估算与汇总，一条命令出报告。
 - **安全下单** — 查券（只标注，不参与排序）→ 报价 → **必须展示金额并获得用户明确确认** → 创建订单，返回支付链接由用户自付；本 Skill 不代付。
 
 ---
 
-## 4. 工作流（A–F）
+## 4. 工作流（A–G）
 
 | 阶段 | 触发语 | 说明 |
 |---|---|---|
 | **A** 订单热量估算 | 「这单多少热量？」 | 订单号 → 展开套餐 → 逐项匹配营养表 → 整单合计 + 档位对比 |
 | **B** 档位推荐 | 「想吃 300 大卡左右的早餐」 | 取该餐段菜单 → 枚举组合 → 按档位 ±12% 筛选 → 展示 Top 3–4 |
 | **C** 替换建议 | 「昨天那单偏高」 | 高于标准档则切标准档，输出替换组合 + 少多少 kcal |
-| **D** 历史订单复盘 | 「我最近都吃了些什么」 | `order-list` → 脱敏落盘 → 逐单热量 → 餐段比对 → 排行与汇总 |
+| **D** 一键导入历史订单 | 「导入我的历史订单分析热量」 | `order-list` 原始响应 → 自动脱敏落盘 → 逐单热量 → 排行与汇总 |
+| **D2** 历史订单复盘 | 「我最近都吃了些什么」 | 已脱敏样本 → 逐单热量 → 餐段比对 → 排行与汇总 |
 | **E** 下单 | 用户明确要求 | 查券（仅标注）→ 报价 → 确认闸门 → 创建订单 |
 | **F** 全量目录 | 离线兜底 | 多份菜单快照聚合为 `catalog.json` / `nutrition-gaps.json` |
+| **G** 目标场景推荐 | 「减脂吃什么」「想控盐」「吃素」「今天还剩 600 卡」 | 场景切换档位与排序，叠加硬上限（钠/碳水/脂肪/价格/预算）与关键词排除 |
 
 > 下单流程设有**不可绕过的确认闸门**：报价展示后必须以明确问句收尾，只有收到肯定答复才调用 `create-order`。详见 [`skill/docs/order-flow.md`](skill/docs/order-flow.md) 与 [`MCP_INTEGRATION.md`](MCP_INTEGRATION.md)。
 >
@@ -234,8 +239,11 @@ python skill/scripts/mcd_combo.py \
   --menu skill/fixtures/meals.3570190.dinein.breakfast.json \
   --daypart 早餐 --tier 轻量 --sort near --top 3
 
-# D. 历史订单批量复盘（脱敏样本）
-python skill/scripts/mcd_history.py --path skill/fixtures/order-list.sample.json --top 10
+# D. 一键导入历史订单（原始响应 → 自动脱敏 → 逐单热量分析）
+python skill/scripts/mcd_import.py --raw <order-list 原始响应.json> --out skill/data/history-orders.json
+
+# D2. 历史订单批量复盘（已脱敏样本，跳过脱敏）
+python skill/scripts/mcd_import.py --raw skill/fixtures/order-list.sample.json --no-deidentify
 
 # 名称匹配率评测（验收 ≥90%）
 python skill/tools/eval_match.py
@@ -261,7 +269,7 @@ python skill/tools/eval_match.py
 │   ├── data/
 │   │   ├── alias.json              # 别名表 + 有证据的默认规格
 │   │   ├── category-rules.json     # 品类兜底关键词
-│   │   ├── catalog.json            # 全量目录（179 商品 / 89 套餐，按餐段价格）
+│   │   ├── catalog.json            # 全量目录（179 商品：单品 90 / 套餐 SKU 89）
 │   │   └── nutrition-gaps.json     # 营养缺口：未收录单品 + 规格歧义
 │   ├── docs/                       # nutrition-schema / store-chain / order-flow
 │   │                               # catalog-collection / e2e-run
@@ -288,13 +296,15 @@ python skill/tools/eval_match.py
 |---|---|
 | `mcd_nutrition.py` | 营养表解析 / 名称归一化 / 四级匹配器（UNKNOWN 保护） |
 | `mcd_daypart.py` | 餐段时段解析（门店实测 > 固定兜底）+ 档位表 `TIERS` |
-| `mcd_combo.py` | 品类三级归类 + 组合枚举 + ±12% 筛选 + 四种排序 |
+| `mcd_goal.py` | 目标场景策略层（13 场景定义 + 场景评分器 + 硬上限/关键词排除 + 计划解析） |
+| `mcd_combo.py` | 品类三级归类 + 组合枚举 + 档位筛选 + 排序 + 场景推荐 |
 | `mcd_order.py` | 订单展开（兼容 `productName` / `name`）+ 加料剥离 + 合计与档位对比 |
 | `mcd_replace.py` | 替换建议（标准档触发规则） |
-| `mcd_history.py` | 历史订单批量复盘（`order-list` → 逐单热量与档位对比） |
+| `mcd_import.py` | 一键导入历史订单（原始响应 → 自动脱敏 → 逐单热量与档位对比） |
+| `mcd_history.py` | 历史订单批量复盘（已脱敏样本 → 逐单热量与档位对比） |
 | `mcd_catalog.py` | 全量目录聚合（多快照 → `catalog.json` / `nutrition-gaps.json`） |
 | `build_demo_menu.py` | 演示用菜单数据构建（仅演示材料使用） |
-| `../tools/eval_match.py` | 匹配率评测（常见订单集 ≥90% 验收） |
+| `tools/eval_match.py` | 匹配率评测（常见订单集 ≥90% 验收，实测 92.3%） |
 
 ---
 
@@ -332,9 +342,12 @@ python skill/tools/eval_match.py
         ┌──────────────────────────────────────────────────────────────────────────────┐
         │          数据缓存层 · data/ + fixtures/ + docs/（纯本地 · 无网络）           │
         │alias.json · category-rules.json · catalog.json · nutrition-gaps.json         │
-        │营养表 / 菜单×5餐段 / 套餐详情×3 / 订单样本×6 / 设计文档×5                   │
+        │营养表 / 菜单×5餐段 / 套餐详情 / 订单样本×6 / 脱敏历史订单                   │
         └──────────────────────────────────────────────────────────────────────────────┘
 
+※ mcd_import.py：一键导入历史订单（order-list 原始响应 → 自动脱敏 → 逐单热量与档位对比）
+※ mcd_history.py：历史订单批量复盘（已脱敏样本 → 逐单热量与档位对比）
+※ mcd_goal.py：目标场景策略层（G）——13 场景：减脂/增重/练后餐/放纵餐/低钠/高蛋白/低碳/低脂/素食/儿童/预算/过敏原/性价比
 ※ tools/eval_match.py：匹配率评测（复用 nutrition + order）· 验收 ≥90% · 实测 92.3% PASS
 ※ 外部系统：麦当劳中国官方 MCP（M-China/mcd-mcp-server）· 限流 600 次/分 · Token 仅在客户端配置
 ※ 缓存策略：营养表 ≥24h · 菜单按 店+餐段 10min · 429 指数退避
@@ -350,7 +363,7 @@ python skill/tools/eval_match.py
 
 | 限制 | 现状 | 处理策略 |
 |---|---|---|
-| 营养表覆盖率 | 官方营养表对**当前在售单品覆盖率约 44%**（实测） | 未收录项标「热量未知」，合计改口「≥ N kcal」；缺口清单见 `data/nutrition-gaps.json` |
+| 营养表覆盖率 | 官方营养表对**当前在售单品覆盖率 44.4%**（单品 40/90，实测门店 3570190；全量含套餐 60/179） | 未收录项标「热量未知」，合计改口「≥ N kcal」；缺口清单见 `data/nutrition-gaps.json` |
 | 名称歧义 | 可乐 / 薯条 / 新地 / 派等缺规格的商品存在多个候选 | 列出候选让用户确认，**不猜规格**；部分规格用有证据的默认值（`isDefault=1`） |
 | 已下架 / 限定品 | 历史订单里可能出现营养表已无记录的商品 | 缺口清单中标 `origin=history-order`，同样走 UNKNOWN 保护 |
 | 价格浮动 | 价格随餐段、门店变动 | 推荐候选与报价一律取**当次实时返回**，`catalog.json` 仅作离线兜底 |
@@ -376,7 +389,7 @@ python skill/tools/eval_match.py
 能跑一部分。`skill/scripts/` 下的脚本是纯本地的，用 `skill/fixtures` 里的实测快照可完整验证热量估算、档位推荐与匹配率（见[第 7 节](#7-离线命令行自测)）；但实时菜单、报价与下单必须有 MCP。
 
 **Q：为什么有些商品显示「热量未知」而不是 0？**
-官方营养表并未收录全部在售单品（覆盖率约 44%）。按 0 计算会让整单热量被低估，因此未命中项一律标注为未知，合计表述为「≥ N kcal（实际会更高）」。
+官方营养表并未收录全部在售单品（单品覆盖率 44.4%，实测门店 3570190）。按 0 计算会让整单热量被低估，因此未命中项一律标注为未知，合计表述为「≥ N kcal（实际会更高）」。
 
 **Q：推荐结果为什么和 App 里看到的价格不一样？**
 价格随餐段与门店浮动。所有推荐与报价都取自当次 `query-meals` / `calculate-price` 的实时返回，不使用缓存目录里的价格。
@@ -397,7 +410,7 @@ python skill/tools/eval_match.py
 - 赛事：**麦当劳程序员节创意开发大赛**（[活动仓库](https://github.com/M-China/mcd-developer-innovation-challenge)）
 - 开发工具：**WorkBuddy**（官方合作伙伴），开发对话上下文见 [`workbuddy.md`](workbuddy.md)
 - 底层能力：麦当劳中国官方 MCP [`M-China/mcd-mcp-server`](https://github.com/M-China/mcd-mcp-server)
-- 当前版本：**v0.2.0**
+- 当前版本：**v0.7.0**
 
 ---
 
