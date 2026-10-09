@@ -68,7 +68,6 @@ def review_order(order: dict, matcher: Matcher, user_daypart: str | None = None)
     else:
         verdict = f"偏低 {diff:.0f}"
     return {
-        "orderId": order.get("orderId"),
         "createTime": order.get("createTime"),
         "store": order.get("store"),
         "daypart": daypart,

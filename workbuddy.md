@@ -14,7 +14,7 @@
 | 接入的 MCP | 麦当劳中国官方 MCP `mcd-mcp`（`https://mcp.mcd.cn`，Streamable HTTP，Bearer Token 鉴权） |
 | 运行环境 | macOS；本地计算脚本为 Python 3.10+，无第三方依赖 |
 | 版本控制 | Git + GitHub（Public 仓库 `orderye/mcd-calorie-skill`） |
-| 交付形态 | Agent Skill（`skill/` 目录）+ 单文件 HTML 演示页 + 参赛文档 + `assets/` 品牌资产 |
+| 交付形态 | Agent Skill（`skill/`，v0.8.0）+ 单文件 HTML（演示页 / 点餐页）+ 参赛文档 + `cover/`·`assets/` 品牌资产 |
 
 ---
 
@@ -78,17 +78,41 @@
 - **User**：生成项目工程档案；推送更新。
 - **WorkBuddy**：新建 `project-engineering-file.md`（概况/技术栈/ADR×7/模块清单/接口约定/已知风险/待办）；多轮 `git` 提交推送（重建仓库、规范化、catalog、全量更新），含品牌资产 7 张图；提交前对暂存 diff 做凭证扫描（gho_/Bearer/sk-/JWT），均无真实凭证。
 
+### 节点 15 — 套餐可选项全量补全（换品/特调数据）
+- **User**：补全套餐的可选项数据（换品轮次、特调）。
+- **WorkBuddy**：批量补采 `query-meal-detail` 快照（`fixtures/` meal-detail 达 90 份），新增 `scripts/fetch_meal_details.py` 采集脚本；`query-meal-detail` 口径补全——`rounds[].category` 优先、缺失按名称反查；换品差价 `diffPrice`、特调传参 `selectedKey`/`unselectedKey` 双 key 透传至报价与下单。
+
+### 节点 16 — 目标场景策略层（mcd_goal，13 场景）+ D2 复盘入口
+- **User**：想要「减脂吃什么 / 想控盐 / 今天还剩 600 卡」这类场景化推荐。
+- **WorkBuddy**：新增 `scripts/mcd_goal.py` 目标场景策略层（13 场景：减脂/增重/练后餐/放纵餐/低钠控盐/高蛋白增肌/低糖低碳水/低脂清淡/素食蛋奶素/儿童小份量/热量预算日控/过敏原规避/性价比省钱），各自定义推荐档位、评分器、硬上限与关键词排除；`mcd_combo.py --goal` 接入；历史订单脱敏样本扩至 8 单（跨 2025-10 ~ 2026-03）；工作流编号定为 A–G + D2 并与 `SKILL.md`、README 对齐。
+
+### 节点 17 — 公众号推文交付包
+- **User**：产出可直接发布的公众号推文。
+- **WorkBuddy**：新建 `公众号推文/`（推文成品.md + 推文交付包.html），随目标场景能力同步迭代。
+
+### 节点 18 — README v0.7.0 重构与封面
+- **User**：按 v0.7.0 重新整理 README；配官方风格封面。
+- **WorkBuddy**：README 重构为 14 个固定分区（30 秒看懂 / 快速开始 / 核心能力 / 13 场景预设表 / 工作流 / 档位口径 / 对话示例 / 离线自测 / 项目结构 / 架构拓扑 / 已知限制 / 边界合规 / FAQ / 参赛信息），工作流编号与 `SKILL.md` 锁定一致；新增 `cover/` 红底官方金拱门封面并同步架构拓扑文档。
+
+### 节点 19 — 演示/点餐页迭代 + 脱敏口径收紧
+- **User**：点餐页切换真实菜单数据、双主题；持续审校。
+- **WorkBuddy**：新增 `scripts/build_demo_menu.py` 由 fixtures 生成点餐页真实菜单数据，点餐页支持双主题与对比度优化；合规收紧——脱敏样本与复盘输出剔除 `orderId`/`traceId`（`mcd_history.py`、`order-list.sample.json` 同步）；别名表补「牛奶→纯牛奶（盒装）」；重跑 `eval_match` 验收 PASS（≥90%）。
+
+### 节点 20 — v0.8 营养缺口攻坚：规格证据挖掘与餐品数据实时更新
+- **User**：营养表覆盖不全、菜单名常缺规格（「薯条」「可乐」），能不能让 Skill 自己消化实时菜单的变化，而不是手工改数据？
+- **WorkBuddy**：实测确认 `list-nutrition-foods` 是官方 MCP 唯一营养数据源（`query-meals` / `query-meal-detail` / `query-order` 均无营养字段）；利用「同一 code 在 `query-meals` 与 `query-meal-detail` 中指向同一商品」，新增 `scripts/mcd_spec_evidence.py` 用套餐具体命名反推菜单缺失规格，按 A（可补录）/ B（多值保持歧义）/ C1（疑似错误映射）/ C2（证据冲突）/ D（已解决）五级分级，`--apply` 仅写 A 级进 `alias.json#defaults`。实测补录 5 条默认规格（优品豆浆→小杯、怡泉+C→中杯、玉米杯→小杯、鲜萃咖啡→小杯、麦乐鸡→5块）、修正 2 条错误映射（牛奶→热牛奶中杯、麦咖啡™奶铁→冰奶铁中杯，修正前后均跑回归）；`category-rules.json` 拆分 `excludeNamePatterns` / `excludeNonFoodPatterns`，修复「蘸酱炸鸡」等含酱食物被误挡在候选外的隐患；Skill 版本升至 **v0.8.0**，常见订单集匹配率 92.3% → **13/13 = 100%**（歧义 0 / 未知 0）。Skill 由此具备「餐品数据实时更新」能力：推荐候选 100% 取当次 `query-meals` 实时可售（上新/下架/调价即时生效），本地快照持续沉淀为规格证据，别名表只在有实测证据时更新。
+
 ---
 
 ## 3. 与麦当劳 MCP 的联动证据
 
-- `skill/SKILL.md`「工具链（MCP）」与「工作流 A–F」明确列出实际调用的 `mcd-mcp` 工具（`now-time-info` / `query-nearby-stores` / `delivery-query-*` / `order-list` / `query-order` / `list-nutrition-foods` / `query-meals` / `query-meal-detail` / `query-store-coupons` / `calculate-price` / `create-order`）。
-- `MCP_INTEGRATION.md` 完整记录了 Server 接入方式、11 个 Tool 清单（含关键字段/口径）、六条调用流程与实测结论。
-- 实时数据源可核验：`data/catalog.json`（多份 `query-meals` 聚合）、`fixtures/`（营养表 / 三餐段菜单 / 套餐详情 / 订单样本 / 脱敏历史订单）均为 `mcd-mcp` 实测响应落盘（已剔除 image 字段）。
+- `skill/SKILL.md`「工具链（MCP）」与「工作流 A–G（含 D2）」明确列出实际调用的 `mcd-mcp` 工具（`now-time-info` / `query-nearby-stores` / `delivery-query-*` / `order-list` / `query-order` / `list-nutrition-foods` / `query-meals` / `query-meal-detail` / `query-store-coupons` / `calculate-price` / `create-order`）。
+- `MCP_INTEGRATION.md` 完整记录了 Server 接入方式、11 个 Tool 清单（含关键字段/口径）、八条调用流程（A–G + D2，另含餐品数据实时更新链路）与实测结论。
+- 实时数据源可核验：`data/catalog.json`（多份 `query-meals` 聚合）、`fixtures/`（营养表 / 四餐段菜单 / 套餐详情×90 / 订单样本 / 脱敏历史订单）均为 `mcd-mcp` 实测响应落盘（已剔除 image 字段）。
 - 所有 Token 仅配置在 MCP 客户端，代码中以 `YOUR_MCP_TOKEN` 占位，符合信息安全声明。
 
 ---
 
 ## 4. 核验声明
 
-本人确认：本项目基于 WorkBuddy 完成创意构思、编码、调试、代码审校（含专家评审与真实 bug 修复）、资产生成与文档产出，底层实时数据通过麦当劳官方 `mcd-mcp` 提供；项目为参赛者独立开发的参赛作品，非麦当劳官方产品。本文件如实导出覆盖「初始化 → 功能迭代 → 审校优化 → 资产与工程档案」共 14 个节点的开发对话上下文，用于核验是否符合 WorkBuddy 联动活动奖励条件。
+本人确认：本项目基于 WorkBuddy 完成创意构思、编码、调试、代码审校（含专家评审与真实 bug 修复）、资产生成与文档产出，底层实时数据通过麦当劳官方 `mcd-mcp` 提供；项目为参赛者独立开发的参赛作品，非麦当劳官方产品。本文件如实导出覆盖「初始化 → 功能迭代 → 审校优化 → 资产与工程档案 → 目标场景收敛 → v0.8 营养缺口攻坚与餐品数据实时更新」共 20 个节点的开发对话上下文，用于核验是否符合 WorkBuddy 联动活动奖励条件。

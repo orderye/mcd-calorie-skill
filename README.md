@@ -8,7 +8,7 @@
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
 ![MCP](https://img.shields.io/badge/MCP-streamable--http-4B8BBE)
-![Skill](https://img.shields.io/badge/Skill-v0.7.0-FFC72C)
+![Skill](https://img.shields.io/badge/Skill-v0.8.0-FFC72C)
 
 「热麦卡路里」是一套以对话方式运行的 **Agent Skill**：读取一笔麦当劳订单 → 估算整单热量 → 对照所处餐段的热量档位给出结论 → 按餐段、档位或**目标场景**推荐门店当前可售的套餐 → 给出更轻的替换方案 → 在用户确认金额后下单。
 
@@ -145,6 +145,7 @@ cp -r skill/ ~/.workbuddy/skills/mcd-calorie-combo/
 - **一键导入历史订单（D）** — 把 `order-list` 的原始响应（含订单号 / 门店等敏感字段）交给脚本，自动完成脱敏、落盘、逐单热量估算与汇总，一条命令出报告。
 - **历史订单复盘（D2）** — 对已脱敏样本批量复盘，输出热量排行、超标准档的单子、平均热量与未知项占比。
 - **安全下单（E）** — 查券（只标注，不参与排序）→ 报价 → **必须展示金额并获得用户明确确认** → 创建订单，返回支付链接由用户自付；本 Skill 不代付。
+- **餐品数据实时更新（F 延伸，v0.8）** — 餐品**不靠静态菜单维护**：推荐候选 100% 来自当次 `query-meals` 实时可售结果，上新 / 下架 / 调价即时生效；本地快照进一步沉淀为「规格证据」——`mcd_spec_evidence.py` 利用「同一 code 在 `query-meals` 与 `query-meal-detail` 中指向同一商品」，用套餐里的具体命名反推菜单缺失规格，按 A（可补录）/ B（多值保持歧义）/ C1（疑似错误映射）/ C2（证据冲突）/ D（已解决）五级分级，**仅 A 级证据自动补录** `alias.json#defaults`，用证据消歧而非猜测。v0.8 已据此补录 5 条默认规格、修正 2 条错误映射，常见订单集匹配率 92.3% → **13/13 = 100%**。
 
 ---
 
@@ -332,10 +333,10 @@ python skill/tools/eval_match.py
 
 | 口径 | 结果 | 结论 |
 |---|---|---|
-| 常见订单集（验收口径） | **12/13 = 92.3%**（歧义 1，未知 0） | ✅ PASS（≥90%） |
+| 常见订单集（验收口径） | **13/13 = 100.0%**（歧义 0，未知 0；v0.8 规格证据补录后） | ✅ PASS（≥90%） |
 | 压力样本（边界验证） | 4/8 = 50.0%（歧义 2，未知 2） | 用于验证 UNKNOWN 保护路径 |
 
-未命中项全部显式标注为「歧义（待确认规格）」或「未知」，无按 0 计算的路径。
+未命中项全部显式标注为「歧义（待确认规格）」或「未知」，无按 0 计算的路径；命中方式分布 `exact ×14 / default-evidence ×3`（default-evidence 即来自规格证据补录的默认规格）。
 
 ---
 
@@ -354,20 +355,21 @@ python skill/tools/eval_match.py
 │   ├── docs/                       # nutrition-schema / store-chain / order-flow
 │   │                               # catalog-collection / e2e-run
 │   ├── fixtures/                   # 实测快照
-│   │                               # 营养表 / 菜单×4 餐段 + 差量快照 / 套餐详情×3
+│   │                               # 营养表 / 菜单×4 餐段 + 差量快照 / 套餐详情×90
 │   │                               # 订单样本×6 / 脱敏历史订单
 │   ├── scripts/                    # 本地计算脚本（Python 3.10+，无第三方依赖）
 │   └── tools/eval_match.py         # 名称匹配率评测
 ├── cover/                          # 封面源（HTML 排版 + 渲染脚本 + 官方金拱门矢量）
 ├── assets/                         # Logo 与品牌素材（金拱门 SVG / 深浅底版本 / README 首屏预览 SVG）
+├── 公众号推文/                      # 推文成品.md + 推文交付包.html（可直接发布）
+├── archive/                        # 历史文档归档（旧版演示页 / 实施计划 / 架构拓扑 / 营养缺口诊断报告）
 ├── README.md                       # 本文件
-├── 架构拓扑.txt                     # ASCII 架构拓扑源文件
 ├── CONTEST_DECLARATION.md          # 参赛声明（原创性 / 合规性 / 敏感信息）
 ├── MCP_INTEGRATION.md              # 实际使用的 MCP Server / Tool / 流程 / 价值
 ├── project-engineering-file.md     # 工程实施记录
 ├── workbuddy.md                    # WorkBuddy 开发对话上下文导出
 ├── 订单热量与套餐推荐 Skill PRD.md  # 产品需求文档
-└── 实施计划.html / 演示页.html / 点餐页.html   # 演示材料（均标注「模拟」）
+└── index.html / 点餐页.html         # GitHub Pages 入口（跳转）与点餐演示页（模拟数据）
 ```
 
 ### 本地脚本（`skill/scripts/`，Python 3.10+，无第三方依赖）
@@ -383,9 +385,10 @@ python skill/tools/eval_match.py
 | `mcd_import.py` | 一键导入历史订单（原始响应 → 自动脱敏 → 落盘 → 逐单热量与档位对比） |
 | `mcd_history.py` | 历史订单批量复盘（已脱敏样本 → 逐单热量与档位对比） |
 | `mcd_catalog.py` | 全量目录聚合（多快照 → `catalog.json` / `nutrition-gaps.json`） |
+| `mcd_spec_evidence.py` | 规格证据挖掘（同一 code 在套餐详情里的具体命名 → 反推菜单缺规格；A 级 `--apply` 补录 `alias.json#defaults`，B/C 级保持歧义） |
 | `fetch_meal_details.py` | 套餐详情采集辅助（配套 `mcd_catalog` 联网采集用） |
 | `build_demo_menu.py` | 演示用菜单数据构建（仅演示材料使用） |
-| `tools/eval_match.py` | 匹配率评测（常见订单集 ≥90% 验收，实测 92.3%） |
+| `tools/eval_match.py` | 匹配率评测（常见订单集 ≥90% 验收，实测 13/13 = 100%） |
 
 ---
 
@@ -429,12 +432,13 @@ python skill/tools/eval_match.py
 ※ mcd_goal.py：目标场景策略层（G）——13 场景：减脂/增重/练后餐/放纵餐/低钠/高蛋白/低碳/低脂/素食/儿童/预算/过敏原/性价比
 ※ mcd_import.py：一键导入历史订单（order-list 原始响应 → 自动脱敏 → 逐单热量与档位对比）
 ※ mcd_history.py：历史订单批量复盘（已脱敏样本 → 逐单热量与档位对比）
-※ tools/eval_match.py：匹配率评测（复用 nutrition + order）· 验收 ≥90% · 实测 92.3% PASS
+※ mcd_spec_evidence.py：规格证据挖掘（套餐默认搭配 → 反推菜单缺规格；A 级补录 alias.json#defaults，B/C 级保持歧义）
+※ tools/eval_match.py：匹配率评测（复用 nutrition + order）· 验收 ≥90% · 实测 13/13 = 100% PASS
 ※ 外部系统：麦当劳中国官方 MCP（M-China/mcd-mcp-server）· 限流 600 次/分 · Token 仅在客户端配置
 ※ 缓存策略：营养表 ≥24h · 菜单按 店+餐段 10min · 429 指数退避
 ```
 
-> 拓扑源文件：[`架构拓扑.txt`](架构拓扑.txt)（与上图同步维护）。
+> 拓扑源文件：[`archive/架构拓扑.txt`](archive/架构拓扑.txt)（与上图同步维护）。
 
 ---
 
@@ -498,7 +502,7 @@ python skill/tools/eval_match.py
 - 赛事：**麦当劳程序员节创意开发大赛**（[活动仓库](https://github.com/M-China/mcd-developer-innovation-challenge)）
 - 开发工具：**WorkBuddy**（官方合作伙伴），开发对话上下文见 [`workbuddy.md`](workbuddy.md)
 - 底层能力：麦当劳中国官方 MCP [`M-China/mcd-mcp-server`](https://github.com/M-China/mcd-mcp-server)
-- 当前版本：**v0.7.0**
+- 当前版本：**v0.8.0**（v0.8 营养缺口攻坚：规格证据挖掘 `mcd_spec_evidence.py` + 餐品数据实时更新链路）
 
 ---
 

@@ -1,5 +1,11 @@
 订单热量与套餐推荐 Skill PRD
-版本 v0.7，2026-10-10。依据麦当劳中国官方 MCP 服务（M-China/mcd-mcp-server）的接口文档与真实接口勘察（样本门店 3570190，2026-10-09）编写。参赛作品形态为 Agent Skill。演示页链接待补充。
+版本 v0.8，2026-10-10。依据麦当劳中国官方 MCP 服务（M-China/mcd-mcp-server）的接口文档与真实接口勘察（样本门店 3570190，2026-10-09）编写。参赛作品形态为 Agent Skill。演示页链接待补充。
+修订记录：v0.8 营养缺口攻坚（回应 §12「营养表收录滞后」）。
+  ① **实测确认 `list-nutrition-foods` 是官方 MCP 里唯一的营养数据源**——`query-meals` / `query-meal-detail` / `query-order` 的原始响应均无营养字段（query-meal-detail 最深只到 `rounds[].choices[].{code,name,isDefault,diffPrice}`），故「从其他接口自采集热量」这条路不通。
+  ② 新增 `scripts/mcd_spec_evidence.py`：利用「同一 code 在 query-meals 与 query-meal-detail 中指向同一商品」，用套餐里的具体命名反推菜单缺失规格，按 A（可补录）/ B（多值·保持歧义）/ C1（疑似错误映射）/ C2（证据冲突）/ D（已解决）五级分类。
+  ③ 依 A 级证据补录 5 条默认规格（优品豆浆→小杯、怡泉+C→中杯、玉米杯→小杯、鲜萃咖啡→小杯、麦乐鸡→5块）——**用证据消歧，而非猜测**；A 级证据的同 code 命名一致率 100%（如 4810 出现 35 次全为「中薯条」）。
+  ④ **已修正 2 条错误映射**（mappings 影响面大于 defaults，修正前后均跑回归）：菜单「牛奶」(507394) → 「热牛奶中杯」（原「纯牛奶（盒装）」，差 47 kcal）；菜单「麦咖啡™奶铁」(507409) → 「冰奶铁中杯」（原「热奶铁中杯」，差 38 kcal）。同时修复附带隐患：`category-rules.json#excludeNamePatterns` 原把「组合品词」与「非食品词」混作一列无条件排除，导致「蘸酱炸鸡」「蘸酱麦麦脆汁鸡」「5块心形薯饼+韩式辣椒黄油风味酱」等**含酱的食物**被挡在候选外 → 拆为 `excludeNamePatterns`（组合品词，无条件排除）+ `excludeNonFoodPatterns`（非食品词，仅不与 `foodHintKeywords` 共存时排除），`mcd_combo._excluded` 同步改（与 build_demo_menu.is_zero 判据一致）。
+  ⑤ 判据红线：「冰/热」是做法差异（冰奶铁 148 vs 热奶铁 186）而非规格，涉及冰热的证据一律保持歧义，不自动补录。
 修订记录：v0.7 F8「目标场景推荐」由 4 个扩展为 **13 个**——新增低钠控盐（low-sodium）、高蛋白增肌（high-protein）、低糖低碳水（low-carb）、低脂清淡（low-fat）、素食/蛋奶素（vegetarian）、儿童/小份量（kids）、热量预算日控（daily-budget）、过敏原规避（allergen）、性价比/省钱（value）。`mcd_goal.py` 重构为「场景描述符 + 计划解析（resolve_plan）」结构，新增硬上限（钠/碳水/脂肪/价格/预算）、关键词排除（素食/过敏原）、组合件数上限、纯小食拼组开关；`mcd_combo.py` 接入计划解析与组合级硬约束、CLI 新增 `--sodium-max/--carb-max/--fat-max/--price-max/--budget/--allergens/--max-items`。13 场景均实测通过（午餐/早餐菜单 fixture），修复素食菜单漏进「双层吉士汉堡」（牛肉堡菜名无"牛"字）的关键词缺陷。素食与过敏原基于名称关键词粗筛（菜单无配料表），输出强制带告警。
 修订记录：v0.6 新增 D「一键导入历史订单」——`scripts/mcd_import.py` 把 `order-list` 原始响应自动脱敏（去 orderId/storeCode/storeName/beCode，门店代称化）后落盘，再逐单展开/匹配/算热量/判餐段/对比档位并汇总；支持 `--json` 导出与 `--no-deidentify`。脱敏为硬红线：原始响应绝不落盘。SKILL.md 增补工作流 D / D2。
 修订记录：v0.5 新增 F8「目标场景推荐」——在餐段×档位之上叠加减脂/增重/练后餐/放纵餐四套营养策略，新增 `scripts/mcd_goal.py` 场景策略层、`mcd_combo.py` 支持 `--goal` 参数（场景档位切换 + 场景评分器 + 场景组合规则），SKILL.md 增补触发词与工作流 G。四场景均实测通过（午餐/早餐菜单 fixture）。
@@ -154,11 +160,13 @@ F7 下单（P2）
 • 营养表对「当前在售单品」的覆盖率（v0.4 实测）：门店 3570190 三个餐段聚合 179 个商品（套餐 89 / 单品 90）中，单品命中 40、规格歧义 13、未收录 37 → **覆盖率 44.4%**；未收录集中于季节/联名新品（北非蛋风味系列、爆脆星星堡、德克萨斯风味三层肉霸堡、举杯邀月柚桂茶、美汁源系列等）。缺口清单已落 `data/nutrition-gaps.json`，作为「热量未知」兜底白名单与后续补录/反馈依据。
 • 歧义候选可能指向语义不同商品（v0.4 实测）：「浓浓黑巧（冰/热）」的前缀匹配落到「浓浓黑巧雪冰中杯 / 大杯」，而雪冰与中杯饮品是两个商品。匹配层在返回候选时需带品类/规格提示，避免用户选错。
 • 加料与饮品杯型的营养值仍无法从营养表取得（维持观察）。
+• ~~营养表收录缺口能否从其他接口自采集~~。已实测解决（Q4）：**不能**。`query-meals` / `query-meal-detail` / `query-order` 的原始响应均无营养字段，`list-nutrition-foods` 是唯一来源（2026-10-10 实测）。可落地的收敛手段是**用 code 级证据消歧**（见 §13 `mcd_spec_evidence.py`），而非扩充数据源。数据源侧的缺口只能靠官方补录或人工维护 `alias.json` / `nutrition-gaps.json`。
 
 13. 新增资产（v0.4，v0.7 增补）
 • `scripts/mcd_goal.py`（v0.7 重构）：目标场景策略层——13 个场景描述符（推荐档位/容差/小食上限/甜品开关/件数上限/目标缩放/硬上限/关键词排除/排序键）、GOAL_SCORERS 场景评分器（cut/bulk/post/cheat/low-sodium/high-protein/low-carb/low-fat/small/budget/value）、`resolve_plan` 计划解析（把餐段×档位×场景×入参解析成可执行计划）、`filter_pools` 池级排除、`combo_allowed`/`totals_allowed` 组合级与整组级硬约束、`format_limits` 约束渲染。
-• `scripts/mcd_combo.py`（v0.7 扩展）：`recommend()` 新增 `goal` 与 `params` 参数，接入 `resolve_plan` / `filter_pools` / 组合级硬约束；排序器统一签名 `(totals, ctx)`，`SORTERS` 合并基础四键（near/protein/sodium/price）与全部场景评分器；CLI 新增 `--sodium-max/--carb-max/--fat-max/--price-max/--budget/--allergens/--max-items`。
+• `scripts/mcd_combo.py`（v0.7 扩展，v0.8 修排除规则）：`recommend()` 新增 `goal` 与 `params` 参数，接入 `resolve_plan` / `filter_pools` / 组合级硬约束；排序器统一签名 `(totals, ctx)`，`SORTERS` 合并基础四键（near/protein/sodium/price）与全部场景评分器；CLI 新增 `--sodium-max/--carb-max/--fat-max/--price-max/--budget/--allergens/--max-items`。**v0.8**：`_excluded()` 拆两类排除词——组合品词无条件排除、非食品词（蘸酱/风味酱等）仅不与 `foodHintKeywords` 共存时排除，修复含酱食物（蘸酱炸鸡等）被误挡的隐患。
 • `scripts/mcd_import.py`（v0.6）：一键导入历史订单——`order-list` 原始响应（含 orderId/storeCode/storeName/beCode 等敏感字段）→ 自动脱敏（去敏感字段、门店代称化）→ 落盘本地样本 → 逐单展开套餐、匹配营养表、计算热量、餐段判定、档位对比 → 汇总报告（排行/超档/平均/未知占比），支持 `--json` 导出与 `--no-deidentify`（已脱敏样本直接复盘）。
+• `scripts/mcd_spec_evidence.py`（v0.8）：**菜单规格证据挖掘**——利用「同一 code 在 `query-meals`（菜单名常缺规格）与 `query-meal-detail`（套餐名带具体规格）中指向同一商品」，反推菜单缺失的规格。证据分五级：A（可补录·菜单名未命中且是规格名真子串）/ B（多值或含冰热，保持歧义）/ C1（现网命中 ≠ 套餐证据，疑似**错误映射**）/ C2（同 code 多规格冲突）/ D（已解决）。`--apply` 仅把 A 级写进 `data/alias.json#defaults`，其余一律不碰。实测（2026-10-10，门店 3570190）：A 级 6 条（新增 5 条默认规格）、C1 待人工 2 条、B 级 4 条、D 级 2 条。
 • `scripts/mcd_catalog.py`：全量目录聚合（多快照去重 → `data/catalog.json`），统计跨餐段价差、悬空引用、营养覆盖，并导出 `data/nutrition-gaps.json`；`--calls` 打印采集矩阵。
 • `scripts/mcd_history.py`：历史订单批量复盘（读 order-list 脱敏样本 → 逐单热量、档位对比、按期排序与汇总），直接支撑场景 5。实测 8 单：平均 1059 千卡、5 单超标准档、最重 2243 千卡。
 • fixtures 新增：`meals.3570190.dinein.lunch.json`（110 项 / 15 分类）、`meals.3570190.dinein.afternoon.diff.json`（差异记录：下午茶与午餐**逐条一致**，仅多 2 个「学生专享」条目）、`meal-detail.9900005466.json`（巨无霸三件套）、`order-list.sample.json`（8 笔已脱敏真实订单，2025-10-11 ~ 2026-03-20）。

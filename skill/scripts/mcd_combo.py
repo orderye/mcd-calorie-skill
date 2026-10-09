@@ -41,9 +41,25 @@ def _category_from_menu_name(menu_category: str) -> Optional[str]:
     return None
 
 
+_NONFOOD_PATTERNS = tuple(RULES.get("excludeNonFoodPatterns") or ())
+_FOOD_HINTS = tuple(RULES.get("foodHintKeywords") or ())
+
+
 def _excluded(name: str) -> Optional[str]:
+    """返回命中的排除词；无则 None。
+
+    两类排除词区别对待（v0.8）：
+    - **组合品词**（套餐/件套/随心选…）：无条件排除——组合品不得进单品候选位（PRD D4）。
+    - **非食品词**（蘸酱/风味酱/山葵酱…）：仅当**不与食物词共存**时才排除。
+      「蘸酱炸鸡」「蘸酱麦麦脆汁鸡」「5块心形薯饼+韩式辣椒黄油风味酱」是含酱的**食物**，
+      名字里有「鸡/薯/块」→ 不排除；否则会把一顿正餐挡在候选外（与
+      build_demo_menu.is_zero 的判据一致）。
+    """
     for p in RULES["excludeNamePatterns"]:
         if p in name:
+            return p
+    for p in _NONFOOD_PATTERNS:
+        if p in name and not any(k in name for k in _FOOD_HINTS):
             return p
     return None
 

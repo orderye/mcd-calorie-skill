@@ -6,7 +6,7 @@ description: >
   支持 13 个目标场景：减脂、增重、练后餐、放纵餐、低钠控盐、高蛋白增肌、低糖低碳水、
   低脂清淡、素食/蛋奶素、儿童/小份量、热量预算日控、过敏原规避、性价比/省钱。
   不提供医学、减重或疾病相关建议，热量仅为估算参考。
-version: 0.7.0
+version: 0.8.0
 ---
 
 # 订单热量与套餐推荐 Skill
@@ -32,7 +32,7 @@ version: 0.7.0
 | 当前时间 | `now-time-info` | 餐段判定的时钟 |
 | 门店 | `query-nearby-stores` / `delivery-query-addresses` + `delivery-query-stores` | 取 `storeCode`（+`beCode`） |
 | 订单 | `query-order`（单号） / `order-list`（历史，无入参） | **字段差异**：order-list 的套餐子项名称字段是 `name`，query-order 是 `productName`，展开时必须兼容两者 |
-| 营养表 | `list-nutrition-foods` | 全量缓存 ≥24h，勿重复拉取；**对当前在售单品覆盖率 44.4%（单品 40/90，实测门店 3570190）**，全量（含套餐）命中 60/179，缺口见 `data/nutrition-gaps.json` |
+| 营养表 | `list-nutrition-foods` | **官方 MCP 里唯一的营养数据源**（`query-meals` / `query-meal-detail` / `query-order` 原始响应均无营养字段，2026-10-10 实测）；全量缓存 ≥24h，勿重复拉取；**对当前在售单品覆盖率 44.4%（单品 40/90，实测门店 3570190）**，全量（含套餐）命中 60/179，缺口见 `data/nutrition-gaps.json` |
 | 菜单 | `query-meals` | **按餐段取菜单：传 `reservationDate`=目标餐段代表时刻**（接口无 daypart 字段，已实测）；价格随餐段浮动，**必须用当次返回值** |
 | 套餐组成 | `query-meal-detail` | `rounds[].name` 只是轮次名、**不是品类**（可能叫「新升级巨无霸」）；品类优先取 `rounds[].category`，该字段可能缺失 → 缺失时按名称反查。`choices[]` 的 `diffPrice` 即换品差价 |
 | 换品 vs 特调 | `query-meal-detail` | **换品**在 rounds/choices 层；**特调**看 `supportModify`/`modification`（去冰、换燕麦奶等）。特调传参：含 `unselectedKey` 的组，选中项传 `selectedKey`、未选中项传 `unselectedKey`，两者都要传给报价与下单 |
@@ -111,7 +111,7 @@ version: 0.7.0
 
 ### D2. 历史订单批量复盘（"我最近都吃了些什么 / 哪天吃重了"）
 
-1. 已有脱敏样本（`data/history-orders.json` / `fixtures/order-list.sample.json`）时，`scripts/mcd_import.py --raw <脱敏样本> --no-deidentify` 直接复盘（跳过脱敏）。
+1. 已有脱敏样本（`data/history-orders.json` / `fixtures/order-list.sample.json`）时，`scripts/mcd_import.py --raw <脱敏样本> --no-deidentify`（或等价的 `scripts/mcd_history.py --path <脱敏样本>`）直接复盘（跳过脱敏）。
 2. 逐单：展开套餐 → 匹配营养表 → 合计热量 → 按 `createTime` 推断餐段 → 与标准档对比 → 按期排序并汇总。
 3. 输出：热量排行、超标准档的单子、平均热量、未知项占比；对超档订单再接 C 生成更轻方案。
 4. 未知项照旧标「热量未知」，不得按 0 计算。
@@ -161,12 +161,13 @@ scripts/mcd_replace.py     替换建议（标准档触发规则）
 scripts/mcd_import.py      一键导入历史订单（order-list 原始响应 → 自动脱敏 → 落盘 → 逐单热量与档位对比）
 scripts/mcd_history.py     历史订单批量复盘（已脱敏样本 → 逐单热量与档位对比）
 scripts/mcd_catalog.py     全量目录聚合（多快照 → catalog.json / nutrition-gaps.json）
+scripts/mcd_spec_evidence.py 菜单规格证据挖掘（套餐默认搭配 → 消解菜单名缺规格的歧义；A 级可补 alias.json#defaults，B/C 级保持歧义）
 tools/eval_match.py        匹配率评测（常见订单集 ≥90% 验收）
 data/alias.json            别名表 + 有证据默认规格（query-meal-detail isDefault=1）
 data/category-rules.json   品类兜底关键词
-data/catalog.json          全量目录（179 商品：单品 90 / 套餐 SKU 89；套餐组成详情仅 2 份快照，见 comboDetails）
+data/catalog.json          全量目录（179 商品：单品 90 / 套餐 SKU 89；套餐组成详情 90 份已采，见 comboDetails）
 data/nutrition-gaps.json   营养缺口：未收录单品 + 规格歧义（UNKNOWN 兜底白名单）
                            含 `origin=history-order` 条目（历史订单里的已下架/限定品）
-fixtures/                  实测快照（营养表/菜单×3餐段/套餐详情/订单样本/脱敏历史订单）
+fixtures/                  实测快照（营养表/菜单×4餐段/套餐详情×90/订单样本/脱敏历史订单）
 docs/                      nutrition-schema / store-chain / order-flow / catalog-collection
 ```
