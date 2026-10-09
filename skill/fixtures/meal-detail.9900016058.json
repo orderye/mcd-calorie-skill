@@ -1,0 +1,106 @@
+{
+ "_meta": {
+  "storeCode": "3570190",
+  "orderType": 1,
+  "beType": 1,
+  "daypart": "午餐",
+  "fetchedAt": "2026-10-10 02:02:20",
+  "traceId": "63fa82015bcf53db1d90f9fa59ef72e3",
+  "source": "query-meal-detail",
+  "note": "bulk 采集自 fetch_meal_details.py；剔除 image 与 modification 内部 key，仅保留 hasModification。"
+ },
+ "code": "9900016058",
+ "name": "鱼排堡开心乐园餐",
+ "price": null,
+ "supportModify": false,
+ "rounds": [
+  {
+   "id": 1,
+   "name": "鱼排堡",
+   "quantity": 1,
+   "minQuantity": 1,
+   "maxQuantity": 1,
+   "choices": [
+    {
+     "code": "504642",
+     "name": "鱼排堡",
+     "isDefault": 1,
+     "diffPrice": "+ ¥0",
+     "supportModify": true,
+     "hasModification": true
+    }
+   ]
+  },
+  {
+   "id": 2,
+   "name": "迷你薯条",
+   "quantity": 1,
+   "minQuantity": 1,
+   "maxQuantity": 1,
+   "choices": [
+    {
+     "code": "504643",
+     "name": "迷你薯条",
+     "isDefault": 1,
+     "diffPrice": "+ ¥0",
+     "supportModify": false
+    }
+   ]
+  },
+  {
+   "id": 3,
+   "name": "选择开心乐园餐小食",
+   "quantity": 1,
+   "minQuantity": 1,
+   "maxQuantity": 1,
+   "choices": [
+    {
+     "code": "4437",
+     "name": "小杯玉米杯",
+     "isDefault": 1,
+     "diffPrice": "+ ¥0",
+     "supportModify": false
+    },
+    {
+     "code": "6102",
+     "name": "苹果片一袋(60g)",
+     "isDefault": 1,
+     "diffPrice": "+ ¥0",
+     "supportModify": false
+    }
+   ]
+  },
+  {
+   "id": 4,
+   "name": "选择开心乐园餐饮料",
+   "quantity": 1,
+   "minQuantity": 1,
+   "maxQuantity": 1,
+   "choices": [
+    {
+     "code": "6362",
+     "name": "100%苹果汁",
+     "isDefault": 1,
+     "diffPrice": "+ ¥0",
+     "supportModify": false
+    }
+   ]
+  },
+  {
+   "id": 5,
+   "name": "海绵宝宝×航海王系列玩具",
+   "quantity": 1,
+   "minQuantity": 1,
+   "maxQuantity": 1,
+   "choices": [
+    {
+     "code": "521991",
+     "name": "海绵宝宝×航海王系列玩具",
+     "isDefault": 1,
+     "diffPrice": "+ ¥0",
+     "supportModify": false
+    }
+   ]
+  }
+ ]
+}

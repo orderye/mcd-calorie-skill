@@ -1,0 +1,66 @@
+{
+ "_meta": {
+  "storeCode": "3570190",
+  "orderType": 1,
+  "beType": 1,
+  "daypart": "午餐",
+  "fetchedAt": "2026-10-10 02:02:23",
+  "traceId": "07979db36eb450b0552d7a5897a6acdd",
+  "source": "query-meal-detail",
+  "note": "bulk 采集自 fetch_meal_details.py；剔除 image 与 modification 内部 key，仅保留 hasModification。"
+ },
+ "code": "9900016076",
+ "name": "“我就喜欢”鸡薯双全盒",
+ "price": null,
+ "supportModify": false,
+ "rounds": [
+  {
+   "id": 1,
+   "name": "5块心形薯饼(不含酱)",
+   "quantity": 1,
+   "minQuantity": 1,
+   "maxQuantity": 1,
+   "choices": [
+    {
+     "code": "521962",
+     "name": "5块心形薯饼",
+     "isDefault": 1,
+     "diffPrice": "+ ¥0",
+     "supportModify": false
+    }
+   ]
+  },
+  {
+   "id": 2,
+   "name": "韩式辣椒黄油风味酱",
+   "quantity": 1,
+   "minQuantity": 1,
+   "maxQuantity": 1,
+   "choices": [
+    {
+     "code": "521965",
+     "name": "韩式辣椒黄油风味酱",
+     "isDefault": 1,
+     "diffPrice": "+ ¥0",
+     "supportModify": false
+    }
+   ]
+  },
+  {
+   "id": 3,
+   "name": "5块麦乐鸡",
+   "quantity": 1,
+   "minQuantity": 1,
+   "maxQuantity": 1,
+   "choices": [
+    {
+     "code": "521959",
+     "name": "5块麦乐鸡",
+     "isDefault": 1,
+     "diffPrice": "+ ¥0",
+     "supportModify": false
+    }
+   ]
+  }
+ ]
+}

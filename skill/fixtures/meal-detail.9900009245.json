@@ -1,0 +1,83 @@
+{
+ "_meta": {
+  "storeCode": "3570190",
+  "orderType": 1,
+  "beType": 1,
+  "daypart": "午餐",
+  "fetchedAt": "2026-10-10 02:02:04",
+  "traceId": "b323ca5eb53ba1c7beaeeee8d659f13e",
+  "source": "query-meal-detail",
+  "note": "bulk 采集自 fetch_meal_details.py；剔除 image 与 modification 内部 key，仅保留 hasModification。"
+ },
+ "code": "9900009245",
+ "name": "牛气满满套餐",
+ "price": null,
+ "supportModify": false,
+ "rounds": [
+  {
+   "id": 1,
+   "name": "培根蔬萃双层牛堡",
+   "quantity": 1,
+   "minQuantity": 1,
+   "maxQuantity": 1,
+   "choices": [
+    {
+     "code": "1106",
+     "name": "培根蔬萃双层牛堡",
+     "isDefault": 1,
+     "diffPrice": "+ ¥0",
+     "supportModify": true,
+     "hasModification": true
+    }
+   ]
+  },
+  {
+   "id": 2,
+   "name": "小杯玉米杯",
+   "quantity": 1,
+   "minQuantity": 1,
+   "maxQuantity": 1,
+   "choices": [
+    {
+     "code": "4437",
+     "name": "小杯玉米杯",
+     "isDefault": 1,
+     "diffPrice": "+ ¥0",
+     "supportModify": false
+    }
+   ]
+  },
+  {
+   "id": 3,
+   "name": "选择饮料",
+   "quantity": 1,
+   "minQuantity": 1,
+   "maxQuantity": 1,
+   "choices": [
+    {
+     "code": "3071",
+     "name": "无糖可口可乐中杯",
+     "isDefault": 1,
+     "diffPrice": "+ ¥0",
+     "supportModify": true,
+     "hasModification": true
+    },
+    {
+     "code": "3021",
+     "name": "无糖可口可乐小杯",
+     "isDefault": 0,
+     "diffPrice": "- ¥0.5",
+     "supportModify": true,
+     "hasModification": true
+    },
+    {
+     "code": "3505",
+     "name": "锡兰红茶",
+     "isDefault": 0,
+     "diffPrice": "+ ¥1.5",
+     "supportModify": false
+    }
+   ]
+  }
+ ]
+}

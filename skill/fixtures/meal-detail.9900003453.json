@@ -4,26 +4,26 @@
   "orderType": 1,
   "beType": 1,
   "daypart": "早餐",
-  "fetchedAt": "2026-10-10 02:02:47",
-  "traceId": "fdf3b5aba906fc59994a34cd6530e9bc",
+  "fetchedAt": "2026-10-10 02:01:47",
+  "traceId": "6691d00863f9f249f12bb2db95688574",
   "source": "query-meal-detail",
   "note": "bulk 采集自 fetch_meal_details.py；剔除 image 与 modification 内部 key，仅保留 hasModification。"
  },
- "code": "9900003458",
- "name": "猪柳蛋麦满分套餐",
+ "code": "9900003453",
+ "name": "吉士蛋麦满分套餐",
  "price": null,
  "supportModify": false,
  "rounds": [
   {
    "id": 1,
-   "name": "猪柳蛋麦满分",
+   "name": "吉士蛋麦满分",
    "quantity": 1,
    "minQuantity": 1,
    "maxQuantity": 1,
    "choices": [
     {
-     "code": "5022",
-     "name": "猪柳蛋麦满分",
+     "code": "5888",
+     "name": "吉士蛋麦满分",
      "isDefault": 1,
      "diffPrice": "+ ¥0",
      "supportModify": true,

@@ -4,26 +4,26 @@
   "orderType": 1,
   "beType": 1,
   "daypart": "早餐",
-  "fetchedAt": "2026-10-10 02:02:47",
-  "traceId": "fdf3b5aba906fc59994a34cd6530e9bc",
+  "fetchedAt": "2026-10-10 02:02:25",
+  "traceId": "14ed82381b3068a8a96d22baec2eb819",
   "source": "query-meal-detail",
   "note": "bulk 采集自 fetch_meal_details.py；剔除 image 与 modification 内部 key，仅保留 hasModification。"
  },
- "code": "9900003458",
- "name": "猪柳蛋麦满分套餐",
+ "code": "9900016171",
+ "name": "枫糖风味厚松饼猪柳蛋堡套餐",
  "price": null,
  "supportModify": false,
  "rounds": [
   {
    "id": 1,
-   "name": "猪柳蛋麦满分",
+   "name": "枫糖风味厚松饼猪柳蛋堡",
    "quantity": 1,
    "minQuantity": 1,
    "maxQuantity": 1,
    "choices": [
     {
-     "code": "5022",
-     "name": "猪柳蛋麦满分",
+     "code": "521989",
+     "name": "枫糖风味厚松饼猪柳蛋堡",
      "isDefault": 1,
      "diffPrice": "+ ¥0",
      "supportModify": true,
@@ -33,7 +33,7 @@
   },
   {
    "id": 2,
-   "name": "选择早餐套餐小食",
+   "name": "选择早餐小食",
    "quantity": 1,
    "minQuantity": 1,
    "maxQuantity": 1,

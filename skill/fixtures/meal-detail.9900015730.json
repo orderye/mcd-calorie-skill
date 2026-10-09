@@ -1,0 +1,92 @@
+{
+ "_meta": {
+  "storeCode": "3570190",
+  "orderType": 1,
+  "beType": 1,
+  "daypart": "午餐",
+  "fetchedAt": "2026-10-10 02:02:19",
+  "traceId": "b36f112fd221b0f683c55d0f78ac33c7",
+  "source": "query-meal-detail",
+  "note": "bulk 采集自 fetch_meal_details.py；剔除 image 与 modification 内部 key，仅保留 hasModification。"
+ },
+ "code": "9900015730",
+ "name": "BFF四宫格小食盘",
+ "price": null,
+ "supportModify": false,
+ "rounds": [
+  {
+   "id": 1,
+   "name": "选择小食",
+   "quantity": 3,
+   "minQuantity": 3,
+   "maxQuantity": 3,
+   "choices": [
+    {
+     "code": "516013",
+     "name": "麦辣鸡翅-2块",
+     "isDefault": 1,
+     "diffPrice": "+ ¥0",
+     "supportModify": false
+    },
+    {
+     "code": "516014",
+     "name": "麦乐鸡-5块",
+     "isDefault": 0,
+     "diffPrice": "+ ¥0",
+     "supportModify": false
+    },
+    {
+     "code": "516012",
+     "name": "麦麦脆汁鸡-琵琶腿",
+     "isDefault": 0,
+     "diffPrice": "+ ¥0.5",
+     "supportModify": false
+    },
+    {
+     "code": "521157",
+     "name": "那么大鸡排（椒盐风味）",
+     "isDefault": 0,
+     "diffPrice": "- ¥0.5",
+     "supportModify": false
+    },
+    {
+     "code": "520450",
+     "name": "薄皮焦香V翅",
+     "isDefault": 0,
+     "diffPrice": "+ ¥1",
+     "supportModify": false
+    }
+   ]
+  },
+  {
+   "id": 2,
+   "name": "选择小食",
+   "quantity": 1,
+   "minQuantity": 1,
+   "maxQuantity": 1,
+   "choices": [
+    {
+     "code": "522012",
+     "name": "小薯条",
+     "isDefault": 1,
+     "diffPrice": "+ ¥0",
+     "supportModify": false
+    },
+    {
+     "code": "516020",
+     "name": "中薯条",
+     "isDefault": 0,
+     "diffPrice": "+ ¥3.5",
+     "supportModify": false
+    },
+    {
+     "code": "522013",
+     "name": "大薯条",
+     "isDefault": 0,
+     "diffPrice": "+ ¥5",
+     "supportModify": false
+    }
+   ]
+  }
+ ]
+}

@@ -25,11 +25,13 @@
   --line-2: oklch(38% 0.014 62);
 
   /* —— 文字层级 —— */
-  --ink-0: oklch(96% 0.004 70);
-  --ink-1: oklch(87% 0.008 70);
-  --ink-2: oklch(73% 0.010 70);
-  --ink-3: oklch(62% 0.012 70);
-  --ink-4: oklch(46% 0.012 70);
+  /* 文字色阶：每一级对最深的面 surf-3(25%) 也须 ≥4.6:1
+     —— 旧值 ink-4 只有 2.25:1，时间戳/划线价/提示语几乎读不出来 */
+  --ink-0: oklch(97% 0.004 70);   /* 标题       14.7:1 */
+  --ink-1: oklch(91% 0.008 70);   /* 正文       12.3:1 */
+  --ink-2: oklch(82% 0.010 70);   /* 次要        9.2:1 */
+  --ink-3: oklch(72% 0.012 70);   /* 辅助        6.5:1 */
+  --ink-4: oklch(64% 0.012 70);   /* 弱化        4.8:1 */
 
   /* —— 品牌琥珀：只用于主行动与选中态 —— */
   --brand:    oklch(79% 0.145 66);
@@ -89,6 +91,7 @@
      · 阴影换成低透明暖灰，遮罩用深灰而非纯黑
    ══════════════════════════════════════════════════════════════ */
 @media (prefers-color-scheme: light){
+  body{ -webkit-font-smoothing:auto; -moz-osx-font-smoothing:auto }
   :root{
     --surf-0: oklch(96.4% 0.008 68);
     --surf-1: oklch(99.4% 0.003 70);
@@ -97,13 +100,13 @@
     --line:   oklch(88.5% 0.010 68);
     --line-2: oklch(78% 0.014 68);
 
-    --ink-0: oklch(22% 0.014 62);
-    --ink-1: oklch(33% 0.014 62);
-    --ink-2: oklch(42% 0.013 62);
-    --ink-3: oklch(48% 0.013 62);
-    --ink-4: oklch(52% 0.012 62);
+    --ink-0: oklch(18% 0.014 62);   /* 标题       16.0:1 */
+    --ink-1: oklch(27% 0.014 62);   /* 正文       13.0:1 */
+    --ink-2: oklch(36% 0.013 62);   /* 次要        9.4:1 */
+    --ink-3: oklch(44% 0.013 62);   /* 辅助        6.6:1 */
+    --ink-4: oklch(50% 0.012 62);   /* 弱化        5.1:1 */
 
-    --brand:    oklch(66% 0.170 58);
+    --brand:    oklch(64% 0.170 58);   /* 再亮就压不住白底（按钮面需 ≥3:1） */
     --brand-lt: oklch(42% 0.165 54);
     --brand-dk: oklch(38% 0.150 52);
     --brand-ink:oklch(24% 0.045 60);
@@ -195,7 +198,7 @@ h1 .sim{display:inline-block;font-size:10.5px;font-weight:500;color:var(--brand-
 }
 
 .statusbar{display:flex;justify-content:space-between;align-items:center;gap:8px;
-           padding:11px 20px 6px;font-size:11px;color:var(--ink-3);flex:none;font-variant-numeric:tabular-nums}
+           padding:11px 20px 6px;font-size:11.5px;color:var(--ink-3);flex:none;font-variant-numeric:tabular-nums}
 .statusbar .sim{color:var(--brand-tx);border:1px solid color-mix(in oklab, var(--brand) 50%, transparent);border-radius:3px;padding:0 5px;letter-spacing:.05em}
 .appbar{display:flex;align-items:center;gap:10px;padding:4px 18px 13px;flex:none;border-bottom:1px solid var(--line)}
 .appbar .back{background:none;border:none;color:var(--ink-1);font-size:22px;line-height:1;cursor:pointer;
@@ -234,7 +237,7 @@ h1 .sim{display:inline-block;font-size:10.5px;font-weight:500;color:var(--brand-
 .rail button[aria-current="true"]{background:var(--surf-1);color:var(--ink-0);font-weight:700}
 .rail button[aria-current="true"]::before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);
   width:3px;height:18px;background:var(--brand);border-radius:0 2px 2px 0}
-.rail .cnt{font-size:10px;color:var(--ink-4);font-variant-numeric:tabular-nums}
+.rail .cnt{font-size:10.5px;color:var(--ink-4);font-variant-numeric:tabular-nums}
 .rail button[aria-current="true"] .cnt{color:var(--brand-tx)}
 
 .items{flex:1;padding:12px 14px 100px;display:flex;flex-direction:column;gap:9px;min-width:0}
@@ -249,9 +252,10 @@ h1 .sim{display:inline-block;font-size:10.5px;font-weight:500;color:var(--brand-
 .info{flex:1;min-width:0}
 .info .n{font-size:14.5px;font-weight:600;line-height:1.4;color:var(--ink-0);overflow-wrap:anywhere}
 .tagrow{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
-.tag{font-size:10.5px;border-radius:4px;padding:1px 6px;border:1px solid var(--line-2);color:var(--ink-3);letter-spacing:.02em}
+.tag{font-size:11px;font-weight:500;border-radius:4px;padding:1px 6px;border:1px solid var(--line-2);color:var(--ink-3);letter-spacing:.02em}
 .tag.combo{color:var(--brand-tx);border-color:color-mix(in oklab, var(--brand) 45%, transparent)}
 .tag.kcal{color:var(--ink-2);border-color:var(--line-2)}
+.tag.kcal.partial{color:var(--ink-3);border-color:var(--line-2);border-style:dashed}
 .tag.unknown{color:var(--bad);border-color:color-mix(in oklab, var(--bad) 50%, transparent)}
 .info .desc{font-size:11.5px;color:var(--ink-3);margin-top:6px;line-height:1.6;overflow-wrap:anywhere}
 .priceline{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:9px}
@@ -340,16 +344,61 @@ h1 .sim{display:inline-block;font-size:10.5px;font-weight:500;color:var(--brand-
 .chip:hover{color:var(--ink-0);box-shadow:inset 0 0 0 1px var(--line-2);background:var(--surf-3)}
 .chip.active{background:color-mix(in oklab, var(--brand) 13%, transparent);color:var(--brand-lt);font-weight:600;
   box-shadow:inset 0 0 0 1px color-mix(in oklab, var(--brand) 50%, transparent)}
-.chip small{display:block;font-size:10.5px;color:var(--ink-4);margin-top:2px;font-variant-numeric:tabular-nums}
+.chip small{display:block;font-size:11px;font-weight:500;color:var(--ink-4);margin-top:2px;font-variant-numeric:tabular-nums}
 .chip.active small{color:var(--chip-sub)}
 .chip.sm{padding:7px 11px;font-size:12px}
 .spec-tag{display:inline-block;margin-left:7px;font-size:10.5px;font-weight:600;color:var(--brand-tx);
   border:1px solid color-mix(in oklab, var(--brand) 55%, transparent);border-radius:4px;padding:0 5px;vertical-align:middle;font-style:normal}
-.spec-tag-sm{display:inline-block;margin-left:5px;font-size:9.5px;font-style:normal;font-weight:600;
+.spec-tag-sm{display:inline-block;margin-left:5px;font-size:10.5px;font-style:normal;font-weight:600;
   color:var(--brand-tx);border:1px solid color-mix(in oklab, var(--brand) 45%, transparent);border-radius:3px;padding:0 3px;transform:translateY(-1px)}
 .default-line{margin-top:14px;padding:10px 12px;border-radius:11px;background:color-mix(in oklab, var(--brand) 8%, transparent);
   box-shadow:inset 0 0 0 1px color-mix(in oklab, var(--brand) 28%, transparent);font-size:12px;color:var(--ink-2);line-height:1.6}
 .default-line b{color:var(--brand-lt)}
+
+/* —— 套餐搭配概览：当前选择 / 可换范围 / 加入后本单 —— */
+.sp-sum{background:var(--surf-2);border-radius:11px;padding:11px 13px;margin-bottom:6px;
+  box-shadow:inset 0 0 0 1px var(--line);display:flex;flex-direction:column;gap:7px}
+.ss-row{display:flex;align-items:baseline;gap:10px;font-size:12.5px;color:var(--ink-2)}
+.ss-row.sub{font-size:11.5px;color:var(--ink-3)}
+.ss-k{flex:none;min-width:112px;color:var(--ink-3)}
+.ss-v{font-variant-numeric:tabular-nums;color:var(--ink-1)}
+.ss-v b{font-family:var(--font-serif);font-size:19px;font-weight:700;color:var(--ink-0);margin-right:2px}
+.ss-d{margin-left:auto;font-size:11px;font-weight:600;letter-spacing:.02em;padding:1px 6px;border-radius:5px;white-space:nowrap}
+.ss-d.down,.ss-d.ok{color:var(--ok);background:color-mix(in oklab, var(--ok) 13%, transparent)}
+.ss-d.up{color:var(--bad);background:color-mix(in oklab, var(--bad) 13%, transparent)}
+.ss-d.warn{color:var(--info);background:color-mix(in oklab, var(--info) 13%, transparent)}
+.ss-d.same{color:var(--ink-4);background:var(--surf-3)}
+.ss-note{font-size:11px;color:var(--ink-3);line-height:1.5}
+
+/* —— 轮次表头：序号 / 品类 / 单选多选 / 本组热量范围 —— */
+.round-h{align-items:center;justify-content:flex-start;gap:7px;flex-wrap:wrap}
+.r-idx{flex:none;width:18px;height:18px;border-radius:5px;display:grid;place-items:center;
+  font-size:10.5px;font-weight:700;color:var(--brand-tx);
+  background:color-mix(in oklab, var(--brand) 14%, transparent)}
+.r-cat{font-size:10.5px;font-weight:600;color:var(--ink-3);border:1px solid var(--line-2);
+  border-radius:4px;padding:0 5px;letter-spacing:.02em}
+.r-range{margin-left:auto;font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap}
+.round.fixed{padding:11px 0}
+.r-fixed{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  font-size:12.5px;color:var(--ink-3);padding-left:25px}
+.r-fixed b{color:var(--ink-0);font-weight:600}
+.fx-k{font-size:11.5px;color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* —— 长选项列表（饮料轮常有 25–30 项）收进滚动区，避免弹层被撑爆 —— */
+.chips.scroll{max-height:190px;overflow-y:auto;padding:3px;margin:-3px;overscroll-behavior:contain;
+  scrollbar-width:thin}
+.chips.scroll::-webkit-scrollbar{width:6px}
+.chips.scroll::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:3px}
+
+/* —— 选项内标记：与默认的差、本组最低、非食品 —— */
+.c-n{display:block}
+.c-best{display:inline-block;margin-left:5px;font-size:10px;font-weight:700;letter-spacing:.02em;
+  color:var(--ok);border:1px solid color-mix(in oklab, var(--ok) 45%, transparent);
+  border-radius:3px;padding:0 3px;transform:translateY(-1px)}
+.c-d{font-weight:700}
+.c-d.down{color:var(--ok)}
+.c-d.up{color:var(--bad)}
+.chip.zero small,.chip.unknown small{color:var(--ink-3)}
 .mod-block{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
 .mod-toggle{width:100%;background:var(--surf-2);box-shadow:inset 0 0 0 1px var(--line-2);color:var(--ink-1);
   border:none;border-radius:11px;padding:11px;font-size:12.5px;cursor:pointer;text-align:left;
@@ -358,7 +407,7 @@ h1 .sim{display:inline-block;font-size:10.5px;font-weight:500;color:var(--brand-
 .mod-group{margin-top:14px}
 .og-title{font-size:12px;color:var(--ink-3);margin-bottom:8px}
 .og-title b{color:var(--ink-1);font-weight:600}
-.og-hint,.hint-note{font-size:11px;color:var(--ink-4);margin-top:8px;line-height:1.65}
+.og-hint,.hint-note{font-size:11.5px;color:var(--ink-4);margin-top:8px;line-height:1.65}
 .stepper{display:flex;align-items:center;gap:12px}
 .stepper button{width:30px;height:30px;border-radius:50%;box-shadow:inset 0 0 0 1px var(--line-2);
   background:var(--surf-3);border:none;color:var(--ink-1);font-size:15px;cursor:pointer;line-height:1;position:relative;
@@ -373,7 +422,7 @@ h1 .sim{display:inline-block;font-size:10.5px;font-weight:500;color:var(--brand-
 .cart-line .cl-name{font-size:13.5px;font-weight:600;color:var(--ink-0);overflow-wrap:anywhere}
 .cart-line .cl-note{font-size:11.5px;color:var(--ink-3);margin-top:3px;line-height:1.55;overflow-wrap:anywhere}
 .cart-line .cl-price{font-size:13px;color:var(--ink-1);margin-top:6px;font-weight:600;font-variant-numeric:tabular-nums}
-.cart-line .cl-price span{color:var(--ink-4);font-size:11px;font-weight:400;margin-left:7px}
+.cart-line .cl-price span{color:var(--ink-4);font-size:11.5px;font-weight:400;margin-left:7px}
 .empty{color:var(--ink-3);font-size:12.5px;text-align:center;padding:26px 16px;border:1px dashed var(--line-2);
   border-radius:12px;line-height:1.75}
 .empty .e-ico{display:block;font-size:22px;margin-bottom:8px;opacity:.7}
@@ -384,7 +433,7 @@ h1 .sim{display:inline-block;font-size:10.5px;font-weight:500;color:var(--brand-
 .co-sec:first-child{border-top:none;padding-top:6px}
 .co-h{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--ink-3);letter-spacing:.09em;margin-bottom:11px}
 .co-h .num{width:19px;height:19px;border-radius:6px;background:color-mix(in oklab, var(--brand) 14%, transparent);color:var(--brand-tx);
-  font-size:10.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex:none;letter-spacing:0}
+  font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex:none;letter-spacing:0}
 .co-h .link{margin-left:auto;letter-spacing:.02em}
 .kv{display:flex;justify-content:space-between;gap:12px;font-size:13px;padding:5px 0;color:var(--ink-3)}
 .kv b{color:var(--ink-1);font-weight:600;text-align:right;overflow-wrap:anywhere}
@@ -394,7 +443,7 @@ h1 .sim{display:inline-block;font-size:10.5px;font-weight:500;color:var(--brand-
 .kv.discount b,.kv.discount{color:var(--ok)}
 .co-line{display:flex;justify-content:space-between;gap:12px;font-size:13px;padding:9px 0;border-bottom:1px dashed var(--line)}
 .co-line:last-child{border-bottom:none}
-.co-line .l-note{font-size:11px;color:var(--ink-4);margin-top:3px}
+.co-line .l-note{font-size:11.5px;color:var(--ink-4);margin-top:3px}
 .co-line .r{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--ink-1);font-weight:600}
 .remarks{width:100%;background:var(--surf-2);box-shadow:inset 0 0 0 1px var(--line-2);border:none;border-radius:11px;
   color:var(--ink-0);padding:11px 12px;font-size:12.5px;resize:none;height:60px;line-height:1.6}
@@ -417,8 +466,8 @@ h1 .sim{display:inline-block;font-size:10.5px;font-weight:500;color:var(--brand-
 .p-title{font-size:12px;font-weight:700;color:var(--ink-2);display:flex;align-items:center;gap:8px;
   margin:14px 0 16px;letter-spacing:.05em}
 .p-title .num{width:21px;height:21px;border-radius:6px;background:color-mix(in oklab, var(--brand) 14%, transparent);color:var(--brand-tx);
-  font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex:none;letter-spacing:0}
-.p-title .hint{margin-left:auto;font-size:11px;color:var(--ink-4);font-weight:400;letter-spacing:.02em}
+  font-size:11.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex:none;letter-spacing:0}
+.p-title .hint{margin-left:auto;font-size:11.5px;color:var(--ink-4);font-weight:400;letter-spacing:.02em}
 .panel .seg{margin-bottom:18px}
 
 .heat-total{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:22px}
@@ -447,7 +496,7 @@ h1 .sim{display:inline-block;font-size:10.5px;font-weight:500;color:var(--brand-
   color:var(--ink-1);white-space:nowrap;font-variant-numeric:tabular-nums;background:var(--surf-0);
   padding:1px 5px;border-radius:5px}
 .gauge .scale{position:absolute;top:34px;left:0;right:0;height:14px}
-.gauge .scale span{position:absolute;transform:translateX(-50%);font-size:10.5px;color:var(--ink-3);
+.gauge .scale span{position:absolute;transform:translateX(-50%);font-size:11px;color:var(--ink-3);
   white-space:nowrap;font-variant-numeric:tabular-nums}
 .gauge .scale span.on{color:var(--ink-2)}
 
@@ -456,7 +505,7 @@ h1 .sim{display:inline-block;font-size:10.5px;font-weight:500;color:var(--brand-
 .mini-table td{padding:7px 6px;border-bottom:1px solid var(--line);color:var(--ink-3);vertical-align:top}
 .mini-table td.num,.mini-table th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .mini-table td.name{color:var(--ink-1);overflow-wrap:anywhere}
-.mini-table td.name em{display:block;font-style:normal;font-size:11px;color:var(--ink-4);margin-top:2px;line-height:1.5}
+.mini-table td.name em{display:block;font-style:normal;font-size:11.5px;color:var(--ink-4);margin-top:2px;line-height:1.5}
 .mini-table .unknown{color:var(--bad)}
 .mini-table tfoot td{border-bottom:none;padding-top:10px;font-weight:700;color:var(--ink-1)}
 .mini-table tfoot td.num{color:var(--brand-lt);font-size:14px}
@@ -469,7 +518,7 @@ h1 .sim{display:inline-block;font-size:10.5px;font-weight:500;color:var(--brand-
 .reco .r-items{font-size:12.5px;font-weight:600;line-height:1.5;color:var(--ink-0);overflow-wrap:anywhere}
 .reco .r-kcal{font-family:var(--font-serif);font-size:22px;font-weight:700;color:var(--brand-lt);
   font-variant-numeric:tabular-nums;line-height:1.1}
-.reco .r-kcal small{font-family:var(--font-sans);font-size:11px;color:var(--ink-4);font-weight:400;margin-left:5px;letter-spacing:.03em}
+.reco .r-kcal small{font-family:var(--font-sans);font-size:11.5px;color:var(--ink-4);font-weight:400;margin-left:5px;letter-spacing:.03em}
 .reco .r-delta{font-size:11.5px;font-weight:600;font-variant-numeric:tabular-nums}
 .r-delta.down{color:var(--ok)} .r-delta.up{color:var(--bad)}
 .reco .r-nutri{font-size:11.5px;color:var(--ink-3);line-height:1.6}
@@ -488,7 +537,7 @@ h1 .sim{display:inline-block;font-size:10.5px;font-weight:500;color:var(--brand-
 .log .tool{font-family:var(--font-mono);font-size:11px;font-weight:700;color:var(--brand-tx);letter-spacing:.01em;overflow-wrap:anywhere}
 .log.sys .tool{color:var(--info)}
 .log .desc{color:var(--ink-2);margin-top:3px;line-height:1.6;overflow-wrap:anywhere}
-.log .time{color:var(--ink-4);font-size:10.5px;margin-top:2px;font-variant-numeric:tabular-nums}
+.log .time{color:var(--ink-4);font-size:11px;font-weight:500;margin-top:2px;font-variant-numeric:tabular-nums}
 
 /* ═══ 10 确认弹窗（原生 dialog） ═══ */
 dialog{border:none;background:transparent;padding:0;max-width:none;max-height:none}
@@ -497,7 +546,7 @@ dialog::backdrop{background:color-mix(in oklab, var(--scrim) 68%, transparent)}
   border-radius:18px;padding:24px;width:min(420px,92vw);animation:modal-in var(--dur-3) var(--e-out-expo) both}
 @keyframes modal-in{from{opacity:0;transform:translate3d(0,14px,0) scale(.98)}to{opacity:1;transform:none}}
 .modal h3{font-size:17px;color:var(--ink-0);margin-bottom:5px;letter-spacing:.01em}
-.modal .m-sub{font-size:11.5px;color:var(--ink-3);margin-bottom:16px;line-height:1.6}
+.modal .m-sub{font-size:12px;color:var(--ink-3);margin-bottom:16px;line-height:1.6}
 .modal .m-items{font-size:13px;color:var(--ink-2);max-height:170px;overflow-y:auto;margin-bottom:12px}
 .modal .m-items div{padding:5px 0;border-bottom:1px dashed var(--line);display:flex;justify-content:space-between;gap:12px}
 .modal .m-total{display:flex;justify-content:space-between;align-items:baseline;padding:12px 0;border-top:1px solid var(--line);
@@ -525,7 +574,7 @@ dialog::backdrop{background:color-mix(in oklab, var(--scrim) 68%, transparent)}
   box-shadow:0 0 12px color-mix(in oklab, var(--brand) 60%, transparent)}
 .fly i{display:block;width:100%;height:100%;border-radius:50%;background:inherit}
 
-footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);color:var(--ink-3);font-size:11.5px;
+footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);color:var(--ink-3);font-size:12px;
   display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;line-height:1.7}
 
 /* ═══ 降低动效偏好 ═══ */
@@ -709,16 +758,18 @@ footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);color:v
 
 <script>
 /* ══════════════════════════════════════════════════════════════
-   一、模拟数据
-   ══════════════════════════════════════════════════════════════ */
-/* ══════════════════════════════════════════════════════════════
    一、商品数据（全部取自 mcd-mcp 实时接口，非模拟）
    门店 3570190 · 2026-10-10 五个餐段快照：
-     早餐 08:00(92) / 午餐 12:00(108) / 随便吃吃≡下午茶 16:00(同午餐)
-     晚餐 19:00(110) / 宵夜 23:36(110)  → 去重 179 项，剔除蘸酱等非食品后 172 项
-   价格按餐段存（同一商品跨餐段不同价，例：马苏里拉拉丝芝士条 晚餐16/宵夜11）。
-   营养表 157 项官方数据 + 别名归一，未命中者一律标「热量未知」，绝不按 0 计算。
+     早餐 08:00 / 午餐 12:00 / 随便吃吃≡下午茶 16:00(同午餐) / 晚餐 19:00 / 宵夜 23:36
+     → 去重 179 项，剔除蘸酱等非食品后 171 项
+   套餐组成 90/90 全部来自 query-meal-detail（scripts/fetch_meal_details.py 批量采集）：
+     269 个选配轮次 / 94 个不同选项列表（重复率 65%，抽成 LISTS 共用）
+     轮次按 code 匹配而非名称——同一套餐在菜单与详情里的名称常不一致
+     （菜单「麦香鸡套餐」/ 详情「麦香鸡中套餐」）
+   营养表 160 项官方数据 + 别名归一；未命中者一律标「热量未知」，绝不按 0 计算。
+   非食品项（玩具、单卖蘸酱）单列 ZERO，按 0 千卡计而非「未知」。
    ══════════════════════════════════════════════════════════════ */
+
 const CATS = {
   "早餐":["人气热卖","超值早餐","6折起早餐卡专区","厚松饼堡系列","麦满分系列","麦咖啡™","炒双蛋堡系列","早安营养卷","一早现磨","小食甜品/其他","饮品"],
   "午餐":["人气热卖","精选单人餐","鸡肉汉堡/卷","小食拼盘/多人餐","蘸酱炸鸡","随心配1+1","大堡口福单人餐","巨无霸牛鱼肉堡","安格斯MAX厚牛堡","炸鸡","小食甜品/其他","开心乐园","麦咖啡™","500大卡套餐","饮品"],
@@ -726,46 +777,98 @@ const CATS = {
   "晚餐":["人气热卖","精选单人餐","鸡肉汉堡/卷","小食拼盘/多人餐","蘸酱炸鸡","随心配1+1","大堡口福单人餐","巨无霸牛鱼肉堡","安格斯MAX厚牛堡","炸鸡","小食甜品/其他","开心乐园","麦咖啡™","500大卡套餐","饮品"],
   "宵夜":["人气热卖","精选单人餐","鸡肉汉堡/卷","小食拼盘/多人餐","蘸酱炸鸡","随心配1+1","巨无霸牛鱼肉堡","安格斯MAX厚牛堡","炸鸡","大堡口福单人餐","小食甜品/其他","开心乐园","麦咖啡™","500大卡套餐","饮品"]
 };
+/* 零热量 / 非食品项：按 0 千卡计（玩具、单卖蘸酱），不计入「热量未知」 */
+const ZERO = new Set(["海绵宝宝×航海王系列玩具","韩式辣椒黄油风味酱"]);
 const NUTRI = {
   "猪柳蛋麦满分":{kcal:387,p:23,f:21,c:25,na:846},
   "猪柳麦满分":{kcal:308,p:16,f:16,c:24,na:781},
   "咖啡阿芙佳朵":{kcal:139,p:4,f:4,c:21,na:49},
   "【美汁源】“黄金橙橙”":{kcal:165,p:0,f:0,c:41,na:53},
-  "热奶铁中杯":{kcal:186,p:11,f:8,c:17,na:99},
-  "热美式中杯":{kcal:13,p:1,f:0,c:2,na:0},
+  "麦咖啡™热奶铁中杯":{kcal:186,p:11,f:8,c:17,na:99},
+  "麦咖啡™热美式中杯":{kcal:13,p:1,f:0,c:2,na:0},
   "火腿扒麦满分":{kcal:261,p:14,f:12,c:24,na:608},
   "火腿扒早安营养卷":{kcal:444,p:16,f:24,c:39,na:1065},
-  "100%苹果汁":{kcal:88,p:0,f:0,c:21,na:0},
+  "100% 苹果汁(盒装)":{kcal:88,p:0,f:0,c:21,na:0},
   "冰牛奶中杯":{kcal:224,p:13,f:11,c:19,na:128},
   "图林根香肠早安营养卷":{kcal:425,p:14,f:23,c:38,na:977},
-  "雪碧中杯":{kcal:105,p:0,f:0,c:26,na:29},
+  "雪碧":{kcal:105,p:0,f:0,c:26,na:29},
   "脆香油条":{kcal:202,p:5,f:12,c:19,na:230},
   "双层猪柳蛋麦满分":{kcal:513,p:29,f:32,c:26,na:1210},
   "猪柳炒双蛋堡":{kcal:437,p:25,f:24,c:29,na:705},
-  "可乐中杯":{kcal:147,p:0,f:0,c:36,na:0},
+  "可乐":{kcal:147,p:0,f:0,c:36,na:0},
   "原味板烧鸡腿麦满分":{kcal:246,p:15,f:9,c:25,na:611},
   "双层原味板烧鸡腿麦满分":{kcal:355,p:23,f:17,c:27,na:984},
   "脆薯饼":{kcal:146,p:1,f:9,c:14,na:311},
   "圆筒冰淇淋":{kcal:93,p:2,f:3,c:14,na:36},
   "原味板烧鸡腿炒双蛋堡":{kcal:419,p:27,f:21,c:30,na:715},
+  "麦咖啡™奶铁":{kcal:186,p:11,f:8,c:17,na:99},
   "锡兰红茶":{kcal:2,p:0,f:0,c:0,na:0},
   "德式图林根香肠":{kcal:87,p:5,f:6,c:2,na:293},
   "大脆鸡扒麦满分":{kcal:361,p:16,f:17,c:35,na:804},
   "培根安格斯厚牛堡":{kcal:707,p:34,f:44,c:43,na:1037},
+  "芝士安格斯厚牛堡":{kcal:696,p:32,f:44,c:43,na:897},
   "培根蔬萃双层牛堡":{kcal:442,p:24,f:23,c:34,na:728},
   "巨无霸":{kcal:513,p:27,f:26,c:42,na:961},
   "双层吉士汉堡":{kcal:429,p:27,f:22,c:31,na:1017},
   "板烧鸡腿堡":{kcal:391,p:23,f:17,c:35,na:1041},
-  "那么大鸡排":{kcal:385,p:24,f:21,c:24,na:996},
+  "那么大鸡排（椒盐风味）":{kcal:385,p:24,f:21,c:24,na:996},
   "不素之霸双层牛堡":{kcal:493,p:28,f:27,c:34,na:1012},
   "双层深海鳕鱼堡":{kcal:485,p:28,f:21,c:46,na:917},
-  "麦辣鸡翅-2块":{kcal:224,p:13,f:15,c:9,na:537},
-  "中薯条":{kcal:289,p:4,f:12,c:38,na:165},
+  "麦辣鸡翅":{kcal:224,p:13,f:15,c:9,na:537},
+  "薯条":{kcal:289,p:4,f:12,c:38,na:165},
   "麦辣鸡腿汉堡":{kcal:485,p:24,f:24,c:42,na:1208},
   "苹果片":{kcal:32,p:0,f:0,c:7,na:0},
   "麦香鸡":{kcal:369,p:15,f:17,c:39,na:731},
   "薄皮焦香V翅":{kcal:192,p:17,f:11,c:6,na:594},
-  "麦香鱼":{kcal:325,p:16,f:13,c:35,na:556}
+  "麦香鱼":{kcal:325,p:16,f:13,c:35,na:556},
+  "中薯条":{kcal:289,p:4,f:12,c:38,na:165},
+  "奥利奥麦旋风":{kcal:266,p:5,f:9,c:40,na:116},
+  "小杯玉米杯":{kcal:53,p:2,f:1,c:7,na:1},
+  "大杯玉米杯":{kcal:87,p:4,f:1,c:12,na:2},
+  "麦乐鸡4块":{kcal:170,p:10,f:10,c:11,na:337},
+  "麦辣鸡翅2块":{kcal:224,p:13,f:15,c:9,na:537},
+  "麦麦脆汁鸡-琵琶腿":{kcal:328,p:21,f:20,c:16,na:905},
+  "可乐中杯":{kcal:147,p:0,f:0,c:36,na:0},
+  "冰浓浓黑巧中杯":{kcal:135,p:8,f:6,c:12,na:77},
+  "麦咖啡™冰美式中杯":{kcal:13,p:1,f:0,c:2,na:0},
+  "大杯鲜萃咖啡":{kcal:13,p:1,f:0,c:0,na:3},
+  "麦咖啡™冰奶铁中杯":{kcal:148,p:8,f:7,c:13,na:77},
+  "热浓浓黑巧中杯":{kcal:176,p:10,f:8,c:15,na:101},
+  "冰浓浓燕麦黑巧中杯":{kcal:120,p:2,f:5,c:16,na:87},
+  "热浓浓燕麦黑巧中杯":{kcal:157,p:3,f:6,c:21,na:114},
+  "无糖可口可乐中杯":{kcal:0,p:0,f:0,c:1,na:35},
+  "可乐大杯":{kcal:224,p:0,f:0,c:55,na:0},
+  "无糖可口可乐大杯":{kcal:0,p:0,f:0,c:1,na:53},
+  "大杯怡泉+C":{kcal:168,p:0,f:0,c:41,na:0},
+  "雪碧大杯":{kcal:160,p:0,f:0,c:39,na:45},
+  "阳光柠檬红茶大杯":{kcal:178,p:0,f:0,c:43,na:25},
+  "中杯怡泉+C":{kcal:110,p:0,f:0,c:27,na:0},
+  "雪碧中杯":{kcal:105,p:0,f:0,c:26,na:29},
+  "阳光柠檬红茶中杯":{kcal:117,p:0,f:0,c:29,na:17},
+  "100%苹果汁":{kcal:88,p:0,f:0,c:21,na:0},
+  "原味双层深海鳕鱼堡":{kcal:485,p:28,f:21,c:46,na:917},
+  "小杯鲜萃咖啡":{kcal:15,p:1,f:0,c:3,na:2},
+  "优品豆浆小杯":{kcal:151,p:6,f:3,c:25,na:32},
+  "优品豆浆大杯":{kcal:202,p:8,f:4,c:33,na:43},
+  "冰燕麦奶铁中杯":{kcal:132,p:3,f:5,c:17,na:87},
+  "热燕麦奶铁中杯":{kcal:167,p:4,f:6,c:22,na:112},
+  "热牛奶中杯":{kcal:176,p:10,f:8,c:15,na:101},
+  "麦乐鸡5块":{kcal:213,p:12,f:12,c:13,na:422},
+  "大薯条":{kcal:379,p:6,f:16,c:50,na:216},
+  "麦乐鸡-5块":{kcal:213,p:12,f:12,c:13,na:422},
+  "麦辣鸡翅-2块":{kcal:224,p:13,f:15,c:9,na:537},
+  "吉士汉堡包":{kcal:294,p:16,f:12,c:30,na:673},
+  "苹果片一袋(60g)":{kcal:32,p:0,f:0,c:7,na:0},
+  "无糖可口可乐小杯":{kcal:0,p:0,f:0,c:0,na:25},
+  "草莓麦旋风":{kcal:295,p:6,f:9,c:47,na:122},
+  "迷你薯条":{kcal:106,p:2,f:4,c:14,na:61},
+  "汉堡包":{kcal:248,p:13,f:8,c:29,na:492},
+  "小薯条":{kcal:210,p:3,f:9,c:28,na:120},
+  "香芋派":{kcal:232,p:2,f:12,c:28,na:159},
+  "迷你草莓新地":{kcal:122,p:2,f:3,c:21,na:42},
+  "迷你朱古力新地":{kcal:140,p:3,f:4,c:22,na:63},
+  "菠萝派":{kcal:221,p:2,f:11,c:27,na:147},
+  "5块麦乐鸡":{kcal:213,p:12,f:12,c:13,na:422}
 };
 const TIERS = {
   "早餐":{轻量:300,标准:450,吃饱:600},
@@ -774,137 +877,233 @@ const TIERS = {
   "晚餐":{轻量:500,标准:750,吃饱:1000},
   "宵夜":{轻量:300,标准:450,吃饱:600}
 };
+/* 选项列表池：套餐轮次里高度重复（269 轮 → 94 个不同列表），抽出来共用 */
+const LISTS = {
+  0:[["大脆鸡扒麦满分",0,true]],
+  1:[["鲜萃冰咖",0,true],["小杯鲜萃咖啡",0,false],["优品豆浆小杯",0,false],["冰浓浓黑巧中杯",6.9,false],["麦咖啡™冰美式中杯",6,false],["麦咖啡™冰奶铁中杯",6.9,false],["热浓浓黑巧中杯",6.9,false],["热浓浓燕麦黑巧中杯",8.9,false],["冰浓浓燕麦黑巧中杯",8.9,false],["麦咖啡™热美式中杯",6,false],["麦咖啡™热奶铁中杯",6.9,false],["阳光柠檬红茶大杯",2.5,false],["【美汁源】“多汁柠柠”",2.5,false],["【美汁源】“黄金橙橙”",3.5,false],["100%苹果汁",2.5,false],["优品豆浆大杯",2,false],["锡兰红茶",2,false],["阳光柠檬红茶中杯",0.5,false],["冰燕麦奶铁中杯",8.9,false],["热燕麦奶铁中杯",8.9,false],["大杯鲜萃咖啡",2,false],["大杯怡泉+C",4,false],["可乐大杯",2.5,false],["无糖可口可乐大杯",2.5,false],["雪碧大杯",2.5,false],["中杯怡泉+C",2,false],["可乐中杯",0.5,false],["无糖可口可乐中杯",0.5,false],["雪碧中杯",0.5,false],["热牛奶中杯",6,false]],
+  2:[["图林根香肠早安营养卷",0,true]],
+  3:[["鲜萃冰咖",0,true],["小杯鲜萃咖啡",0,false],["优品豆浆小杯",0,false],["冰浓浓黑巧中杯",8,false],["麦咖啡™冰美式中杯",6,false],["麦咖啡™冰奶铁中杯",8,false],["热浓浓黑巧中杯",8,false],["热浓浓燕麦黑巧中杯",10,false],["冰浓浓燕麦黑巧中杯",10,false],["麦咖啡™热美式中杯",6,false],["麦咖啡™热奶铁中杯",8,false],["阳光柠檬红茶大杯",2.5,false],["【美汁源】“多汁柠柠”",2.5,false],["【美汁源】“黄金橙橙”",3.5,false],["100%苹果汁",2.5,false],["优品豆浆大杯",2,false],["锡兰红茶",2,false],["阳光柠檬红茶中杯",0.5,false],["冰燕麦奶铁中杯",10,false],["热燕麦奶铁中杯",10,false],["大杯鲜萃咖啡",2,false],["大杯怡泉+C",4,false],["可乐大杯",2.5,false],["无糖可口可乐大杯",2.5,false],["雪碧大杯",2.5,false],["中杯怡泉+C",2,false],["可乐中杯",0.5,false],["无糖可口可乐中杯",0.5,false],["雪碧中杯",0.5,false],["热牛奶中杯",6,false]],
+  4:[["火腿扒早安营养卷",0,true]],
+  5:[["双层原味板烧鸡腿麦满分",0,true]],
+  6:[["猪柳炒双蛋堡",0,true]],
+  7:[["脆香油条",0,true],["脆薯饼",0,false],["德式图林根香肠",1,false]],
+  8:[["鲜萃冰咖",0,true],["大杯鲜萃咖啡",0,false],["优品豆浆大杯",0,false],["冰浓浓黑巧中杯",6,false],["麦咖啡™冰美式中杯",4,false],["麦咖啡™冰奶铁中杯",6,false],["热浓浓黑巧中杯",6,false],["热浓浓燕麦黑巧中杯",8,false],["冰浓浓燕麦黑巧中杯",8,false],["麦咖啡™热美式中杯",4,false],["麦咖啡™热奶铁中杯",6,false],["阳光柠檬红茶大杯",0.5,false],["【美汁源】“多汁柠柠”",0.5,false],["【美汁源】“黄金橙橙”",1.5,false],["100%苹果汁",0.5,false],["锡兰红茶",0,false],["阳光柠檬红茶中杯",-1.5,false],["冰燕麦奶铁中杯",8,false],["热燕麦奶铁中杯",8,false],["大杯怡泉+C",2,false],["可乐大杯",0.5,false],["无糖可口可乐大杯",0.5,false],["雪碧大杯",0.5,false],["中杯怡泉+C",0,false],["可乐中杯",-1.5,false],["无糖可口可乐中杯",-1.5,false],["雪碧中杯",-1.5,false],["热牛奶中杯",4,false]],
+  9:[["原味板烧鸡腿炒双蛋堡",0,true]],
+  10:[["猪柳麦满分",0,true]],
+  11:[["脆薯饼",0,true],["脆香油条",0,false],["德式图林根香肠",1,false]],
+  12:[["东南亚风味椰香鸡扒堡",0,true]],
+  13:[["北非蛋风味猪柳蛋麦满分",0,true]],
+  14:[["北非蛋风味脆鸡排麦满分",0,true]],
+  15:[["枫糖风味厚松饼猪柳堡",0,true]],
+  16:[["枫糖风味厚松饼猪柳蛋堡",0,true]],
+  17:[["吉士蛋麦满分",0,true]],
+  18:[["鲜萃冰咖",0,true],["小杯鲜萃咖啡",0,false],["优品豆浆小杯",0,false],["冰浓浓黑巧中杯",7.5,false],["麦咖啡™冰美式中杯",6,false],["麦咖啡™冰奶铁中杯",7.5,false],["热浓浓黑巧中杯",7.5,false],["热浓浓燕麦黑巧中杯",9.5,false],["冰浓浓燕麦黑巧中杯",9.5,false],["麦咖啡™热美式中杯",6,false],["麦咖啡™热奶铁中杯",7.5,false],["【美汁源】“多汁柠柠”",2.5,false],["【美汁源】“黄金橙橙”",3.5,false],["阳光柠檬红茶大杯",2.5,false],["100%苹果汁",2.5,false],["优品豆浆大杯",2,false],["锡兰红茶",2,false],["阳光柠檬红茶中杯",0.5,false],["冰燕麦奶铁中杯",9.5,false],["热燕麦奶铁中杯",9.5,false],["大杯鲜萃咖啡",2,false],["大杯怡泉+C",4,false],["可乐大杯",2.5,false],["无糖可口可乐大杯",2.5,false],["雪碧大杯",2.5,false],["中杯怡泉+C",2,false],["可乐中杯",0.5,false],["无糖可口可乐中杯",0.5,false],["雪碧中杯",0.5,false],["热牛奶中杯",6,false]],
+  19:[["脆香油条",0,true]],
+  20:[["北非蛋风味麦满分",0,true]],
+  21:[["原味板烧鸡腿麦满分",0,true]],
+  22:[["猪柳蛋麦满分",0,true]],
+  23:[["芝芝火腿扒堡",0,true]],
+  24:[["吉士蛋麦满分",0,true],["北非蛋风味麦满分",6.5,false],["大脆鸡扒麦满分",0,false],["火腿扒麦满分",0,false],["原味板烧鸡腿麦满分",4.5,false]],
+  25:[["麦咖啡™冰美式中杯",0,true],["麦咖啡™热美式中杯",0,false],["麦咖啡™冰奶铁中杯",2,false],["麦咖啡™热奶铁中杯",2,false],["冰燕麦奶铁中杯",2,false],["热燕麦奶铁中杯",2,false]],
+  26:[["优品豆浆大杯",0,true],["鲜萃冰咖",0,false],["大杯鲜萃咖啡",0,false],["冰浓浓黑巧中杯",6,false],["麦咖啡™冰美式中杯",4,false],["麦咖啡™冰奶铁中杯",6,false],["热浓浓黑巧中杯",6,false],["热浓浓燕麦黑巧中杯",8,false],["冰浓浓燕麦黑巧中杯",8,false],["麦咖啡™热美式中杯",4,false],["麦咖啡™热奶铁中杯",6,false],["阳光柠檬红茶大杯",0.5,false],["【美汁源】“多汁柠柠”",0.5,false],["【美汁源】“黄金橙橙”",1.5,false],["100%苹果汁",0.5,false],["锡兰红茶",0,false],["阳光柠檬红茶中杯",-1.5,false],["冰燕麦奶铁中杯",8,false],["热燕麦奶铁中杯",8,false],["大杯怡泉+C",2,false],["可乐大杯",0.5,false],["无糖可口可乐大杯",0.5,false],["雪碧大杯",0.5,false],["中杯怡泉+C",0,false],["可乐中杯",-1.5,false],["无糖可口可乐中杯",-1.5,false],["雪碧中杯",-1.5,false],["热牛奶中杯",4,false]],
+  27:[["火腿扒麦满分",0,true]],
+  28:[["麦辣鸡腿汉堡",0,true]],
+  29:[["中薯条",0,true],["5块心形薯饼+韩式辣椒黄油风味酱",1,false],["月下相思扭扭薯",1.5,false],["大薯条",1.5,false],["小杯玉米杯",-1.5,false],["大杯玉米杯",1,false]],
+  30:[["可乐中杯",0,true],["【美汁源】“多汁柠柠”",1,false],["热浓浓黑巧中杯",11,false],["举杯邀月柚桂茶(冰)",3,false],["举杯邀月柚桂茶(热)",3,false],["无糖可口可乐中杯",0,false],["雪碧中杯",0,false],["阳光柠檬红茶中杯",0,false],["麦咖啡™冰美式中杯",9,false],["大杯鲜萃咖啡",1.5,false],["麦咖啡™热美式中杯",9,false],["麦咖啡™冰奶铁中杯",11,false],["冰浓浓黑巧中杯",11,false],["热浓浓燕麦黑巧中杯",13,false],["冰浓浓燕麦黑巧中杯",13,false],["可乐大杯",2,false],["无糖可口可乐大杯",2,false],["大杯怡泉+C",3.5,false],["雪碧大杯",2,false],["麦咖啡™热奶铁中杯",11,false],["【美汁源】“黄金橙橙”",3,false],["锡兰红茶",1.5,false],["阳光柠檬红茶大杯",2,false],["100%苹果汁",2,false],["中杯怡泉+C",1.5,false]],
+  31:[["板烧鸡腿堡",0,true],["龙焰鸡腿堡",1,false],["龙焰芝士棒鸡腿堡",4,false],["麦辣鸡腿汉堡",0,false]],
+  32:[["麦乐鸡4块",0,true],["韩式烟熏芝士风味酱麦麦脆汁鸡-腿",6,false],["韩式烟熏芝士风味酱甜辣酱鸡球",6.5,false],["薄皮焦香V翅",3.5,false],["韩式甜辣酱鸡块",3.5,false],["麦辣鸡翅2块",2.5,false],["麦麦脆汁鸡-琵琶腿",3,false]],
+  33:[["麦辣鸡翅2块",0,true],["韩式烟熏芝士风味酱麦麦脆汁鸡-腿",3.5,false],["韩式烟熏芝士风味酱甜辣酱鸡球",4,false],["薄皮焦香V翅",1,false],["麦麦脆汁鸡-琵琶腿",0.5,false]],
+  34:[["中薯条",0,true],["马苏里拉拉丝芝士条",1.5,false],["蓝莓爆爆珠麦旋风",1,false],["5块心形薯饼+韩式辣椒黄油风味酱",1,false],["月下相思扭扭薯",1.5,false],["泷愿成真麦旋风——大米风味",1,false],["奥利奥麦旋风",0,false],["草莓麦旋风",0,false],["大杯玉米杯",1,false]],
+  35:[["可乐中杯",0,true],["冰浓浓黑巧中杯",11,false],["麦咖啡™冰美式中杯",9,false],["鲜萃冰咖",1.5,false],["大杯鲜萃咖啡",1.5,false],["麦咖啡™热美式中杯",9,false],["麦咖啡™冰奶铁中杯",11,false],["热浓浓黑巧中杯",11,false],["冰浓浓燕麦黑巧中杯",13,false],["热浓浓燕麦黑巧中杯",13,false],["麦咖啡™热奶铁中杯",11,false],["举杯邀月柚桂茶(冰)",3,false],["举杯邀月柚桂茶(热)",3,false],["怡泉+C麦炫酷",4.5,false],["无糖可乐麦炫酷",3,false],["无糖可口可乐中杯",0,false],["可乐大杯",2,false],["无糖可口可乐大杯",2,false],["【美汁源】“多汁柠柠”",2,false],["【美汁源】“黄金橙橙”",3,false],["大杯怡泉+C",3.5,false],["雪碧大杯",2,false],["阳光柠檬红茶大杯",2,false],["中杯怡泉+C",1.5,false],["雪碧中杯",0,false],["阳光柠檬红茶中杯",0,false],["锡兰红茶",0,false],["100%苹果汁",2,false]],
+  36:[["5块心形薯饼",0,true]],
+  37:[["韩式辣椒黄油风味酱",0,true]],
+  38:[["5块麦乐鸡",0,true]],
+  39:[["龙焰芝士棒鸡腿堡",0,true]],
+  40:[["龙焰鸡腿堡",0,true]],
+  41:[["麦香鱼",0,true]],
+  42:[["板烧鸡腿堡",0,true]],
+  43:[["双层吉士汉堡",0,true]],
+  44:[["麦辣鸡腿汉堡",0,true],["龙焰鸡腿堡",1,false],["龙焰芝士棒鸡腿堡",4,false],["双层脆鸡堡",0,false],["板烧鸡腿堡",0,false]],
+  45:[["中薯条",0,true],["马苏里拉拉丝芝士条",1.5,false],["蓝莓爆爆珠麦旋风",1,false],["5块心形薯饼+韩式辣椒黄油风味酱",1,false],["月下相思扭扭薯",1.5,false],["泷愿成真麦旋风——大米风味",1,false],["奥利奥麦旋风",0,false],["小杯玉米杯",0,false],["大杯玉米杯",1,false]],
+  46:[["麦乐鸡4块",0,true],["韩式烟熏芝士风味酱麦麦脆汁鸡-腿",6,false],["韩式烟熏芝士风味酱甜辣酱鸡球",6.5,false],["薄皮焦香V翅",3.5,false],["4个韩式甜辣酱鸡球（山葵酱）",6.5,false],["韩式甜辣酱鸡块",3.5,false],["麦辣鸡翅2块",2.5,false],["麦麦脆汁鸡-琵琶腿",3,false]],
+  47:[["可乐中杯",0,true],["【美汁源】“多汁柠柠”",1,false],["冰浓浓黑巧中杯",11,false],["麦咖啡™冰美式中杯",9,false],["鲜萃冰咖",1.5,false],["大杯鲜萃咖啡",1.5,false],["麦咖啡™热美式中杯",9,false],["麦咖啡™冰奶铁中杯",11,false],["热浓浓黑巧中杯",11,false],["冰浓浓燕麦黑巧中杯",13,false],["热浓浓燕麦黑巧中杯",13,false],["麦咖啡™热奶铁中杯",11,false],["举杯邀月柚桂茶(冰)",3,false],["举杯邀月柚桂茶(热)",3,false],["怡泉+C麦炫酷",4.5,false],["无糖可乐麦炫酷",3,false],["无糖可口可乐中杯",0,false],["可乐大杯",2,false],["无糖可口可乐大杯",2,false],["【美汁源】“黄金橙橙”",3,false],["大杯怡泉+C",3.5,false],["雪碧大杯",2,false],["阳光柠檬红茶大杯",2,false],["中杯怡泉+C",1.5,false],["雪碧中杯",0,false],["阳光柠檬红茶中杯",0,false],["锡兰红茶",0,false],["100%苹果汁",2,false]],
+  48:[["巨无霸",0,true]],
+  49:[["吉士汉堡包",0,true]],
+  50:[["巨无霸",0,true],["培根蔬萃双层牛堡",0,false],["不素之霸双层牛堡",0,false],["风味双层深海鳕鱼堡",0,false],["原味双层深海鳕鱼堡",0,false]],
+  51:[["麦辣鸡翅4块",0,true]],
+  52:[["麦香鸡",0,true]],
+  53:[["培根蔬萃双层牛堡",0,true]],
+  54:[["芝士安格斯厚牛堡",0,true],["培根安格斯厚牛堡",0,false]],
+  55:[["原味双层深海鳕鱼堡",0,true],["风味双层深海鳕鱼堡",0,false]],
+  56:[["麦辣鸡翅-2块",0,true],["麦乐鸡-5块",0,false],["麦麦脆汁鸡-琵琶腿",0.5,false],["那么大鸡排（椒盐风味）",-0.5,false],["薄皮焦香V翅",1,false]],
+  57:[["小薯条",0,true],["中薯条",3.5,false],["大薯条",5,false]],
+  58:[["麦乐鸡5块",0,true]],
+  59:[["双层吉士汉堡",0,true],["高达吉士双牛堡",-1,false],["麦香鱼",0,false],["那么大鸡排（椒盐风味）",-1,false],["麦乐鸡5块",-1,false],["麦香鸡",-1,false],["小薯条",-1,false]],
+  60:[["阳光柠檬红茶中杯",0,true],["可乐中杯",0,false],["怡泉+C麦炫酷",0,false],["小杯玉米杯",0,false],["香芋派",0,false],["迷你草莓新地",0,false],["迷你朱古力新地",0,false],["鲜萃冰咖",0,false],["菠萝派",0,false],["无糖可乐麦炫酷",0,false],["锡兰红茶",0,false],["中杯怡泉+C",0,false],["雪碧中杯",0,false],["无糖可口可乐中杯",0,false]],
+  61:[["麦麦脆汁鸡-琵琶腿",0,true]],
+  62:[["迷你薯条",0,true]],
+  63:[["无糖可口可乐中杯",0,true],["无糖可口可乐小杯",-0.5,false],["无糖可口可乐大杯",2,false],["锡兰红茶",1.5,false],["麦咖啡™热美式中杯",9,false],["麦咖啡™冰美式中杯",9,false]],
+  64:[["Hold不住鸡排堡（椒盐风味）",0,true],["双层脆鸡堡",1,false],["培根芝士双牛堡",1,false]],
+  65:[["中薯条",0,true],["大薯条",1.5,false],["大杯玉米杯",1,false]],
+  66:[["可乐中杯",0,true],["雪碧中杯",0,false],["中杯怡泉+C",1.5,false],["无糖可口可乐中杯",0,false],["麦咖啡™冰美式中杯",9,false],["阳光柠檬红茶中杯",0,false],["鲜萃冰咖",1.5,false],["大杯鲜萃咖啡",1.5,false],["麦咖啡™热美式中杯",9,false],["麦咖啡™冰奶铁中杯",11,false],["麦咖啡™热奶铁中杯",11,false],["可乐大杯",2,false],["无糖可口可乐大杯",2,false],["雪碧大杯",2,false],["阳光柠檬红茶大杯",2,false],["大杯怡泉+C",3.5,false],["【美汁源】“黄金橙橙”",3,false],["锡兰红茶",1.5,false],["100%苹果汁",2,false]],
+  67:[["汉堡包",0,true]],
+  68:[["麦乐鸡4块",0,true]],
+  69:[["苹果片一袋(60g)",0,true]],
+  70:[["小杯玉米杯",0,true]],
+  71:[["锡兰红茶",0,true],["无糖可口可乐中杯",-1.5,false],["无糖可口可乐小杯",-2,false],["无糖可口可乐大杯",0.5,false],["麦咖啡™热美式中杯",7.5,false],["麦咖啡™冰美式中杯",7.5,false]],
+  72:[["那么大鸡排（椒盐风味）",0,true],["高达吉士双牛堡",0,false],["双层吉士汉堡",1,false],["麦香鱼",1,false],["麦乐鸡5块",0,false],["麦香鸡",0,false],["小薯条",0,false]],
+  73:[["阳光柠檬红茶中杯",0,true],["怡泉+C麦炫酷",0,false],["可乐中杯",0,false],["小杯玉米杯",0,false],["香芋派",0,false],["迷你草莓新地",0,false],["迷你朱古力新地",0,false],["鲜萃冰咖",0,false],["菠萝派",0,false],["无糖可乐麦炫酷",0,false],["锡兰红茶",0,false],["中杯怡泉+C",0,false],["雪碧中杯",0,false],["无糖可口可乐中杯",0,false]],
+  74:[["麦辣鸡翅2块",0,true]],
+  75:[["不素之霸双层牛堡",0,true]],
+  76:[["芝士安格斯厚牛堡",0,true]],
+  77:[["培根安格斯厚牛堡",0,true]],
+  78:[["麦辣鸡腿汉堡",0,true],["板烧鸡腿堡",0,false],["麦香鱼",0,false],["巨无霸",0,false],["双层吉士汉堡",0,false]],
+  79:[["麦辣鸡翅2块",0,true],["麦乐鸡5块",0,false],["麦麦脆汁鸡-琵琶腿",0,false],["奥利奥麦旋风",0,false],["中薯条",0,false],["那么大鸡排（椒盐风味）",0,false],["大杯玉米杯",0,false]],
+  80:[["可乐中杯",0,true],["雪碧中杯",0,false],["无糖可口可乐中杯",0,false],["阳光柠檬红茶中杯",0,false],["中杯怡泉+C",0,false],["【美汁源】“黄金橙橙”",0,false],["麦咖啡™冰美式中杯",0,false],["麦咖啡™热美式中杯",0,false],["锡兰红茶",0,false]],
+  81:[["板烧鸡腿堡",0,true],["巨无霸",2.5,false],["麦辣鸡腿汉堡",-1,false],["培根安格斯厚牛堡",10.5,false],["原味双层深海鳕鱼堡",1,false]],
+  82:[["鱼排堡",0,true]],
+  83:[["小杯玉米杯",0,true],["苹果片一袋(60g)",0,false]],
+  84:[["100%苹果汁",0,true]],
+  85:[["海绵宝宝×航海王系列玩具",0,true]],
+  86:[["无糖可口可乐中杯",0,true],["无糖可口可乐小杯",-0.5,false],["锡兰红茶",1.5,false]],
+  87:[["中薯条",0,true]],
+  88:[["麦乐鸡-5块",0,true]],
+  89:[["薄皮焦香V翅",0,true],["麦辣鸡翅-2块",0,false],["那么大鸡排（椒盐风味）",0,false]],
+  90:[["可乐中杯",0,true],["无糖可口可乐中杯",0,false]],
+  91:[["龙焰鸡腿堡",0,true],["龙焰芝士棒鸡腿堡",3,false]],
+  92:[["可乐中杯",0,true],["雪碧中杯",0,false],["无糖可口可乐中杯",0,false],["阳光柠檬红茶中杯",0,false],["中杯怡泉+C",1.5,false],["【美汁源】“黄金橙橙”",3,false]],
+  93:[["中薯条",0,true],["麦乐鸡5块",0,false],["麦辣鸡翅2块",0,false],["奥利奥麦旋风",0,false],["麦香鱼",7.5,false],["麦辣鸡腿汉堡",8.5,false]]
+};
 const MENU = [
-  {n:"一早现磨 超值二件套",role:"套餐",c:["人气热卖"],dp:["早餐"],p:{"早餐":14.9},o:{"早餐":29},t:["金奖豆","现磨"]},
-  {n:"厚松饼猪柳蛋堡三件套",role:"套餐",c:["人气热卖"],dp:["早餐"],p:{"早餐":17.94},o:{"早餐":29.9},t:["早餐卡专享价"]},
+  {n:"一早现磨 超值二件套",role:"套餐",c:["人气热卖"],dp:["早餐"],p:{"早餐":14.9},o:{"早餐":29},t:["金奖豆","现磨"],combo:1,def:["吉士蛋麦满分","麦咖啡™冰美式中杯"]},
+  {n:"厚松饼猪柳蛋堡三件套",role:"套餐",c:["人气热卖"],dp:["早餐"],p:{"早餐":17.94},o:{"早餐":29.9},t:["早餐卡专享价"],combo:1,def:["枫糖风味厚松饼猪柳蛋堡","脆薯饼","鲜萃冰咖"]},
   {n:"猪柳蛋麦满分套餐",role:"套餐",c:["人气热卖"],dp:["早餐"],p:{"早餐":15.6},o:{"早餐":26},t:["早餐卡专享价","三件套","人气产品"],combo:1,def:["猪柳蛋麦满分","脆薯饼","鲜萃冰咖"]},
-  {n:"芝芝火腿扒堡套餐",role:"套餐",c:["人气热卖"],dp:["早餐"],p:{"早餐":11.4},o:{"早餐":19},t:["早餐卡专享价"]},
-  {n:"芝芝火腿扒堡组合",role:"套餐",c:["人气热卖"],dp:["早餐"],p:{"早餐":9.9},t:["人气产品","超值早餐"]},
+  {n:"芝芝火腿扒堡套餐",role:"套餐",c:["人气热卖"],dp:["早餐"],p:{"早餐":11.4},o:{"早餐":19},t:["早餐卡专享价"],combo:1,def:["芝芝火腿扒堡","脆薯饼","鲜萃冰咖"]},
+  {n:"芝芝火腿扒堡组合",role:"套餐",c:["人气热卖"],dp:["早餐"],p:{"早餐":9.9},t:["人气产品","超值早餐"],combo:1,def:["芝芝火腿扒堡","鲜萃冰咖"]},
   {n:"东南亚风味椰香鸡扒堡",role:"主食",c:["超值早餐"],dp:["早餐"],p:{"早餐":13},t:["新品上市"]},
-  {n:"东南亚风味椰香鸡扒堡套餐",role:"套餐",c:["超值早餐"],dp:["早餐"],p:{"早餐":11.4},o:{"早餐":19},t:["早餐卡专享价"]},
-  {n:"东南亚风味椰香鸡扒堡组合",role:"套餐",c:["超值早餐"],dp:["早餐"],p:{"早餐":9.9},t:["超值早餐"]},
+  {n:"东南亚风味椰香鸡扒堡套餐",role:"套餐",c:["超值早餐"],dp:["早餐"],p:{"早餐":11.4},o:{"早餐":19},t:["早餐卡专享价"],combo:1,def:["东南亚风味椰香鸡扒堡","脆薯饼","鲜萃冰咖"]},
+  {n:"东南亚风味椰香鸡扒堡组合",role:"套餐",c:["超值早餐"],dp:["早餐"],p:{"早餐":9.9},t:["超值早餐"],combo:1,def:["东南亚风味椰香鸡扒堡","鲜萃冰咖"]},
   {n:"芝芝火腿扒堡",role:"主食",c:["超值早餐"],dp:["早餐"],p:{"早餐":13},t:["人气产品"]},
-  {n:"原味板烧鸡腿炒双蛋堡组合",role:"套餐",c:["6折起早餐卡专区"],dp:["早餐"],p:{"早餐":13.2},o:{"早餐":22},t:["二件套"]},
-  {n:"原味板烧鸡腿麦满分组合",role:"套餐",c:["6折起早餐卡专区"],dp:["早餐"],p:{"早餐":11.1},o:{"早餐":18.5},t:["二件套"]},
-  {n:"吉士蛋麦满分组合",role:"套餐",c:["6折起早餐卡专区"],dp:["早餐"],p:{"早餐":7.5},o:{"早餐":12.5},t:["二件套"]},
-  {n:"大脆鸡扒麦满分套餐",role:"套餐",c:["6折起早餐卡专区"],dp:["早餐"],p:{"早餐":10.8},o:{"早餐":18},t:["三件套"]},
-  {n:"火腿扒早安营养卷组合",role:"套餐",c:["6折起早餐卡专区"],dp:["早餐"],p:{"早餐":11.4},o:{"早餐":19},t:["二件套"]},
-  {n:"脆香油条组合",role:"套餐",c:["6折起早餐卡专区"],dp:["早餐"],p:{"早餐":6.6},o:{"早餐":11}},
+  {n:"原味板烧鸡腿炒双蛋堡组合",role:"套餐",c:["6折起早餐卡专区"],dp:["早餐"],p:{"早餐":13.2},o:{"早餐":22},t:["二件套"],combo:1,def:["原味板烧鸡腿炒双蛋堡","鲜萃冰咖"]},
+  {n:"原味板烧鸡腿麦满分组合",role:"套餐",c:["6折起早餐卡专区"],dp:["早餐"],p:{"早餐":11.1},o:{"早餐":18.5},t:["二件套"],combo:1,def:["鲜萃冰咖","原味板烧鸡腿麦满分"]},
+  {n:"吉士蛋麦满分组合",role:"套餐",c:["6折起早餐卡专区"],dp:["早餐"],p:{"早餐":7.5},o:{"早餐":12.5},t:["二件套"],combo:1,def:["吉士蛋麦满分","鲜萃冰咖"]},
+  {n:"大脆鸡扒麦满分套餐",role:"套餐",c:["6折起早餐卡专区"],dp:["早餐"],p:{"早餐":10.8},o:{"早餐":18},t:["三件套"],combo:1,def:["大脆鸡扒麦满分","脆薯饼","鲜萃冰咖"]},
+  {n:"火腿扒早安营养卷组合",role:"套餐",c:["6折起早餐卡专区"],dp:["早餐"],p:{"早餐":11.4},o:{"早餐":19},t:["二件套"],combo:1,def:["火腿扒早安营养卷","鲜萃冰咖"]},
+  {n:"脆香油条组合",role:"套餐",c:["6折起早餐卡专区"],dp:["早餐"],p:{"早餐":6.6},o:{"早餐":11},combo:1,def:["脆香油条","鲜萃冰咖"]},
   {n:"枫糖风味厚松饼猪柳堡",role:"主食",c:["厚松饼堡系列"],dp:["早餐"],p:{"早餐":18},t:["单品","咸甜美味"]},
-  {n:"枫糖风味厚松饼猪柳堡套餐",role:"套餐",c:["厚松饼堡系列"],dp:["早餐"],p:{"早餐":15.54},o:{"早餐":25.9},t:["三件套","咸甜美味"]},
-  {n:"枫糖风味厚松饼猪柳堡组合",role:"套餐",c:["厚松饼堡系列"],dp:["早餐"],p:{"早餐":12.9},o:{"早餐":21.5},t:["二件套","咸甜美味"]},
+  {n:"枫糖风味厚松饼猪柳堡套餐",role:"套餐",c:["厚松饼堡系列"],dp:["早餐"],p:{"早餐":15.54},o:{"早餐":25.9},t:["三件套","咸甜美味"],combo:1,def:["枫糖风味厚松饼猪柳堡","脆薯饼","鲜萃冰咖"]},
+  {n:"枫糖风味厚松饼猪柳堡组合",role:"套餐",c:["厚松饼堡系列"],dp:["早餐"],p:{"早餐":12.9},o:{"早餐":21.5},t:["二件套","咸甜美味"],combo:1,def:["枫糖风味厚松饼猪柳堡","鲜萃冰咖"]},
   {n:"枫糖风味厚松饼猪柳蛋堡",role:"主食",c:["厚松饼堡系列"],dp:["早餐"],p:{"早餐":22},t:["单品","咸甜美味"]},
-  {n:"枫糖风味厚松饼猪柳蛋堡套餐",role:"套餐",c:["厚松饼堡系列"],dp:["早餐"],p:{"早餐":17.94},o:{"早餐":29.9},t:["三件套","早餐卡专享价"]},
-  {n:"枫糖风味厚松饼猪柳蛋堡组合",role:"套餐",c:["厚松饼堡系列"],dp:["早餐"],p:{"早餐":15.3},o:{"早餐":25.5},t:["二件套","咸甜美味"]},
+  {n:"枫糖风味厚松饼猪柳蛋堡套餐",role:"套餐",c:["厚松饼堡系列"],dp:["早餐"],p:{"早餐":17.94},o:{"早餐":29.9},t:["三件套","早餐卡专享价"],combo:1,def:["枫糖风味厚松饼猪柳蛋堡","脆薯饼","鲜萃冰咖"]},
+  {n:"枫糖风味厚松饼猪柳蛋堡组合",role:"套餐",c:["厚松饼堡系列"],dp:["早餐"],p:{"早餐":15.3},o:{"早餐":25.5},t:["二件套","咸甜美味"],combo:1,def:["枫糖风味厚松饼猪柳蛋堡","鲜萃冰咖"]},
   {n:"北非蛋风味猪柳蛋麦满分",role:"主食",c:["麦满分系列"],dp:["早餐"],p:{"早餐":22},t:["单品","人气回归（图片）"]},
-  {n:"北非蛋风味猪柳蛋麦满分套餐",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":18},o:{"早餐":30},t:["三件套","早餐卡专享价"]},
-  {n:"北非蛋风味猪柳蛋麦满分组合",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":15.3},o:{"早餐":25.5},t:["二件套","人气回归（图片）"]},
+  {n:"北非蛋风味猪柳蛋麦满分套餐",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":18},o:{"早餐":30},t:["三件套","早餐卡专享价"],combo:1,def:["北非蛋风味猪柳蛋麦满分","脆薯饼","鲜萃冰咖"]},
+  {n:"北非蛋风味猪柳蛋麦满分组合",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":15.3},o:{"早餐":25.5},t:["二件套","人气回归（图片）"],combo:1,def:["北非蛋风味猪柳蛋麦满分","鲜萃冰咖"]},
   {n:"北非蛋风味脆鸡排麦满分",role:"主食",c:["麦满分系列"],dp:["早餐"],p:{"早餐":20.5},t:["单品","新品上市（图片）"]},
-  {n:"北非蛋风味脆鸡排麦满分套餐",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":17.1},o:{"早餐":28.5},t:["三件套","早餐卡专享价"]},
-  {n:"北非蛋风味脆鸡排麦满分组合",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":14.4},o:{"早餐":24},t:["二件套","新品上市（图片）"]},
+  {n:"北非蛋风味脆鸡排麦满分套餐",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":17.1},o:{"早餐":28.5},t:["三件套","早餐卡专享价"],combo:1,def:["北非蛋风味脆鸡排麦满分","脆薯饼","鲜萃冰咖"]},
+  {n:"北非蛋风味脆鸡排麦满分组合",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":14.4},o:{"早餐":24},t:["二件套","新品上市（图片）"],combo:1,def:["北非蛋风味脆鸡排麦满分","鲜萃冰咖"]},
   {n:"北非蛋风味麦满分",role:"主食",c:["麦满分系列"],dp:["早餐"],p:{"早餐":18},t:["单品","人气回归（图片）"]},
-  {n:"北非蛋风味麦满分套餐",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":15.6},o:{"早餐":26},t:["三件套","早餐卡专享价"]},
-  {n:"北非蛋风味麦满分组合",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":12.9},o:{"早餐":21.5},t:["二件套","人气回归（图片）"]},
+  {n:"北非蛋风味麦满分套餐",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":15.6},o:{"早餐":26},t:["三件套","早餐卡专享价"],combo:1,def:["北非蛋风味麦满分","脆薯饼","鲜萃冰咖"]},
+  {n:"北非蛋风味麦满分组合",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":12.9},o:{"早餐":21.5},t:["二件套","人气回归（图片）"],combo:1,def:["北非蛋风味麦满分","鲜萃冰咖"]},
   {n:"原味板烧鸡腿麦满分",role:"主食",c:["麦满分系列"],dp:["早餐"],p:{"早餐":15},t:["单品"]},
-  {n:"原味板烧鸡腿麦满分套餐",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":13.8},o:{"早餐":23},t:["三件套","早餐卡专享价"]},
+  {n:"原味板烧鸡腿麦满分套餐",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":13.8},o:{"早餐":23},t:["三件套","早餐卡专享价"],combo:1,def:["原味板烧鸡腿麦满分","脆薯饼","鲜萃冰咖"]},
   {n:"双层原味板烧鸡腿麦满分",role:"主食",c:["麦满分系列"],dp:["早餐"],p:{"早餐":19},t:["单品"]},
-  {n:"双层原味板烧鸡腿麦满分套餐",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":16.2},o:{"早餐":27},t:["三件套"]},
-  {n:"双层原味板烧鸡腿麦满分组合",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":13.5},o:{"早餐":22.5},t:["二件套"]},
+  {n:"双层原味板烧鸡腿麦满分套餐",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":16.2},o:{"早餐":27},t:["三件套"],combo:1,def:["双层原味板烧鸡腿麦满分","脆薯饼","鲜萃冰咖"]},
+  {n:"双层原味板烧鸡腿麦满分组合",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":13.5},o:{"早餐":22.5},t:["二件套"],combo:1,def:["鲜萃冰咖","双层原味板烧鸡腿麦满分"]},
   {n:"双层猪柳蛋麦满分",role:"主食",c:["麦满分系列"],dp:["早餐"],p:{"早餐":21},t:["单品"]},
   {n:"吉士蛋麦满分",role:"主食",c:["麦满分系列"],dp:["早餐"],p:{"早餐":10},t:["单品"]},
-  {n:"吉士蛋麦满分套餐",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":10.2},o:{"早餐":17},t:["三件套"]},
+  {n:"吉士蛋麦满分套餐",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":10.2},o:{"早餐":17},t:["三件套"],combo:1,def:["吉士蛋麦满分","脆薯饼","鲜萃冰咖"]},
   {n:"大脆鸡扒麦满分",role:"主食",c:["麦满分系列"],dp:["早餐"],p:{"早餐":11},t:["单品"]},
-  {n:"大脆鸡扒麦满分组合",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":8.1},o:{"早餐":13.5},t:["二件套"]},
+  {n:"大脆鸡扒麦满分组合",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":8.1},o:{"早餐":13.5},t:["二件套"],combo:1,def:["大脆鸡扒麦满分","鲜萃冰咖"]},
   {n:"火腿扒麦满分",role:"主食",c:["麦满分系列"],dp:["早餐"],p:{"早餐":11},t:["单品"]},
-  {n:"火腿扒麦满分套餐",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":10.8},o:{"早餐":18},t:["三件套"]},
-  {n:"火腿扒麦满分组合",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":8.1},o:{"早餐":13.5},t:["二件套"]},
+  {n:"火腿扒麦满分套餐",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":10.8},o:{"早餐":18},t:["三件套"],combo:1,def:["火腿扒麦满分","脆薯饼","鲜萃冰咖"]},
+  {n:"火腿扒麦满分组合",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":8.1},o:{"早餐":13.5},t:["二件套"],combo:1,def:["火腿扒麦满分","鲜萃冰咖"]},
   {n:"猪柳蛋麦满分",role:"主食",c:["麦满分系列"],dp:["早餐"],p:{"早餐":18},t:["单品","人气产品"]},
-  {n:"猪柳蛋麦满分组合",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":12.9},o:{"早餐":21.5},t:["二件套","人气产品"]},
+  {n:"猪柳蛋麦满分组合",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":12.9},o:{"早餐":21.5},t:["二件套","人气产品"],combo:1,def:["鲜萃冰咖","猪柳蛋麦满分"]},
   {n:"猪柳麦满分",role:"主食",c:["麦满分系列"],dp:["早餐"],p:{"早餐":14},t:["单品"]},
-  {n:"猪柳麦满分套餐",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":13.2},o:{"早餐":22},t:["三件套"]},
-  {n:"猪柳麦满分组合",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":10.5},o:{"早餐":17.5},t:["二件套"]},
-  {n:"精选麦满分套餐",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":15.6},o:{"早餐":26},t:["麦金卡同享"]},
+  {n:"猪柳麦满分套餐",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":13.2},o:{"早餐":22},t:["三件套"],combo:1,def:["猪柳麦满分","脆薯饼","鲜萃冰咖"]},
+  {n:"猪柳麦满分组合",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":10.5},o:{"早餐":17.5},t:["二件套"],combo:1,def:["猪柳麦满分","鲜萃冰咖"]},
+  {n:"精选麦满分套餐",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":15.6},o:{"早餐":26},t:["麦金卡同享"],combo:1,def:["猪柳蛋麦满分","脆薯饼","鲜萃冰咖"]},
   {n:"原味板烧鸡腿炒双蛋堡",role:"主食",c:["炒双蛋堡系列"],dp:["早餐"],p:{"早餐":18.5},t:["单品"]},
-  {n:"原味板烧鸡腿炒双蛋堡套餐",role:"套餐",c:["炒双蛋堡系列"],dp:["早餐"],p:{"早餐":15.9},o:{"早餐":26.5},t:["三件套"]},
+  {n:"原味板烧鸡腿炒双蛋堡套餐",role:"套餐",c:["炒双蛋堡系列"],dp:["早餐"],p:{"早餐":15.9},o:{"早餐":26.5},t:["三件套"],combo:1,def:["原味板烧鸡腿炒双蛋堡","脆薯饼","鲜萃冰咖"]},
   {n:"猪柳炒双蛋堡",role:"主食",c:["炒双蛋堡系列"],dp:["早餐"],p:{"早餐":18.5},t:["单品"]},
-  {n:"猪柳炒双蛋堡套餐",role:"套餐",c:["炒双蛋堡系列"],dp:["早餐"],p:{"早餐":15.9},o:{"早餐":26.5},t:["三件套"]},
-  {n:"猪柳炒双蛋堡组合",role:"套餐",c:["炒双蛋堡系列"],dp:["早餐"],p:{"早餐":13.2},o:{"早餐":22},t:["二件套"]},
+  {n:"猪柳炒双蛋堡套餐",role:"套餐",c:["炒双蛋堡系列"],dp:["早餐"],p:{"早餐":15.9},o:{"早餐":26.5},t:["三件套"],combo:1,def:["猪柳炒双蛋堡","脆薯饼","鲜萃冰咖"]},
+  {n:"猪柳炒双蛋堡组合",role:"套餐",c:["炒双蛋堡系列"],dp:["早餐"],p:{"早餐":13.2},o:{"早餐":22},t:["二件套"],combo:1,def:["猪柳炒双蛋堡","鲜萃冰咖"]},
   {n:"图林根香肠早安营养卷",role:"主食",c:["早安营养卷"],dp:["早餐"],p:{"早餐":16.5},t:["单品"]},
-  {n:"图林根香肠早安营养卷套餐",role:"套餐",c:["早安营养卷"],dp:["早餐"],p:{"早餐":14.7},o:{"早餐":24.5},t:["三件套"]},
-  {n:"图林根香肠早安营养卷组合",role:"套餐",c:["早安营养卷"],dp:["早餐"],p:{"早餐":12},o:{"早餐":20},t:["二件套"]},
+  {n:"图林根香肠早安营养卷套餐",role:"套餐",c:["早安营养卷"],dp:["早餐"],p:{"早餐":14.7},o:{"早餐":24.5},t:["三件套"],combo:1,def:["图林根香肠早安营养卷","脆香油条","鲜萃冰咖"]},
+  {n:"图林根香肠早安营养卷组合",role:"套餐",c:["早安营养卷"],dp:["早餐"],p:{"早餐":12},o:{"早餐":20},t:["二件套"],combo:1,def:["图林根香肠早安营养卷","鲜萃冰咖"]},
   {n:"火腿扒早安营养卷",role:"主食",c:["早安营养卷"],dp:["早餐"],p:{"早餐":15.5},t:["单品"]},
-  {n:"火腿扒早安营养卷套餐",role:"套餐",c:["早安营养卷"],dp:["早餐"],p:{"早餐":14.1},o:{"早餐":23.5},t:["三件套"]},
+  {n:"火腿扒早安营养卷套餐",role:"套餐",c:["早安营养卷"],dp:["早餐"],p:{"早餐":14.1},o:{"早餐":23.5},t:["三件套"],combo:1,def:["火腿扒早安营养卷","脆香油条","鲜萃冰咖"]},
   {n:"德式图林根香肠",role:"小食",c:["小食甜品/其他"],dp:["早餐"],p:{"早餐":9.5},t:["小食"]},
-  {n:"脆薯饼",role:"小食",c:["小食甜品/其他"],dp:["早餐"],p:{"早餐":8.5},t:["小食"]},
   {n:"脆香油条",role:"小食",c:["小食甜品/其他"],dp:["早餐"],p:{"早餐":8.5},t:["小食"]},
-  {n:"脆香油条豆浆组合",role:"套餐",c:["小食甜品/其他"],dp:["早餐"],p:{"早餐":17.5},t:["小食"]},
+  {n:"脆香油条豆浆组合",role:"套餐",c:["小食甜品/其他"],dp:["早餐"],p:{"早餐":17.5},t:["小食"],combo:1,def:["脆香油条","优品豆浆大杯"]},
   {n:"优品豆浆",role:"饮品",c:["饮品"],dp:["早餐"],p:{"早餐":9.5},t:["热饮"]},
   {n:"冰牛奶中杯",role:"饮品",c:["饮品"],dp:["早餐"],p:{"早餐":19},t:["冷饮"]},
   {n:"麦咖啡™热奶铁中杯",role:"饮品",c:["饮品"],dp:["早餐"],p:{"早餐":13.9},o:{"早餐":21},t:["热饮","更奶更浓"]},
   {n:"麦咖啡™热美式中杯",role:"饮品",c:["饮品"],dp:["早餐"],p:{"早餐":11.9},o:{"早餐":19},t:["热饮"]},
-  {n:"“我就喜欢”鸡薯双全盒",role:"套餐",c:["人气热卖"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":15.9,"随便吃吃":15.9,"晚餐":15.9,"宵夜":15.9},o:{"午餐":30,"随便吃吃":30,"晚餐":30,"宵夜":30},t:["心形薯饼同款比心","上新"]},
-  {n:"全明星双人分享餐八件套",role:"套餐",c:["人气热卖","小食拼盘/多人餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":49.9,"随便吃吃":49.9,"晚餐":49.9,"宵夜":49.9},o:{"午餐":116.5,"随便吃吃":116.5,"晚餐":116.5,"宵夜":116.5},t:["麦金卡"]},
+  {n:"“我就喜欢”鸡薯双全盒",role:"套餐",c:["人气热卖"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":15.9,"随便吃吃":15.9,"晚餐":15.9,"宵夜":15.9},o:{"午餐":30,"随便吃吃":30,"晚餐":30,"宵夜":30},t:["心形薯饼同款比心","上新"],combo:1,def:["5块心形薯饼","韩式辣椒黄油风味酱","5块麦乐鸡"]},
+  {n:"全明星双人分享餐八件套",role:"套餐",c:["人气热卖","小食拼盘/多人餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":49.9,"随便吃吃":49.9,"晚餐":49.9,"宵夜":49.9},o:{"午餐":116.5,"随便吃吃":116.5,"晚餐":116.5,"宵夜":116.5},t:["麦金卡"],combo:1,def:["麦辣鸡腿汉堡","板烧鸡腿堡","麦乐鸡4块","麦辣鸡翅2块","中薯条","可乐中杯"]},
   {n:"精选单人餐三件套",role:"套餐",c:["人气热卖"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":35,"随便吃吃":35,"晚餐":35,"宵夜":35},o:{"午餐":47.5,"随便吃吃":47.5,"晚餐":47.5,"宵夜":47.5},t:["爆款","经典精选"],combo:1,def:["板烧鸡腿堡","中薯条","可乐中杯"]},
   {n:"蓝莓爆爆珠麦旋风",role:"甜品",c:["小食甜品/其他","人气热卖"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":15.5,"午餐":15.5,"随便吃吃":15.5,"晚餐":15.5,"宵夜":15.5},t:["上新","蓝莓"]},
   {n:"麦咖啡™奶铁",role:"饮品",c:["人气热卖","麦咖啡™"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":13.9,"午餐":9.9,"随便吃吃":9.9,"晚餐":9.9,"宵夜":13.9},o:{"早餐":21,"午餐":21,"随便吃吃":21,"晚餐":21,"宵夜":21},t:["更奶更浓","限定特惠","冷饮"]},
   {n:"麦咖啡™美式",role:"饮品",c:["麦咖啡™","人气热卖"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":11.9,"午餐":9.9,"随便吃吃":9.9,"晚餐":9.9,"宵夜":11.9},o:{"早餐":19,"午餐":19,"随便吃吃":19,"晚餐":19,"宵夜":19},t:["限定特惠","冷饮"]},
-  {n:"龙焰芝士棒鸡腿堡三件套",role:"套餐",c:["人气热卖"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":29.9,"随便吃吃":29.9,"晚餐":29.9,"宵夜":29.9},o:{"午餐":52,"随便吃吃":52,"晚餐":52,"宵夜":52},t:["浓郁奶香拉丝芝士","上新"]},
-  {n:"龙焰鸡腿堡三件套",role:"套餐",c:["人气热卖"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":26.9,"随便吃吃":26.9,"晚餐":26.9,"宵夜":26.9},o:{"午餐":49,"随便吃吃":49,"晚餐":49,"宵夜":49},t:["韩式辣椒黄油风味","上新"]},
-  {n:"人气超值四件套随心选",role:"套餐",c:["精选单人餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":28,"随便吃吃":28,"晚餐":28,"宵夜":28},o:{"午餐":58,"随便吃吃":58,"晚餐":58,"宵夜":58},t:["麦金卡"]},
-  {n:"安格斯厚牛堡四件套随心选",role:"套餐",c:["精选单人餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":37,"随便吃吃":37,"晚餐":37,"宵夜":37},o:{"午餐":66.5,"随便吃吃":66.5,"晚餐":66.5,"宵夜":66.5},t:["麦金卡"]},
-  {n:"鱼牛汉堡四件套随心选",role:"套餐",c:["精选单人餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":32,"随便吃吃":32,"晚餐":32,"宵夜":32},o:{"午餐":59.5,"随便吃吃":59.5,"晚餐":59.5,"宵夜":59.5},t:["麦金卡"]},
+  {n:"龙焰芝士棒鸡腿堡三件套",role:"套餐",c:["人气热卖"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":29.9,"随便吃吃":29.9,"晚餐":29.9,"宵夜":29.9},o:{"午餐":52,"随便吃吃":52,"晚餐":52,"宵夜":52},t:["浓郁奶香拉丝芝士","上新"],combo:1,def:["龙焰芝士棒鸡腿堡","中薯条","可乐中杯"]},
+  {n:"龙焰鸡腿堡三件套",role:"套餐",c:["人气热卖"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":26.9,"随便吃吃":26.9,"晚餐":26.9,"宵夜":26.9},o:{"午餐":49,"随便吃吃":49,"晚餐":49,"宵夜":49},t:["韩式辣椒黄油风味","上新"],combo:1,def:["龙焰鸡腿堡","中薯条","可乐中杯"]},
+  {n:"人气超值四件套随心选",role:"套餐",c:["精选单人餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":28,"随便吃吃":28,"晚餐":28,"宵夜":28},o:{"午餐":58,"随便吃吃":58,"晚餐":58,"宵夜":58},t:["麦金卡"],combo:1,def:["麦辣鸡腿汉堡","中薯条","麦乐鸡4块","可乐中杯"]},
+  {n:"安格斯厚牛堡四件套随心选",role:"套餐",c:["精选单人餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":37,"随便吃吃":37,"晚餐":37,"宵夜":37},o:{"午餐":66.5,"随便吃吃":66.5,"晚餐":66.5,"宵夜":66.5},t:["麦金卡"],combo:1,def:["芝士安格斯厚牛堡","中薯条","麦乐鸡4块","可乐中杯"]},
+  {n:"鱼牛汉堡四件套随心选",role:"套餐",c:["精选单人餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":32,"随便吃吃":32,"晚餐":32,"宵夜":32},o:{"午餐":59.5,"随便吃吃":59.5,"晚餐":59.5,"宵夜":59.5},t:["麦金卡"],combo:1,def:["巨无霸","中薯条","麦乐鸡4块","可乐中杯"]},
   {n:"板烧鸡腿堡",role:"主食",c:["鸡肉汉堡/卷"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":24,"随便吃吃":24,"晚餐":24,"宵夜":24},t:["单品","板烧滋滋","多汁惹味"]},
-  {n:"板烧鸡腿堡三件套",role:"套餐",c:["鸡肉汉堡/卷"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":35,"随便吃吃":35,"晚餐":35,"宵夜":35},o:{"午餐":48.5,"随便吃吃":48.5,"晚餐":48.5,"宵夜":48.5},t:["套餐","新升级","更多汁"]},
-  {n:"板烧鸡腿堡四件套",role:"套餐",c:["鸡肉汉堡/卷"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":28,"随便吃吃":28,"晚餐":28,"宵夜":28},o:{"午餐":58,"随便吃吃":58,"晚餐":58,"宵夜":58},t:["麦金卡"]},
+  {n:"板烧鸡腿堡三件套",role:"套餐",c:["鸡肉汉堡/卷"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":35,"随便吃吃":35,"晚餐":35,"宵夜":35},o:{"午餐":48.5,"随便吃吃":48.5,"晚餐":48.5,"宵夜":48.5},t:["套餐","新升级","更多汁"],combo:1,def:["板烧鸡腿堡","中薯条","可乐中杯"]},
+  {n:"板烧鸡腿堡四件套",role:"套餐",c:["鸡肉汉堡/卷"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":28,"随便吃吃":28,"晚餐":28,"宵夜":28},o:{"午餐":58,"随便吃吃":58,"晚餐":58,"宵夜":58},t:["麦金卡"],combo:1,def:["板烧鸡腿堡","中薯条","麦乐鸡4块","可乐中杯"]},
   {n:"鸡肉堡单品精选",role:"主食",c:["鸡肉汉堡/卷"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":24,"随便吃吃":24,"晚餐":24,"宵夜":24},t:["单品","人气"]},
-  {n:"麦辣鸡腿堡四件套",role:"套餐",c:["鸡肉汉堡/卷"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":28,"随便吃吃":28,"晚餐":28,"宵夜":28},o:{"午餐":58,"随便吃吃":58,"晚餐":58,"宵夜":58},t:["麦金卡"]},
+  {n:"麦辣鸡腿堡四件套",role:"套餐",c:["鸡肉汉堡/卷"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":28,"随便吃吃":28,"晚餐":28,"宵夜":28},o:{"午餐":58,"随便吃吃":58,"晚餐":58,"宵夜":58},t:["麦金卡"],combo:1,def:["麦辣鸡腿汉堡","中薯条","麦乐鸡4块","可乐中杯"]},
   {n:"麦辣鸡腿汉堡",role:"主食",c:["鸡肉汉堡/卷"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":23,"随便吃吃":23,"晚餐":23,"宵夜":23},t:["单品","人气经典","外酥里嫩"]},
-  {n:"麦辣鸡腿汉堡三件套",role:"套餐",c:["鸡肉汉堡/卷"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":34,"随便吃吃":34,"晚餐":34,"宵夜":34},o:{"午餐":47.5,"随便吃吃":47.5,"晚餐":47.5,"宵夜":47.5},t:["套餐","立省10.5元起"]},
+  {n:"麦辣鸡腿汉堡三件套",role:"套餐",c:["鸡肉汉堡/卷"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":34,"随便吃吃":34,"晚餐":34,"宵夜":34},o:{"午餐":47.5,"随便吃吃":47.5,"晚餐":47.5,"宵夜":47.5},t:["套餐","立省10.5元起"],combo:1,def:["麦辣鸡腿汉堡","中薯条","可乐中杯"]},
   {n:"麦香鸡",role:"小食",c:["鸡肉汉堡/卷"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":16.5,"随便吃吃":16.5,"晚餐":16.5,"宵夜":16.5},t:["单品"]},
-  {n:"麦香鸡套餐",role:"套餐",c:["鸡肉汉堡/卷"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":27.5,"随便吃吃":27.5,"晚餐":27.5,"宵夜":27.5},o:{"午餐":41,"随便吃吃":41,"晚餐":41,"宵夜":41},t:["套餐","立省10.5元起"]},
+  {n:"麦香鸡套餐",role:"套餐",c:["鸡肉汉堡/卷"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":27.5,"随便吃吃":27.5,"晚餐":27.5,"宵夜":27.5},o:{"午餐":41,"随便吃吃":41,"晚餐":41,"宵夜":41},t:["套餐","立省10.5元起"],combo:1,def:["麦香鸡","中薯条","可乐中杯"]},
   {n:"龙焰芝士棒鸡腿堡",role:"主食",c:["鸡肉汉堡/卷"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":27.5,"随便吃吃":27.5,"晚餐":27.5,"宵夜":27.5},t:["上新","浓郁奶香拉丝芝士"]},
-  {n:"龙焰芝士棒鸡腿堡四件套",role:"套餐",c:["鸡肉汉堡/卷"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":32,"随便吃吃":32,"晚餐":32,"宵夜":32},o:{"午餐":58,"随便吃吃":58,"晚餐":58,"宵夜":58},t:["麦金卡"]},
+  {n:"龙焰芝士棒鸡腿堡四件套",role:"套餐",c:["鸡肉汉堡/卷"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":32,"随便吃吃":32,"晚餐":32,"宵夜":32},o:{"午餐":58,"随便吃吃":58,"晚餐":58,"宵夜":58},t:["麦金卡"],combo:1,def:["龙焰芝士棒鸡腿堡","中薯条","麦乐鸡4块","可乐中杯"]},
   {n:"龙焰鸡腿堡",role:"主食",c:["鸡肉汉堡/卷"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":24.5,"随便吃吃":24.5,"晚餐":24.5,"宵夜":24.5},t:["上新","韩式辣椒黄油风味"]},
-  {n:"龙焰鸡腿堡四件套",role:"套餐",c:["鸡肉汉堡/卷"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":29,"随便吃吃":29,"晚餐":29,"宵夜":29},o:{"午餐":58,"随便吃吃":58,"晚餐":58,"宵夜":58},t:["麦金卡"]},
-  {n:"BFF四宫格小食盘",role:"套餐",c:["小食拼盘/多人餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":40.3,"随便吃吃":40.3,"晚餐":40.3,"宵夜":40.3},o:{"午餐":54.5,"随便吃吃":54.5,"晚餐":54.5,"宵夜":54.5},t:["小食拼盘","随心拼"]},
-  {n:"BFF四宫格小食盘双人餐",role:"套餐",c:["小食拼盘/多人餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":62.9,"随便吃吃":62.9,"晚餐":62.9,"宵夜":62.9},o:{"午餐":124.5,"随便吃吃":124.5,"晚餐":124.5,"宵夜":124.5},t:["麦金卡"]},
-  {n:"堡堡随心拼（7件任选）",role:"套餐",c:["小食拼盘/多人餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":73,"随便吃吃":73,"晚餐":73,"宵夜":73},o:{"午餐":103,"随便吃吃":103,"晚餐":103,"宵夜":103},t:["小食拼盘","万种组合"]},
+  {n:"龙焰鸡腿堡四件套",role:"套餐",c:["鸡肉汉堡/卷"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":29,"随便吃吃":29,"晚餐":29,"宵夜":29},o:{"午餐":58,"随便吃吃":58,"晚餐":58,"宵夜":58},t:["麦金卡"],combo:1,def:["龙焰鸡腿堡","中薯条","麦乐鸡4块","可乐中杯"]},
+  {n:"BFF四宫格小食盘",role:"套餐",c:["小食拼盘/多人餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":40.3,"随便吃吃":40.3,"晚餐":40.3,"宵夜":40.3},o:{"午餐":54.5,"随便吃吃":54.5,"晚餐":54.5,"宵夜":54.5},t:["小食拼盘","随心拼"],combo:1,def:["麦辣鸡翅-2块","小薯条"]},
+  {n:"BFF四宫格小食盘双人餐",role:"套餐",c:["小食拼盘/多人餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":62.9,"随便吃吃":62.9,"晚餐":62.9,"宵夜":62.9},o:{"午餐":124.5,"随便吃吃":124.5,"晚餐":124.5,"宵夜":124.5},t:["麦金卡"],combo:1,def:["麦辣鸡腿汉堡","板烧鸡腿堡","中薯条","麦乐鸡-5块","薄皮焦香V翅","可乐中杯"]},
+  {n:"堡堡随心拼（7件任选）",role:"套餐",c:["小食拼盘/多人餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":73,"随便吃吃":73,"晚餐":73,"宵夜":73},o:{"午餐":103,"随便吃吃":103,"晚餐":103,"宵夜":103},t:["小食拼盘","万种组合"],combo:1,def:["麦辣鸡腿汉堡","麦辣鸡翅2块","可乐中杯"]},
   {n:"薄皮V翅双拼十翅",role:"小食",c:["小食拼盘/多人餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":49.9,"随便吃吃":49.9,"晚餐":49.9,"宵夜":49.9},o:{"午餐":74.5,"随便吃吃":74.5,"晚餐":74.5,"宵夜":74.5},t:["小食拼盘","超值"]},
   {n:"韩式甜辣酱鸡块8块",role:"小食",c:["小食拼盘/多人餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":19.9,"随便吃吃":19.9,"晚餐":19.9,"宵夜":19.9},o:{"午餐":31,"随便吃吃":31,"晚餐":31,"宵夜":31},t:["上新","韩式风味"]},
-  {n:"人气经典随心配",role:"套餐",c:["随心配1+1"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":14.9,"随便吃吃":14.9,"晚餐":14.9,"宵夜":14.9},t:["超值百种组合随心配"]},
-  {n:"精选超值随心配",role:"套餐",c:["随心配1+1"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":13.9,"随便吃吃":13.9,"晚餐":13.9,"宵夜":13.9},t:["超值百种组合随心配"]},
-  {n:"大堡口福三件套",role:"套餐",c:["大堡口福单人餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":22.9,"随便吃吃":22.9,"晚餐":22.9,"宵夜":22.9},o:{"午餐":48.5,"随便吃吃":48.5,"晚餐":48.5,"宵夜":48.5},t:["大口吃肉好快乐"]},
+  {n:"人气经典随心配",role:"套餐",c:["随心配1+1"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":14.9,"随便吃吃":14.9,"晚餐":14.9,"宵夜":14.9},t:["超值百种组合随心配"],combo:1,def:["双层吉士汉堡","阳光柠檬红茶中杯"]},
+  {n:"精选超值随心配",role:"套餐",c:["随心配1+1"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":13.9,"随便吃吃":13.9,"晚餐":13.9,"宵夜":13.9},t:["超值百种组合随心配"],combo:1,def:["那么大鸡排（椒盐风味）","阳光柠檬红茶中杯"]},
+  {n:"大堡口福三件套",role:"套餐",c:["大堡口福单人餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":22.9,"随便吃吃":22.9,"晚餐":22.9,"宵夜":22.9},o:{"午餐":48.5,"随便吃吃":48.5,"晚餐":48.5,"宵夜":48.5},t:["大口吃肉好快乐"],combo:1,def:["Hold不住鸡排堡（椒盐风味）","中薯条","可乐中杯"]},
   {n:"不素之霸双层牛堡",role:"主食",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":26.5,"随便吃吃":26.5,"晚餐":26.5,"宵夜":26.5},t:["单品","100%纯牛肉"]},
-  {n:"不素之霸双层牛堡三件套",role:"套餐",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":37.5,"随便吃吃":37.5,"晚餐":37.5,"宵夜":37.5},o:{"午餐":51,"随便吃吃":51,"晚餐":51,"宵夜":51},t:["套餐","100%纯牛肉"]},
-  {n:"不素之霸双层牛堡四件套",role:"套餐",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":32,"随便吃吃":32,"晚餐":32,"宵夜":32},o:{"午餐":59.5,"随便吃吃":59.5,"晚餐":59.5,"宵夜":59.5},t:["麦金卡"]},
+  {n:"不素之霸双层牛堡三件套",role:"套餐",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":37.5,"随便吃吃":37.5,"晚餐":37.5,"宵夜":37.5},o:{"午餐":51,"随便吃吃":51,"晚餐":51,"宵夜":51},t:["套餐","100%纯牛肉"],combo:1,def:["不素之霸双层牛堡","中薯条","可乐中杯"]},
+  {n:"不素之霸双层牛堡四件套",role:"套餐",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":32,"随便吃吃":32,"晚餐":32,"宵夜":32},o:{"午餐":59.5,"随便吃吃":59.5,"晚餐":59.5,"宵夜":59.5},t:["麦金卡"],combo:1,def:["不素之霸双层牛堡","中薯条","麦乐鸡4块","可乐中杯"]},
   {n:"双层吉士汉堡",role:"主食",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":22.5,"随便吃吃":22.5,"晚餐":22.5,"宵夜":22.5},t:["单品","100%纯牛肉"]},
-  {n:"双层吉士汉堡套餐",role:"套餐",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":33.5,"随便吃吃":33.5,"晚餐":33.5,"宵夜":33.5},o:{"午餐":47,"随便吃吃":47,"晚餐":47,"宵夜":47},t:["套餐","100%纯牛肉"]},
+  {n:"双层吉士汉堡套餐",role:"套餐",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":33.5,"随便吃吃":33.5,"晚餐":33.5,"宵夜":33.5},o:{"午餐":47,"随便吃吃":47,"晚餐":47,"宵夜":47},t:["套餐","100%纯牛肉"],combo:1,def:["双层吉士汉堡","中薯条","可乐中杯"]},
   {n:"双层深海鳕鱼堡",role:"主食",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":25,"随便吃吃":25,"晚餐":25,"宵夜":25},t:["单品","麦香鱼系列"]},
-  {n:"双层深海鳕鱼堡三件套",role:"套餐",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":36,"随便吃吃":36,"晚餐":36,"宵夜":36},o:{"午餐":49.5,"随便吃吃":49.5,"晚餐":49.5,"宵夜":49.5},t:["套餐","麦香鱼系列"]},
-  {n:"双层深海鳕鱼堡四件套",role:"套餐",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":32,"随便吃吃":32,"晚餐":32,"宵夜":32},o:{"午餐":59.5,"随便吃吃":59.5,"晚餐":59.5,"宵夜":59.5},t:["麦金卡"]},
-  {n:"吉士汉堡包套餐",role:"套餐",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":26,"随便吃吃":26,"晚餐":26,"宵夜":26},o:{"午餐":39.5,"随便吃吃":39.5,"晚餐":39.5,"宵夜":39.5},t:["套餐","100%纯牛肉"]},
+  {n:"双层深海鳕鱼堡三件套",role:"套餐",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":36,"随便吃吃":36,"晚餐":36,"宵夜":36},o:{"午餐":49.5,"随便吃吃":49.5,"晚餐":49.5,"宵夜":49.5},t:["套餐","麦香鱼系列"],combo:1,def:["原味双层深海鳕鱼堡","中薯条","可乐中杯"]},
+  {n:"双层深海鳕鱼堡四件套",role:"套餐",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":32,"随便吃吃":32,"晚餐":32,"宵夜":32},o:{"午餐":59.5,"随便吃吃":59.5,"晚餐":59.5,"宵夜":59.5},t:["麦金卡"],combo:1,def:["原味双层深海鳕鱼堡","中薯条","麦乐鸡4块","可乐中杯"]},
+  {n:"吉士汉堡包套餐",role:"套餐",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":26,"随便吃吃":26,"晚餐":26,"宵夜":26},o:{"午餐":39.5,"随便吃吃":39.5,"晚餐":39.5,"宵夜":39.5},t:["套餐","100%纯牛肉"],combo:1,def:["吉士汉堡包","中薯条","可乐中杯"]},
   {n:"培根蔬萃双层牛堡",role:"主食",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":24.5,"随便吃吃":24.5,"晚餐":24.5,"宵夜":24.5},t:["单品","100%纯牛肉"]},
-  {n:"培根蔬萃双层牛堡三件套",role:"套餐",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":35.5,"随便吃吃":35.5,"晚餐":35.5,"宵夜":35.5},o:{"午餐":49,"随便吃吃":49,"晚餐":49,"宵夜":49},t:["套餐","100%纯牛肉"]},
-  {n:"培根蔬萃双层牛堡四件套",role:"套餐",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":32,"随便吃吃":32,"晚餐":32,"宵夜":32},o:{"午餐":59.5,"随便吃吃":59.5,"晚餐":59.5,"宵夜":59.5},t:["麦金卡"]},
+  {n:"培根蔬萃双层牛堡三件套",role:"套餐",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":35.5,"随便吃吃":35.5,"晚餐":35.5,"宵夜":35.5},o:{"午餐":49,"随便吃吃":49,"晚餐":49,"宵夜":49},t:["套餐","100%纯牛肉"],combo:1,def:["培根蔬萃双层牛堡","中薯条","可乐中杯"]},
+  {n:"培根蔬萃双层牛堡四件套",role:"套餐",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":32,"随便吃吃":32,"晚餐":32,"宵夜":32},o:{"午餐":59.5,"随便吃吃":59.5,"晚餐":59.5,"宵夜":59.5},t:["麦金卡"],combo:1,def:["培根蔬萃双层牛堡","中薯条","麦乐鸡4块","可乐中杯"]},
   {n:"巨无霸",role:"主食",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":26.5,"随便吃吃":26.5,"晚餐":26.5,"宵夜":26.5},t:["单品","100%纯牛肉"]},
   {n:"巨无霸三件套",role:"套餐",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":37.5,"随便吃吃":37.5,"晚餐":37.5,"宵夜":37.5},o:{"午餐":51,"随便吃吃":51,"晚餐":51,"宵夜":51},t:["套餐","100%纯牛肉"],combo:1,def:["巨无霸","中薯条","可乐中杯"]},
-  {n:"巨无霸四件套",role:"套餐",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":32,"随便吃吃":32,"晚餐":32,"宵夜":32},o:{"午餐":59.5,"随便吃吃":59.5,"晚餐":59.5,"宵夜":59.5},t:["麦金卡"]},
+  {n:"巨无霸四件套",role:"套餐",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":32,"随便吃吃":32,"晚餐":32,"宵夜":32},o:{"午餐":59.5,"随便吃吃":59.5,"晚餐":59.5,"宵夜":59.5},t:["麦金卡"],combo:1,def:["巨无霸","中薯条","麦乐鸡4块","可乐中杯"]},
   {n:"牛肉堡单品精选",role:"主食",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":14,"随便吃吃":14,"晚餐":14,"宵夜":14},t:["单品","100%纯牛肉"]},
   {n:"高达吉士双牛堡",role:"主食",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":22.5,"随便吃吃":22.5,"晚餐":22.5,"宵夜":22.5},t:["单品","100%纯牛肉","人气"]},
   {n:"麦香鱼",role:"主食",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":22,"随便吃吃":22,"晚餐":22,"宵夜":22},t:["单品","麦香鱼系列"]},
-  {n:"麦香鱼套餐",role:"套餐",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":33,"随便吃吃":33,"晚餐":33,"宵夜":33},o:{"午餐":46.5,"随便吃吃":46.5,"晚餐":46.5,"宵夜":46.5},t:["套餐","麦香鱼系列"]},
+  {n:"麦香鱼套餐",role:"套餐",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":33,"随便吃吃":33,"晚餐":33,"宵夜":33},o:{"午餐":46.5,"随便吃吃":46.5,"晚餐":46.5,"宵夜":46.5},t:["套餐","麦香鱼系列"],combo:1,def:["麦香鱼","中薯条","可乐中杯"]},
   {n:"培根安格斯厚牛堡",role:"主食",c:["安格斯MAX厚牛堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":34.5,"随便吃吃":34.5,"晚餐":34.5,"宵夜":34.5},t:["单品","100%安格斯牛肉"]},
-  {n:"培根安格斯厚牛堡三件套",role:"套餐",c:["安格斯MAX厚牛堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":45.5,"随便吃吃":45.5,"晚餐":45.5,"宵夜":45.5},o:{"午餐":59,"随便吃吃":59,"晚餐":59,"宵夜":59},t:["套餐","100%安格斯牛肉"]},
-  {n:"培根安格斯厚牛堡四件套",role:"套餐",c:["安格斯MAX厚牛堡"],dp:["午餐","随便吃吃","晚餐"],p:{"午餐":37,"随便吃吃":37,"晚餐":37},o:{"午餐":66.5,"随便吃吃":66.5,"晚餐":66.5},t:["麦金卡"]},
+  {n:"培根安格斯厚牛堡三件套",role:"套餐",c:["安格斯MAX厚牛堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":45.5,"随便吃吃":45.5,"晚餐":45.5,"宵夜":45.5},o:{"午餐":59,"随便吃吃":59,"晚餐":59,"宵夜":59},t:["套餐","100%安格斯牛肉"],combo:1,def:["培根安格斯厚牛堡","中薯条","可乐中杯"]},
+  {n:"培根安格斯厚牛堡四件套",role:"套餐",c:["安格斯MAX厚牛堡"],dp:["午餐","随便吃吃","晚餐"],p:{"午餐":37,"随便吃吃":37,"晚餐":37},o:{"午餐":66.5,"随便吃吃":66.5,"晚餐":66.5},t:["麦金卡"],combo:1,def:["培根安格斯厚牛堡","中薯条","麦乐鸡4块","可乐中杯"]},
   {n:"芝士安格斯厚牛堡",role:"主食",c:["安格斯MAX厚牛堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":31.5,"随便吃吃":31.5,"晚餐":31.5,"宵夜":31.5},t:["单品","100%安格斯牛肉"]},
-  {n:"芝士安格斯厚牛堡三件套",role:"套餐",c:["安格斯MAX厚牛堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":42.5,"随便吃吃":42.5,"晚餐":42.5,"宵夜":42.5},o:{"午餐":56,"随便吃吃":56,"晚餐":56,"宵夜":56},t:["套餐","100%安格斯牛肉"]},
-  {n:"芝士安格斯厚牛堡四件套",role:"套餐",c:["安格斯MAX厚牛堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":37,"随便吃吃":37,"晚餐":37,"宵夜":37},o:{"午餐":66.5,"随便吃吃":66.5,"晚餐":66.5,"宵夜":66.5},t:["麦金卡"]},
+  {n:"芝士安格斯厚牛堡三件套",role:"套餐",c:["安格斯MAX厚牛堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":42.5,"随便吃吃":42.5,"晚餐":42.5,"宵夜":42.5},o:{"午餐":56,"随便吃吃":56,"晚餐":56,"宵夜":56},t:["套餐","100%安格斯牛肉"],combo:1,def:["芝士安格斯厚牛堡","中薯条","可乐中杯"]},
+  {n:"芝士安格斯厚牛堡四件套",role:"套餐",c:["安格斯MAX厚牛堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":37,"随便吃吃":37,"晚餐":37,"宵夜":37},o:{"午餐":66.5,"随便吃吃":66.5,"晚餐":66.5,"宵夜":66.5},t:["麦金卡"],combo:1,def:["芝士安格斯厚牛堡","中薯条","麦乐鸡4块","可乐中杯"]},
   {n:"薄皮焦香V翅",role:"小食",c:["炸鸡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":15.5,"随便吃吃":15.5,"晚餐":15.5,"宵夜":15.5},t:["单品","人气"]},
   {n:"那么大鸡排（椒盐风味）",role:"小食",c:["炸鸡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":14,"随便吃吃":14,"晚餐":14,"宵夜":14},t:["单品"]},
   {n:"麦乐鸡",role:"小食",c:["炸鸡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":14.5,"随便吃吃":14.5,"晚餐":14.5,"宵夜":14.5},t:["单品","人气"]},
-  {n:"麦乐鸡套餐",role:"套餐",c:["炸鸡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":25.5,"随便吃吃":25.5,"晚餐":25.5,"宵夜":25.5},o:{"午餐":39,"随便吃吃":39,"晚餐":39,"宵夜":39},t:["套餐","立省10.5元起"]},
+  {n:"麦乐鸡套餐",role:"套餐",c:["炸鸡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":25.5,"随便吃吃":25.5,"晚餐":25.5,"宵夜":25.5},o:{"午餐":39,"随便吃吃":39,"晚餐":39,"宵夜":39},t:["套餐","立省10.5元起"],combo:1,def:["麦乐鸡5块","中薯条","可乐中杯"]},
   {n:"麦辣鸡翅",role:"小食",c:["炸鸡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":14.5,"随便吃吃":14.5,"晚餐":14.5,"宵夜":14.5},t:["单品","黄金酥脆","鲜嫩多汁"]},
-  {n:"麦辣鸡翅4块套餐",role:"套餐",c:["炸鸡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":36.5,"随便吃吃":36.5,"晚餐":36.5,"宵夜":36.5},o:{"午餐":50,"随便吃吃":50,"晚餐":50,"宵夜":50},t:["套餐","立省10.5元起"]},
+  {n:"麦辣鸡翅4块套餐",role:"套餐",c:["炸鸡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":36.5,"随便吃吃":36.5,"晚餐":36.5,"宵夜":36.5},o:{"午餐":50,"随便吃吃":50,"晚餐":50,"宵夜":50},t:["套餐","立省10.5元起"],combo:1,def:["麦辣鸡翅4块","中薯条","可乐中杯"]},
   {n:"麦麦脆汁鸡1块",role:"小食",c:["炸鸡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":15,"随便吃吃":15,"晚餐":15,"宵夜":15},t:["单品"]},
   {n:"圆筒冰淇淋",role:"甜品",c:["小食甜品/其他"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":5,"午餐":5,"随便吃吃":5,"晚餐":5,"宵夜":5},t:["冰淇淋"]},
   {n:"心形薯饼5块",role:"小食",c:["小食甜品/其他"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":15.5,"随便吃吃":15.5,"晚餐":15.5,"宵夜":15.5},t:["上新","口口酥脆","含一份蘸酱"]},
@@ -916,12 +1115,12 @@ const MENU = [
   {n:"玉米杯",role:"小食",c:["小食甜品/其他"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":13,"午餐":13,"随便吃吃":13,"晚餐":13,"宵夜":13},t:["小食"]},
   {n:"玫瑰红糖糍粑风味派",role:"甜品",c:["小食甜品/其他"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":10,"随便吃吃":10,"晚餐":10,"宵夜":5},o:{"宵夜":10},t:["上新","玫瑰花香"]},
   {n:"经典麦旋风",role:"甜品",c:["小食甜品/其他"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":14.5,"午餐":14.5,"随便吃吃":14.5,"晚餐":14.5,"宵夜":14.5},t:["冰淇淋"]},
-  {n:"脆薯饼",role:"小食",c:["小食甜品/其他"],dp:["午餐","随便吃吃","晚餐"],p:{"午餐":8.5,"随便吃吃":8.5,"晚餐":8.5},t:["小食"]},
+  {n:"脆薯饼",role:"小食",c:["小食甜品/其他"],dp:["早餐","午餐","随便吃吃","晚餐"],p:{"早餐":8.5,"午餐":8.5,"随便吃吃":8.5,"晚餐":8.5},t:["小食"]},
   {n:"苹果片",role:"小食",c:["小食甜品/其他"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":7,"随便吃吃":7,"晚餐":7,"宵夜":7},t:["小食"]},
   {n:"薯条",role:"小食",c:["小食甜品/其他"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":14.5,"随便吃吃":14.5,"晚餐":14.5,"宵夜":14.5},t:["小食"]},
   {n:"马苏里拉拉丝芝士条",role:"小食",c:["小食甜品/其他"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":16,"随便吃吃":16,"晚餐":16,"宵夜":11},o:{"宵夜":16},t:["上新","趁热拉丝","奶香醇厚"]},
-  {n:"汉堡开心乐园餐",role:"套餐",c:["开心乐园"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":23.5,"随便吃吃":23.5,"晚餐":23.5,"宵夜":23.5},t:["童年童款"]},
-  {n:"鱼排堡开心乐园餐",role:"套餐",c:["开心乐园"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":24,"随便吃吃":24,"晚餐":24,"宵夜":24},t:["童年童款"]},
+  {n:"汉堡开心乐园餐",role:"套餐",c:["开心乐园"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":23.5,"随便吃吃":23.5,"晚餐":23.5,"宵夜":23.5},t:["童年童款"],combo:1,def:["汉堡包","迷你薯条","小杯玉米杯","100%苹果汁","海绵宝宝×航海王系列玩具"]},
+  {n:"鱼排堡开心乐园餐",role:"套餐",c:["开心乐园"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":24,"随便吃吃":24,"晚餐":24,"宵夜":24},t:["童年童款"],combo:1,def:["鱼排堡","迷你薯条","小杯玉米杯","100%苹果汁","海绵宝宝×航海王系列玩具"]},
   {n:"咖啡阿芙佳朵",role:"饮品",c:["麦咖啡™"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":15,"午餐":15,"随便吃吃":15,"晚餐":15,"宵夜":15},t:["麦咖啡™咖啡","冰淇淋"]},
   {n:"浓浓燕麦黑巧（冰/热）",role:"饮品",c:["麦咖啡™"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":15.9,"午餐":23,"随便吃吃":23,"晚餐":23,"宵夜":15.9},o:{"早餐":23,"宵夜":23},t:["限定特惠","浓浓黑巧"]},
   {n:"浓浓黑巧（冰/热）",role:"饮品",c:["麦咖啡™"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":13.9,"午餐":21,"随便吃吃":21,"晚餐":21,"宵夜":13.9},o:{"早餐":21,"宵夜":21},t:["限定特惠","浓浓黑巧"]},
@@ -929,12 +1128,12 @@ const MENU = [
   {n:"燕麦奶铁",role:"饮品",c:["麦咖啡™"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":9.9,"午餐":9.9,"随便吃吃":9.9,"晚餐":9.9,"宵夜":9.9},o:{"早餐":23,"午餐":23,"随便吃吃":23,"晚餐":23,"宵夜":23},t:["麦咖啡™咖啡"]},
   {n:"牛奶",role:"饮品",c:["麦咖啡™"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":19,"午餐":19,"随便吃吃":19,"晚餐":19,"宵夜":19},t:["其他","热饮"]},
   {n:"鲜萃咖啡",role:"饮品",c:["麦咖啡™"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":9.5,"午餐":9.5,"随便吃吃":9.5,"晚餐":9.5,"宵夜":9.5},t:["麦咖啡™咖啡","鲜萃咖啡","热饮"]},
-  {n:"“堡”你欢乐套餐",role:"套餐",c:["500大卡套餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":28,"随便吃吃":28,"晚餐":28,"宵夜":28},o:{"午餐":43,"随便吃吃":43,"晚餐":43,"宵夜":43},t:["粉丝之选"]},
-  {n:"“苹”水相“鱼”套餐",role:"套餐",c:["500大卡套餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":36,"随便吃吃":36,"晚餐":36,"宵夜":36},o:{"午餐":53.5,"随便吃吃":53.5,"晚餐":53.5,"宵夜":53.5},t:["粉丝之选"]},
-  {n:"“苹板”支撑Pro套餐",role:"套餐",c:["500大卡套餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":39.5,"随便吃吃":39.5,"晚餐":39.5,"宵夜":39.5},o:{"午餐":54,"随便吃吃":54,"晚餐":54,"宵夜":54}},
-  {n:"“辣”么快乐套餐",role:"套餐",c:["500大卡套餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":24,"随便吃吃":24,"晚餐":24,"宵夜":24},o:{"午餐":36.5,"随便吃吃":36.5,"晚餐":36.5,"宵夜":36.5}},
-  {n:"牛气满满套餐",role:"套餐",c:["500大卡套餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":34,"随便吃吃":34,"晚餐":34,"宵夜":34},o:{"午餐":47.5,"随便吃吃":47.5,"晚餐":47.5,"宵夜":47.5}},
-  {n:"酥脆无双套餐",role:"套餐",c:["500大卡套餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":20.5,"随便吃吃":20.5,"晚餐":20.5,"宵夜":20.5}},
+  {n:"“堡”你欢乐套餐",role:"套餐",c:["500大卡套餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":28,"随便吃吃":28,"晚餐":28,"宵夜":28},o:{"午餐":43,"随便吃吃":43,"晚餐":43,"宵夜":43},t:["粉丝之选"],combo:1,def:["汉堡包","麦乐鸡4块","苹果片一袋(60g)","无糖可口可乐中杯"]},
+  {n:"“苹”水相“鱼”套餐",role:"套餐",c:["500大卡套餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":36,"随便吃吃":36,"晚餐":36,"宵夜":36},o:{"午餐":53.5,"随便吃吃":53.5,"晚餐":53.5,"宵夜":53.5},t:["粉丝之选"],combo:1,def:["麦香鱼","小杯玉米杯","苹果片一袋(60g)","锡兰红茶"]},
+  {n:"“苹板”支撑Pro套餐",role:"套餐",c:["500大卡套餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":39.5,"随便吃吃":39.5,"晚餐":39.5,"宵夜":39.5},o:{"午餐":54,"随便吃吃":54,"晚餐":54,"宵夜":54},combo:1,def:["板烧鸡腿堡","小杯玉米杯","苹果片一袋(60g)","无糖可口可乐中杯"]},
+  {n:"“辣”么快乐套餐",role:"套餐",c:["500大卡套餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":24,"随便吃吃":24,"晚餐":24,"宵夜":24},o:{"午餐":36.5,"随便吃吃":36.5,"晚餐":36.5,"宵夜":36.5},combo:1,def:["麦辣鸡翅2块","麦乐鸡4块","无糖可口可乐中杯"]},
+  {n:"牛气满满套餐",role:"套餐",c:["500大卡套餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":34,"随便吃吃":34,"晚餐":34,"宵夜":34},o:{"午餐":47.5,"随便吃吃":47.5,"晚餐":47.5,"宵夜":47.5},combo:1,def:["培根蔬萃双层牛堡","小杯玉米杯","无糖可口可乐中杯"]},
+  {n:"酥脆无双套餐",role:"套餐",c:["500大卡套餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":20.5,"随便吃吃":20.5,"晚餐":20.5,"宵夜":20.5},combo:1,def:["麦麦脆汁鸡-琵琶腿","迷你薯条","无糖可口可乐中杯"]},
   {n:"100% 苹果汁(盒装)",role:"饮品",c:["饮品"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":12,"午餐":12,"随便吃吃":12,"晚餐":12,"宵夜":12},t:["冷饮"]},
   {n:"【美汁源】“多汁柠柠”",role:"饮品",c:["饮品"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":12,"午餐":12,"随便吃吃":12,"晚餐":12,"宵夜":12},t:["上新","清爽上新"]},
   {n:"【美汁源】“黄金橙橙”",role:"饮品",c:["饮品"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":13,"午餐":13,"随便吃吃":13,"晚餐":13,"宵夜":13},t:["冷饮"]},
@@ -944,25 +1143,459 @@ const MENU = [
   {n:"锡兰红茶",role:"饮品",c:["饮品"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":11.5,"午餐":11.5,"随便吃吃":11.5,"晚餐":11.5,"宵夜":11.5},t:["热饮"]},
   {n:"阳光柠檬红茶",role:"饮品",c:["饮品"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":9.5,"午餐":9.5,"随便吃吃":9.5,"晚餐":9.5,"宵夜":9.5},t:["冷饮"]},
   {n:"雪碧",role:"饮品",c:["饮品"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":9.5,"午餐":9.5,"随便吃吃":9.5,"晚餐":9.5,"宵夜":9.5},t:["冷饮"]},
-  {n:"龙焰美味四件套",role:"套餐",c:["人气热卖"],dp:["宵夜"],p:{"宵夜":29},o:{"宵夜":58}},
-  {n:"学生专享汉堡小食随心选",role:"套餐",c:["鸡肉汉堡/卷"],dp:["宵夜"],p:{"宵夜":28},t:["套餐"]},
-  {n:"学生专享饮品随心选",role:"套餐",c:["饮品"],dp:["宵夜"],p:{"宵夜":10},t:["冷饮"]}
+  {n:"龙焰美味四件套",role:"套餐",c:["人气热卖"],dp:["宵夜"],p:{"宵夜":29},o:{"宵夜":58},combo:1,def:["龙焰鸡腿堡","中薯条","麦乐鸡4块","可乐中杯"]},
+  {n:"学生专享汉堡小食随心选",role:"套餐",c:["鸡肉汉堡/卷"],dp:["宵夜"],p:{"宵夜":28},t:["套餐"],combo:1,def:["中薯条"]},
+  {n:"学生专享饮品随心选",role:"套餐",c:["饮品"],dp:["宵夜"],p:{"宵夜":10},t:["冷饮"],combo:1,def:["可乐中杯"]}
 ];
 const ROUNDS = {
-  "精选单人餐三件套":[
-    {name:"主食任意选",min:1,max:1,choices:[["板烧鸡腿堡",0,true],["巨无霸",2.5,false],["麦辣鸡腿汉堡",-1,false],["培根安格斯厚牛堡",10.5,false],["原味双层深海鳕鱼堡",1,false]]},
-    {name:"选择套餐内小食",min:1,max:1,choices:[["中薯条",0,true],["5块心形薯饼+韩式辣椒黄油风味酱",1,false],["月下相思扭扭薯",1.5,false],["大薯条",1.5,false],["小杯玉米杯",-1.5,false],["大杯玉米杯",1,false]]},
-    {name:"选择套餐内饮料",min:1,max:1,choices:[["可乐中杯",0,true],["无糖可口可乐中杯",0,false],["雪碧中杯",0,false],["可乐大杯",2,false],["无糖可口可乐大杯",2,false],["雪碧大杯",2,false],["锡兰红茶",1.5,false],["100%苹果汁",2,false],["中杯怡泉+C",1.5,false],["【美汁源】“黄金橙橙”",3,false],["麦咖啡™冰美式中杯",9,false],["麦咖啡™冰奶铁中杯",11,false],["热浓浓黑巧中杯",11,false]]}
+  "大脆鸡扒麦满分组合":[
+    {name:"大脆鸡扒麦满分",cat:"主食",min:1,max:1,l:0},
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:1}
   ],
-  "巨无霸三件套":[
-    {name:"新升级巨无霸",min:1,max:1,choices:[["巨无霸",0,true]]},
-    {name:"选择套餐内小食",min:1,max:1,choices:[["中薯条",0,true],["5块心形薯饼+韩式辣椒黄油风味酱",1,false],["月下相思扭扭薯",1.5,false],["大薯条",1.5,false]]},
-    {name:"选择套餐内饮料",min:1,max:1,choices:[["可乐中杯",0,true],["【美汁源】“多汁柠柠”",1,false],["热浓浓黑巧中杯",11,false],["举杯邀月柚桂茶(冰)",3,false],["举杯邀月柚桂茶(热)",3,false],["无糖可口可乐中杯",0,false],["雪碧中杯",0,false],["阳光柠檬红茶中杯",0,false],["麦咖啡™冰美式中杯",9,false],["大杯鲜萃咖啡",1.5,false],["麦咖啡™热美式中杯",9,false],["麦咖啡™冰奶铁中杯",11,false],["冰浓浓黑巧中杯",11,false],["热浓浓燕麦黑巧中杯",13,false],["冰浓浓燕麦黑巧中杯",13,false],["可乐大杯",2,false],["无糖可口可乐大杯",2,false],["大杯怡泉+C",3.5,false],["雪碧大杯",2,false],["麦咖啡™热奶铁中杯",11,false],["【美汁源】“黄金橙橙”",3,false],["锡兰红茶",1.5,false],["阳光柠檬红茶大杯",2,false],["100%苹果汁",2,false],["中杯怡泉+C",1.5,false]]}
+  "图林根香肠早安营养卷组合":[
+    {name:"图林根香肠早安营养卷",cat:"主食",min:1,max:1,l:2},
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:3}
+  ],
+  "火腿扒早安营养卷组合":[
+    {name:"火腿扒早安营养卷",cat:"主食",min:1,max:1,l:4},
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:3}
+  ],
+  "双层原味板烧鸡腿麦满分组合":[
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:3},
+    {name:"双层原味板烧鸡腿麦满分",cat:"主食",min:1,max:1,l:5}
+  ],
+  "猪柳炒双蛋堡组合":[
+    {name:"猪柳炒双蛋堡",cat:"主食",min:1,max:1,l:6},
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:3}
+  ],
+  "图林根香肠早安营养卷套餐":[
+    {name:"图林根香肠早安营养卷",cat:"主食",min:1,max:1,l:2},
+    {name:"选择早餐小食",cat:"小食",min:1,max:1,l:7},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "原味板烧鸡腿炒双蛋堡组合":[
+    {name:"原味板烧鸡腿炒双蛋堡",cat:"主食",min:1,max:1,l:9},
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:3}
+  ],
+  "火腿扒早安营养卷套餐":[
+    {name:"火腿扒早安营养卷",cat:"主食",min:1,max:1,l:4},
+    {name:"选择早餐小食",cat:"小食",min:1,max:1,l:7},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "猪柳麦满分组合":[
+    {name:"猪柳麦满分",cat:"主食",min:1,max:1,l:10},
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:3}
+  ],
+  "原味板烧鸡腿炒双蛋堡套餐":[
+    {name:"原味板烧鸡腿炒双蛋堡",cat:"主食",min:1,max:1,l:9},
+    {name:"选择早餐套餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "猪柳炒双蛋堡套餐":[
+    {name:"猪柳炒双蛋堡",cat:"主食",min:1,max:1,l:6},
+    {name:"选择早餐套餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "东南亚风味椰香鸡扒堡组合":[
+    {name:"东南亚风味椰香鸡扒堡",cat:"主食",min:1,max:1,l:12},
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:3}
+  ],
+  "东南亚风味椰香鸡扒堡套餐":[
+    {name:"东南亚风味椰香鸡扒堡",cat:"主食",min:1,max:1,l:12},
+    {name:"选择早餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "北非蛋风味猪柳蛋麦满分套餐":[
+    {name:"北非蛋风味猪柳蛋麦满分",cat:"主食",min:1,max:1,l:13},
+    {name:"选择早餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "北非蛋风味脆鸡排麦满分套餐":[
+    {name:"北非蛋风味脆鸡排麦满分",cat:"主食",min:1,max:1,l:14},
+    {name:"选择早餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "北非蛋风味猪柳蛋麦满分组合":[
+    {name:"北非蛋风味猪柳蛋麦满分",cat:"主食",min:1,max:1,l:13},
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:3}
+  ],
+  "枫糖风味厚松饼猪柳堡组合":[
+    {name:"枫糖风味厚松饼猪柳堡",cat:"主食",min:1,max:1,l:15},
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:3}
+  ],
+  "枫糖风味厚松饼猪柳蛋堡组合":[
+    {name:"枫糖风味厚松饼猪柳蛋堡",cat:"主食",min:1,max:1,l:16},
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:3}
+  ],
+  "吉士蛋麦满分组合":[
+    {name:"吉士蛋麦满分",cat:"主食",min:1,max:1,l:17},
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:18}
+  ],
+  "脆香油条组合":[
+    {name:"脆香油条",cat:"小食",min:1,max:1,l:19},
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:3}
+  ],
+  "吉士蛋麦满分套餐":[
+    {name:"吉士蛋麦满分",cat:"主食",min:1,max:1,l:17},
+    {name:"选择早餐套餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "大脆鸡扒麦满分套餐":[
+    {name:"大脆鸡扒麦满分",cat:"主食",min:1,max:1,l:0},
+    {name:"选择早餐套餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "北非蛋风味麦满分套餐":[
+    {name:"北非蛋风味麦满分",cat:"主食",min:1,max:1,l:20},
+    {name:"选择早餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "原味板烧鸡腿麦满分组合":[
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:3},
+    {name:"原味板烧鸡腿麦满分",cat:"主食",min:1,max:1,l:21}
+  ],
+  "猪柳蛋麦满分组合":[
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:3},
+    {name:"猪柳蛋麦满分",cat:"主食",min:1,max:1,l:22}
+  ],
+  "北非蛋风味脆鸡排麦满分组合":[
+    {name:"北非蛋风味脆鸡排麦满分",cat:"主食",min:1,max:1,l:14},
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:3}
+  ],
+  "芝芝火腿扒堡套餐":[
+    {name:"芝芝火腿扒堡",cat:"主食",min:1,max:1,l:23},
+    {name:"选择早餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "厚松饼猪柳蛋堡三件套":[
+    {name:"选择主食",cat:"主食",min:1,max:1,l:16},
+    {name:"选择早餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "北非蛋风味麦满分组合":[
+    {name:"北非蛋风味麦满分",cat:"主食",min:1,max:1,l:20},
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:3}
+  ],
+  "芝芝火腿扒堡组合":[
+    {name:"芝芝火腿扒堡",cat:"主食",min:1,max:1,l:23},
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:3}
+  ],
+  "精选麦满分套餐":[
+    {name:"猪柳蛋麦满分",cat:"主食",min:1,max:1,l:22},
+    {name:"选择早餐套餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "一早现磨 超值二件套":[
+    {name:"选择早餐主食",cat:"主食",min:1,max:1,l:24},
+    {name:"选择麦咖啡饮品",cat:"饮品",min:1,max:1,l:25}
+  ],
+  "枫糖风味厚松饼猪柳堡套餐":[
+    {name:"枫糖风味厚松饼猪柳堡",cat:"主食",min:1,max:1,l:15},
+    {name:"选择早餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "脆香油条豆浆组合":[
+    {name:"脆香油条",cat:"小食",min:2,max:2,l:19},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:26}
+  ],
+  "枫糖风味厚松饼猪柳蛋堡套餐":[
+    {name:"枫糖风味厚松饼猪柳蛋堡",cat:"主食",min:1,max:1,l:16},
+    {name:"选择早餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "火腿扒麦满分套餐":[
+    {name:"火腿扒麦满分",cat:"主食",min:1,max:1,l:27},
+    {name:"选择早餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "火腿扒麦满分组合":[
+    {name:"火腿扒麦满分",cat:"主食",min:1,max:1,l:27},
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:1}
+  ],
+  "双层原味板烧鸡腿麦满分套餐":[
+    {name:"双层原味板烧鸡腿麦满分",cat:"主食",min:1,max:1,l:5},
+    {name:"选择早餐套餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
   ],
   "猪柳蛋麦满分套餐":[
-    {name:"猪柳蛋麦满分",min:1,max:1,choices:[["猪柳蛋麦满分",0,true]]},
-    {name:"选择早餐套餐小食",min:1,max:1,choices:[["脆薯饼",0,true],["脆香油条",0,false],["德式图林根香肠",1,false]]},
-    {name:"选择早餐套餐饮料",min:1,max:1,choices:[["鲜萃冰咖",0,true],["大杯鲜萃咖啡",0,false],["优品豆浆大杯",0,false],["冰浓浓黑巧中杯",6,false],["麦咖啡™冰美式中杯",4,false],["麦咖啡™冰奶铁中杯",6,false],["热浓浓黑巧中杯",6,false],["热浓浓燕麦黑巧中杯",8,false],["冰浓浓燕麦黑巧中杯",8,false],["麦咖啡™热美式中杯",4,false],["麦咖啡™热奶铁中杯",6,false],["阳光柠檬红茶大杯",0.5,false],["【美汁源】“多汁柠柠”",0.5,false],["【美汁源】“黄金橙橙”",1.5,false],["100%苹果汁",0.5,false],["锡兰红茶",0,false],["阳光柠檬红茶中杯",-1.5,false],["冰燕麦奶铁中杯",8,false],["热燕麦奶铁中杯",8,false],["大杯怡泉+C",2,false],["可乐大杯",0.5,false],["无糖可口可乐大杯",0.5,false],["雪碧大杯",0.5,false],["中杯怡泉+C",0,false],["可乐中杯",-1.5,false],["无糖可口可乐中杯",-1.5,false],["雪碧中杯",-1.5,false],["热牛奶中杯",4,false]]}
+    {name:"猪柳蛋麦满分",cat:"主食",min:1,max:1,l:22},
+    {name:"选择早餐套餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "原味板烧鸡腿麦满分套餐":[
+    {name:"原味板烧鸡腿麦满分",cat:"主食",min:1,max:1,l:21},
+    {name:"选择早餐套餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "猪柳麦满分套餐":[
+    {name:"猪柳麦满分",cat:"主食",min:1,max:1,l:10},
+    {name:"选择早餐套餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "麦辣鸡腿汉堡三件套":[
+    {name:"麦辣鸡腿汉堡",cat:"主食",min:1,max:1,l:28},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "全明星双人分享餐八件套":[
+    {name:"选择汉堡",cat:"主食",min:1,max:1,l:28},
+    {name:"选择主食",cat:"主食",min:1,max:1,l:31},
+    {name:"选择小食",cat:"小食",min:1,max:1,l:32},
+    {name:"选择小食",cat:"小食",min:1,max:1,l:33},
+    {name:"选择小食",cat:"小食",min:2,max:2,l:34},
+    {name:"选择套餐内饮料",cat:"饮品",min:2,max:2,l:35}
+  ],
+  "“我就喜欢”鸡薯双全盒":[
+    {name:"5块心形薯饼(不含酱)",cat:"小食",min:1,max:1,l:36},
+    {name:"韩式辣椒黄油风味酱",cat:"非食品",min:1,max:1,l:37},
+    {name:"5块麦乐鸡",cat:"小食",min:1,max:1,l:38}
+  ],
+  "龙焰芝士棒鸡腿堡三件套":[
+    {name:"龙焰芝士棒鸡腿堡",cat:"主食",min:1,max:1,l:39},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "龙焰鸡腿堡三件套":[
+    {name:"龙焰鸡腿堡",cat:"主食",min:1,max:1,l:40},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "麦香鱼套餐":[
+    {name:"麦香鱼",cat:"主食",min:1,max:1,l:41},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "板烧鸡腿堡三件套":[
+    {name:"板烧鸡腿堡",cat:"主食",min:1,max:1,l:42},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "双层吉士汉堡套餐":[
+    {name:"双层吉士汉堡",cat:"主食",min:1,max:1,l:43},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "人气超值四件套随心选":[
+    {name:"选择汉堡",cat:"主食",min:1,max:1,l:44},
+    {name:"小食",cat:"小食",min:1,max:1,l:45},
+    {name:"小食",cat:"小食",min:1,max:1,l:46},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:47}
+  ],
+  "巨无霸三件套":[
+    {name:"新升级巨无霸",cat:"主食",min:1,max:1,l:48},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "吉士汉堡包套餐":[
+    {name:"吉士汉堡包",cat:"主食",min:1,max:1,l:49},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "鱼牛汉堡四件套随心选":[
+    {name:"选择汉堡",cat:"主食",min:1,max:1,l:50},
+    {name:"小食",cat:"小食",min:1,max:1,l:45},
+    {name:"小食",cat:"小食",min:1,max:1,l:46},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:35}
+  ],
+  "麦辣鸡翅4块套餐":[
+    {name:"麦辣鸡翅-4块",cat:"小食",min:1,max:1,l:51},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "麦香鸡套餐":[
+    {name:"麦香鸡",cat:"小食",min:1,max:1,l:52},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "培根蔬萃双层牛堡三件套":[
+    {name:"培根蔬萃双层牛堡",cat:"主食",min:1,max:1,l:53},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "安格斯厚牛堡四件套随心选":[
+    {name:"选择安格斯厚牛堡",cat:"主食",min:1,max:1,l:54},
+    {name:"小食",cat:"小食",min:1,max:1,l:45},
+    {name:"小食",cat:"小食",min:1,max:1,l:46},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:35}
+  ],
+  "双层深海鳕鱼堡三件套":[
+    {name:"选择双层深海鳕鱼堡",cat:"主食",min:1,max:1,l:55},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "龙焰鸡腿堡四件套":[
+    {name:"龙焰鸡腿堡",cat:"主食",min:1,max:1,l:40},
+    {name:"小食",cat:"小食",min:1,max:1,l:45},
+    {name:"小食",cat:"小食",min:1,max:1,l:46},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:47}
+  ],
+  "BFF四宫格小食盘":[
+    {name:"选择小食",cat:"小食",min:3,max:3,l:56},
+    {name:"选择小食",cat:"小食",min:1,max:1,l:57}
+  ],
+  "龙焰芝士棒鸡腿堡四件套":[
+    {name:"龙焰芝士棒鸡腿堡",cat:"主食",min:1,max:1,l:39},
+    {name:"小食",cat:"小食",min:1,max:1,l:45},
+    {name:"小食",cat:"小食",min:1,max:1,l:46},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:47}
+  ],
+  "麦乐鸡套餐":[
+    {name:"麦乐鸡5块",cat:"小食",min:1,max:1,l:58},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "板烧鸡腿堡四件套":[
+    {name:"板烧鸡腿堡",cat:"主食",min:1,max:1,l:42},
+    {name:"小食",cat:"小食",min:1,max:1,l:45},
+    {name:"小食",cat:"小食",min:1,max:1,l:46},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:47}
+  ],
+  "人气经典随心配":[
+    {name:"蓝区",cat:"主食",min:1,max:1,l:59},
+    {name:"粉区",cat:"饮品",min:1,max:1,l:60}
+  ],
+  "酥脆无双套餐":[
+    {name:"选择炸鸡",cat:"小食",min:1,max:1,l:61},
+    {name:"迷你薯条",cat:"小食",min:1,max:1,l:62},
+    {name:"选择饮料",cat:"饮品",min:1,max:1,l:63}
+  ],
+  "大堡口福三件套":[
+    {name:"选择主食",cat:"主食",min:1,max:1,l:64},
+    {name:"选择小食",cat:"小食",min:1,max:1,l:65},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:66}
+  ],
+  "“堡”你欢乐套餐":[
+    {name:"汉堡包",cat:"主食",min:1,max:1,l:67},
+    {name:"麦乐鸡4块",cat:"小食",min:1,max:1,l:68},
+    {name:"苹果片一袋(60g)",cat:"小食",min:1,max:1,l:69},
+    {name:"选择饮料",cat:"饮品",min:1,max:1,l:63}
+  ],
+  "“苹”水相“鱼”套餐":[
+    {name:"麦香鱼",cat:"主食",min:1,max:1,l:41},
+    {name:"小杯玉米杯",cat:"小食",min:1,max:1,l:70},
+    {name:"苹果片一袋(60g)",cat:"小食",min:1,max:1,l:69},
+    {name:"选择饮料",cat:"饮品",min:1,max:1,l:71}
+  ],
+  "精选超值随心配":[
+    {name:"蓝区",cat:"小食",min:1,max:1,l:72},
+    {name:"粉区",cat:"饮品",min:1,max:1,l:73}
+  ],
+  "“辣”么快乐套餐":[
+    {name:"麦辣鸡翅-2块",cat:"小食",min:1,max:1,l:74},
+    {name:"麦乐鸡4块",cat:"小食",min:1,max:1,l:68},
+    {name:"选择饮料",cat:"饮品",min:1,max:1,l:63}
+  ],
+  "巨无霸四件套":[
+    {name:"巨无霸",cat:"主食",min:1,max:1,l:48},
+    {name:"小食",cat:"小食",min:1,max:1,l:45},
+    {name:"小食",cat:"小食",min:1,max:1,l:46},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:35}
+  ],
+  "不素之霸双层牛堡四件套":[
+    {name:"不素之霸双层牛堡",cat:"主食",min:1,max:1,l:75},
+    {name:"小食",cat:"小食",min:1,max:1,l:45},
+    {name:"小食",cat:"小食",min:1,max:1,l:46},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:35}
+  ],
+  "培根蔬萃双层牛堡四件套":[
+    {name:"培根蔬萃双层牛堡",cat:"主食",min:1,max:1,l:53},
+    {name:"小食",cat:"小食",min:1,max:1,l:45},
+    {name:"小食",cat:"小食",min:1,max:1,l:46},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:35}
+  ],
+  "芝士安格斯厚牛堡四件套":[
+    {name:"芝士安格斯厚牛堡",cat:"主食",min:1,max:1,l:76},
+    {name:"小食",cat:"小食",min:1,max:1,l:45},
+    {name:"小食",cat:"小食",min:1,max:1,l:46},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:35}
+  ],
+  "不素之霸双层牛堡三件套":[
+    {name:"不素之霸双层牛堡",cat:"主食",min:1,max:1,l:75},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "培根安格斯厚牛堡四件套":[
+    {name:"培根安格斯厚牛堡",cat:"主食",min:1,max:1,l:77},
+    {name:"小食",cat:"小食",min:1,max:1,l:45},
+    {name:"小食",cat:"小食",min:1,max:1,l:46},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:35}
+  ],
+  "堡堡随心拼（7件任选）":[
+    {name:"主食任意选",cat:"主食",min:2,max:2,l:78},
+    {name:"选择随心配小食",cat:"小食",min:3,max:3,l:79},
+    {name:"选择套餐内饮料",cat:"饮品",min:2,max:2,l:80}
+  ],
+  "精选单人餐三件套":[
+    {name:"主食任意选",cat:"主食",min:1,max:1,l:81},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "鱼排堡开心乐园餐":[
+    {name:"鱼排堡",cat:"主食",min:1,max:1,l:82},
+    {name:"迷你薯条",cat:"小食",min:1,max:1,l:62},
+    {name:"选择开心乐园餐小食",cat:"小食",min:1,max:1,l:83},
+    {name:"选择开心乐园餐饮料",cat:"饮品",min:1,max:1,l:84},
+    {name:"海绵宝宝×航海王系列玩具",cat:"非食品",min:1,max:1,l:85}
+  ],
+  "汉堡开心乐园餐":[
+    {name:"汉堡包",cat:"主食",min:1,max:1,l:67},
+    {name:"迷你薯条",cat:"小食",min:1,max:1,l:62},
+    {name:"选择开心乐园餐小食",cat:"小食",min:1,max:1,l:83},
+    {name:"选择开心乐园餐饮料",cat:"饮品",min:1,max:1,l:84},
+    {name:"海绵宝宝×航海王系列玩具",cat:"非食品",min:1,max:1,l:85}
+  ],
+  "“苹板”支撑Pro套餐":[
+    {name:"新升级板烧鸡腿堡",cat:"主食",min:1,max:1,l:42},
+    {name:"小杯玉米杯",cat:"小食",min:1,max:1,l:70},
+    {name:"苹果片一袋(60g)",cat:"小食",min:1,max:1,l:69},
+    {name:"选择饮料",cat:"饮品",min:1,max:1,l:86}
+  ],
+  "牛气满满套餐":[
+    {name:"培根蔬萃双层牛堡",cat:"主食",min:1,max:1,l:53},
+    {name:"小杯玉米杯",cat:"小食",min:1,max:1,l:70},
+    {name:"选择饮料",cat:"饮品",min:1,max:1,l:86}
+  ],
+  "双层深海鳕鱼堡四件套":[
+    {name:"选择双层深海鳕鱼堡",cat:"主食",min:1,max:1,l:55},
+    {name:"小食",cat:"小食",min:1,max:1,l:45},
+    {name:"小食",cat:"小食",min:1,max:1,l:46},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:35}
+  ],
+  "BFF四宫格小食盘双人餐":[
+    {name:"麦辣鸡腿汉堡",cat:"主食",min:1,max:1,l:28},
+    {name:"板烧鸡腿堡",cat:"主食",min:1,max:1,l:42},
+    {name:"中薯条",cat:"小食",min:1,max:1,l:87},
+    {name:"麦乐鸡-5块",cat:"小食",min:1,max:1,l:88},
+    {name:"选择小食盘随心选",cat:"小食",min:2,max:2,l:89},
+    {name:"选择套餐内饮料",cat:"饮品",min:2,max:2,l:90}
+  ],
+  "麦辣鸡腿堡四件套":[
+    {name:"麦辣鸡腿汉堡",cat:"主食",min:1,max:1,l:28},
+    {name:"小食",cat:"小食",min:1,max:1,l:45},
+    {name:"小食",cat:"小食",min:1,max:1,l:46},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:47}
+  ],
+  "培根安格斯厚牛堡三件套":[
+    {name:"培根安格斯厚牛堡",cat:"主食",min:1,max:1,l:77},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "芝士安格斯厚牛堡三件套":[
+    {name:"芝士安格斯厚牛堡",cat:"主食",min:1,max:1,l:76},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "龙焰美味四件套":[
+    {name:"选择主食",cat:"主食",min:1,max:1,l:91},
+    {name:"小食",cat:"小食",min:1,max:1,l:45},
+    {name:"小食",cat:"小食",min:1,max:1,l:46},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:47}
+  ],
+  "学生专享饮品随心选":[
+    {name:"选择饮品",cat:"饮品",min:1,max:1,l:92}
+  ],
+  "学生专享汉堡小食随心选":[
+    {name:"选择主食/小食",cat:"小食",min:2,max:2,l:93}
   ]
 };
 const MODS = {
@@ -1010,6 +1643,7 @@ const MODS = {
   "阳光柠檬红茶":[{g:"冰量",min:1,max:1,values:[["标准",0,true],["去冰",0,false],["多冰",0,false],["少冰",0,false]]}],
   "雪碧":[{g:"冰量",min:1,max:1,values:[["标准",0,true],["去冰",0,false],["多冰",0,false],["少冰",0,false]]}]
 };
+
 const canModify = name => !!MODS[name];
 /* 价格/原价随餐段变化，取当前餐段；缺失时回退到首个已知餐段 */
 const priceOf = m => { const p = m.p; if(!p) return 0;
@@ -1028,7 +1662,9 @@ const root = document.documentElement;
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const nowStr = () => new Date().toLocaleString("zh-CN",{timeZone:"Asia/Shanghai",hour12:false});
 const item = n => MENU.find(m=>m.n===n);
-const baseKcal = n => NUTRI[n] ? NUTRI[n].kcal : null;
+const isNonFood = n => ZERO.has(n);
+/* 零热量项（玩具/单卖蘸酱）返回 0 而不是 null —— 否则整份乐园餐会被判成「热量未知」 */
+const baseKcal = n => ZERO.has(n) ? 0 : (NUTRI[n] ? NUTRI[n].kcal : null);
 const yuan = v => "¥" + v.toFixed(2);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
@@ -1200,8 +1836,10 @@ $("#rail").addEventListener("keydown", e=>{
   const map = {ArrowDown:1, ArrowRight:1, ArrowUp:-1, ArrowLeft:-1};
   if(!(e.key in map)) return;
   e.preventDefault();
-  const next = btns[(i + map[e.key] + btns.length) % btns.length];
-  next.focus(); next.click();
+  const idx = (i + map[e.key] + btns.length) % btns.length;
+  btns[idx].click();                                  /* 切分类 → renderRail 会重建按钮 */
+  const fresh = [...$("#rail").querySelectorAll("button")][idx];
+  (fresh || btns[idx]).focus();                       /* 重建后必须把焦点找回来，否则掉到 body */
 });
 const ROLE_ICON = {"套餐":"🍱","主食":"🍔","小食":"🍟","甜品":"🍦","饮品":"🥤"};
 function renderMenu(cat){
@@ -1215,10 +1853,10 @@ function renderMenu(cat){
   }
   list.forEach((m,i)=>{
     const isCombo = m.role === "套餐";
-    const hasRounds = !!roundsOf(m.n);
-    const baseNames = hasRounds ? defaultNames(m.n) : (m.def || [m.n]);
+    const rs = roundsOf(m.n);
+    const baseNames = rs ? defaultNames(m.n) : (m.def || [m.n]);
     const nu = nutriOf(baseNames);
-    const known = !nu.unknown;
+    const rg = rs ? comboRange(m.n) : null;
     const el = document.createElement("div");
     el.className = "item"; el.style.setProperty("--i", Math.min(i,8));
     el.innerHTML = `
@@ -1226,15 +1864,16 @@ function renderMenu(cat){
       <div class="info">
         <div class="n">${esc(m.n)}${canModify(m.n) ? '<i class="spec-tag-sm">可特调</i>' : ""}</div>
         <div class="tagrow">
-          ${isCombo ? `<span class="tag combo">${hasRounds ? "套餐 · 可换品" : "套餐"}</span>` : ""}
+          ${isCombo ? `<span class="tag combo">套餐 · ${rs ? `${rs.length} 轮可选` : "组成未知"}</span>` : ""}
           ${(m.t||[]).slice(0,2).map(t=>`<span class="tag">${esc(t)}</span>`).join("")}
-          ${known ? `<span class="tag kcal">${hasRounds ? "默认约 " : ""}${nu.kcal} 千卡</span>`
-                  : `<span class="tag unknown">热量未知</span>`}
+          ${nu.unknownN === 0 ? `<span class="tag kcal">默认约 ${nu.kcal} 千卡</span>`
+            : (nu.kcal > 0 ? `<span class="tag kcal partial">默认 ≥ ${nu.kcal} 千卡</span>`
+                           : `<span class="tag unknown">热量未知</span>`)}
         </div>
         <div class="desc">${
-          hasRounds ? `默认搭配：${esc(baseNames.join(" + "))}（各轮可换，含差价）`
+          rs ? `默认搭配：${esc(baseNames.join(" + "))}${rg && rg.lo !== rg.hi ? ` · 全换轻量可降到 ${rg.lo} 千卡` : "（各轮可换，含差价）"}`
           : isCombo ? "套餐组成未采集，热量按未知计（不按 0 计入合计）"
-          : known ? `${nu.p}g 蛋白 · 脂肪 ${nu.f}g · 碳水 ${nu.c}g · 钠 ${nu.na}mg`
+          : nu.unknownN === 0 ? `${nu.p}g 蛋白 · 脂肪 ${nu.f}g · 碳水 ${nu.c}g · 钠 ${nu.na}mg`
           : "营养表未收录该商品，热量未知"
         }</div>
         <div class="priceline">
@@ -1252,24 +1891,47 @@ function renderMenu(cat){
    六、商品详情（按官方输出规范）
    ══════════════════════════════════════════════════════════════ */
 function roundsOf(name){ return ROUNDS[name] || null; }
+/* 选项列表走共享池：269 个轮次里只有 94 个不同的列表，直接内联会重复约 5 倍 */
+const choicesOf = r => LISTS[r.l] || [];
+const defIdxOf  = r => { const i = choicesOf(r).findIndex(c=>c[2]); return i >= 0 ? i : 0; };
 function defaultSel(name){
   const rs = roundsOf(name), sel = {};
-  if(rs) rs.forEach((r,i)=>{ const d = r.choices.findIndex(c=>c[2]); sel[i] = d >= 0 ? d : 0; });
+  if(rs) rs.forEach((r,i)=>{ sel[i] = defIdxOf(r); });
   return sel;
 }
 function selNames(name, sel){
   const rs = roundsOf(name);
-  return rs ? rs.map((r,i)=> r.choices[sel[i] ?? 0][0]) : [name];
+  return rs ? rs.map((r,i)=>{ const cs = choicesOf(r); return (cs[sel[i] ?? 0] || cs[0])[0]; }) : [name];
 }
 function defaultNames(name){
   const rs = roundsOf(name);
-  if(rs) return rs.map(r=> (r.choices.find(c=>c[2]) || r.choices[0])[0]);
+  if(rs) return rs.map(r=> choicesOf(r)[defIdxOf(r)][0]);
   const m = item(name);
   return (m && m.def) ? m.def : [name];
 }
 function specDiff(name, sel){
   const rs = roundsOf(name);
-  return rs ? rs.reduce((a,r,i)=> a + (r.choices[sel[i] ?? 0][1] || 0), 0) : 0;
+  return rs ? rs.reduce((a,r,i)=>{ const cs = choicesOf(r); return a + ((cs[sel[i] ?? 0] || cs[0])[1] || 0); }, 0) : 0;
+}
+/* 一组轮次里「每一项都已知」时，能算出这组的热量区间；
+   known < total 说明该组还有没收录的选项，这时的区间只是「已收录项」的区间，必须标出来 */
+function rangeOf(r){
+  const cs = choicesOf(r), known = cs.map(c=> baseKcal(c[0])).filter(k=> k !== null);
+  if(!known.length) return null;
+  return {min: Math.min(...known), max: Math.max(...known), known: known.length, total: cs.length,
+          partial: known.length < cs.length};
+}
+/* 整份搭配的热量区间：每轮取最小/最大相加（各轮独立，可行）
+   lo/hi 只覆盖「有数据的选项」，所以只在每轮都有数据时才是完整区间 */
+function comboRange(name){
+  const rs = roundsOf(name); if(!rs) return null;
+  let lo = 0, hi = 0, unknownRounds = 0;
+  rs.forEach(r=>{
+    const rg = rangeOf(r);
+    if(!rg) { unknownRounds++; return; }
+    lo += rg.min; hi += rg.max;
+  });
+  return {lo, hi, unknownRounds};
 }
 function modTargets(name, names){
   const rs = roundsOf(name);
@@ -1304,10 +1966,13 @@ function modsNoteOf(sp, targets){
   return parts;
 }
 function nutriOf(names){
-  const acc = {kcal:0,p:0,f:0,c:0,na:0}; let unknown = false;
-  names.forEach(n=>{ const b = NUTRI[n]; if(!b){ unknown = true; return; }
-    acc.kcal+=b.kcal; acc.p+=b.p; acc.f+=b.f; acc.c+=b.c; acc.na+=b.na; });
-  return {...acc, unknown};
+  const acc = {kcal:0,p:0,f:0,c:0,na:0}; let unknown = 0, zero = 0;
+  names.forEach(n=>{
+    if(ZERO.has(n)){ zero++; return; }          /* 玩具/蘸酱：0 千卡，不算未知 */
+    const b = NUTRI[n]; if(!b){ unknown++; return; }
+    acc.kcal+=b.kcal; acc.p+=b.p; acc.f+=b.f; acc.c+=b.c; acc.na+=b.na;
+  });
+  return {...acc, unknown: unknown > 0, unknownN: unknown, zeroN: zero};
 }
 function onAddClick(name, btn){
   const m = item(name);
@@ -1333,9 +1998,11 @@ function renderSpec(){
   const nu = nutriOf(names);
   const targets = modTargets(name, names);
   const unitPrice = priceOf(m) + specDiff(name, sel) + modsPriceOf(state.sp, targets);
+  const defNu = nutriOf(defaultNames(name));
+  const delta = nu.kcal - defNu.kcal;
   $("#spTitle").innerHTML = esc(name) + (targets.length ? '<span class="spec-tag">可特调</span>' : '');
   $("#spSub").innerHTML = `¥${unitPrice.toFixed(2)}${origOf(m) ? `<span class="orig">¥${origOf(m).toFixed(2)}</span>` : ""}` +
-    ` · 约 <b>${nu.kcal}</b> 千卡${nu.unknown ? "（含未匹配项）" : ""}`;
+    ` · 约 <b>${nu.kcal}</b> 千卡${nu.unknownN ? `（另有 ${nu.unknownN} 项未收录）` : ""}`;
 
   let html = `<div class="sp-nutri">
     <span>热量 <b>${nu.kcal} 千卡</b></span><span>蛋白 <b>${nu.p}g</b></span>
@@ -1344,19 +2011,78 @@ function renderSpec(){
   </div>`;
 
   if(rs){
+    /* 搭配概览：换品前就能看到「这组可选范围」和「加入后本单落在哪」。
+       ★ 含未收录项时，合计只是**下限**，一律写 ≥ —— 否则会出现
+         「当前 606 千卡」却低于「最轻 614 千卡」这种自相矛盾。 */
+    const rg = comboRange(name);
+    const tier = TIERS[state.daypart][state.tier()];
+    const cart = cartKcal(), willTotal = cart.total + nu.kcal * qty;
+    const lower = (n) => (n > 0 ? "≥ " : "") + n;
+    const vd = willTotal > tier * 1.12 ? ["偏高", "up"]
+             : willTotal < tier * 0.88 ? ["偏少", "warn"] : ["合适", "ok"];
+    const bothKnown = nu.unknownN === 0 && defNu.unknownN === 0;
+    html += `<div class="sp-sum">
+      <div class="ss-row"><span class="ss-k">当前搭配</span>
+        <span class="ss-v">${nu.unknownN ? "≥ " : ""}<b>${nu.kcal}</b>千卡</span>
+        ${!bothKnown ? `<span class="ss-d same">含未收录项</span>`
+          : delta === 0 ? `<span class="ss-d same">即默认搭配</span>`
+          : `<span class="ss-d ${delta < 0 ? "down" : "up"}">较默认 ${delta < 0 ? "−" : "+"}${Math.abs(delta)}</span>`}
+      </div>
+      ${rg && rg.lo !== rg.hi && rg.unknownRounds === 0 ? `<div class="ss-row sub"><span class="ss-k">各轮换到最轻 / 最重</span>
+        <span class="ss-v">${rg.lo} – ${rg.hi} 千卡</span>
+        ${(rg.lo !== rg.hi) ? `<span class="ss-d same">仅含已收录项</span>` : ""}</div>` : ""}
+      <div class="ss-row sub"><span class="ss-k">加入后本单约</span>
+        <span class="ss-v">${(cart.partial || nu.unknownN) ? "≥ " : ""}${willTotal} 千卡</span>
+        <span class="ss-d ${vd[1]}">${vd[0]} · ${state.tier()}档 ${tier}</span></div>
+      ${nu.unknownN ? `<div class="ss-note">${nu.unknownN} 项营养表未收录，未计入热量；换用已收录的选项即可得到完整估算。</div>` : ""}
+      ${nu.zeroN ? `<div class="ss-note">含 ${nu.zeroN} 项非食品（玩具/酱料），按 0 千卡计。</div>` : ""}
+    </div>`;
+
     rs.forEach((r,i)=>{
-      html += `<div class="round">
-        <div class="round-h"><span class="r-name">${esc(r.name)}</span>
-          <span class="r-req">${r.min > 0 ? "必选" : "可选"} · ${r.max > 1 ? `最多 ${r.max} 项` : "单选"}</span></div>
-        <div class="chips">${r.choices.map((c,ci)=>{
-          const on = (sel[i] ?? 0) === ci, k = baseKcal(c[0]);
-          const diff = c[1] ? `${c[1] > 0 ? "+" : "−"}¥${Math.abs(c[1]).toFixed(1)}` : "含在套餐价";
-          return `<button type="button" class="chip ${on ? "active" : ""}" data-r="${i}" data-c="${ci}"
-            aria-pressed="${on}">${esc(c[0])}${canModify(c[0]) ? '<i class="spec-tag-sm">可特调</i>' : ""}
-            <small>${k === null ? "热量未知" : k + " 千卡"} · ${diff}</small></button>`;
+      const cs = choicesOf(r), on = sel[i] ?? 0, rng = rangeOf(r);
+      /* 组内还有没收录的选项时，区间只覆盖已收录项，必须写明，避免被当成完整区间 */
+      const rngTx = !rng ? "热量未知"
+        : (rng.partial ? "已收录 " : "") +
+          (rng.min === rng.max ? `${rng.min} 千卡` : `${rng.min}–${rng.max} 千卡`);
+      const head = `<span class="r-idx" aria-hidden="true">${i + 1}</span>
+        <span class="r-name">${esc(r.name)}</span>
+        ${r.cat ? `<span class="r-cat">${esc(r.cat)}</span>` : ""}
+        <span class="r-req">${r.min > 0 ? "必选" : "可选"} · ${r.max > 1 ? `最多 ${r.max} 项` : "单选"}</span>
+        <span class="r-range"${rng && rng.partial ? ` title="该组还有 ${rng.total - rng.known} 项未收录，区间仅含已收录项"` : ""}>${rngTx}</span>`;
+
+      /* 只有一个选项的轮次不是「选择」，直接说明含什么，省掉一个假按钮 */
+      if(cs.length === 1){
+        const c = cs[0], k = baseKcal(c[0]);
+        html += `<div class="round fixed"><div class="round-h">${head}</div>
+          <div class="r-fixed"><span>含 <b>${esc(c[0])}</b></span>
+            <span class="fx-k">${isNonFood(c[0]) ? "非食品 · 不计热量" : (k === null ? "热量未知" : k + " 千卡")}</span>
+          </div></div>`;
+        return;
+      }
+
+      const kDef = baseKcal(cs[defIdxOf(r)][0]);
+      const knowns = cs.map(c=> baseKcal(c[0])).filter(k=> k !== null);
+      const best = knowns.length >= 2 ? Math.min(...knowns) : null;
+      const showBest = cs.length >= 3 && best !== null && best < Math.max(...knowns);
+      let usedBest = false;
+
+      html += `<div class="round"><div class="round-h">${head}</div>
+        <div class="chips${cs.length > 12 ? " scroll" : ""}">${cs.map((c,ci)=>{
+          const isOn = on === ci, k = baseKcal(c[0]), zero = isNonFood(c[0]);
+          const diff = c[1] ? `${c[1] > 0 ? "+" : "−"}¥${Math.abs(c[1]).toFixed(1)}` : "";
+          const dk = (k !== null && kDef !== null && k !== kDef) ? k - kDef : 0;
+          const isBest = showBest && !usedBest && k === best && (usedBest = true);
+          const kLbl = zero ? "非食品" : (k === null ? "热量未知" : k + " 千卡");
+          return `<button type="button" class="chip ${isOn ? "active" : ""}${zero ? " zero" : (k === null ? " unknown" : "")}"
+            data-r="${i}" data-c="${ci}" aria-pressed="${isOn}"
+            title="${esc(c[0])} · ${kLbl}${diff ? " · " + diff : ""}">
+            <span class="c-n">${esc(c[0])}${canModify(c[0]) ? '<i class="spec-tag-sm">可特调</i>' : ""}${isBest ? '<span class="c-best">本组最低</span>' : ""}</span>
+            <small>${kLbl}${diff ? " · " + diff : ""}${dk ? ` <span class="c-d ${dk < 0 ? "down" : "up"}">${dk < 0 ? "↓" : "↑"}${Math.abs(dk)}</span>` : ""}</small>
+          </button>`;
         }).join("")}</div></div>`;
     });
-    html += `<div class="default-line">当前默认搭配：<b>${esc(defaultNames(name).join(" + "))}</b></div>`;
+    html += `<div class="default-line">默认搭配：<b>${esc(defaultNames(name).join(" + "))}</b>
+      ${defNu.kcal > 0 ? `· 约 ${defNu.kcal} 千卡${defNu.unknownN ? "（未含未收录项）" : ""}` : "· 热量未知"}</div>`;
   }
 
   if(targets.length){
@@ -1406,10 +2132,12 @@ $("#spAdd").onclick = ()=>{
   const nu = nutriOf(names);
   const targets = modTargets(name, names);
   const note = modsNoteOf(state.sp, targets);
+  const fullyKnown = nu.unknownN === 0;
   pushCart(name, qty, {
     names, combo: rs ? names.join(" + ") : null, note,
     unitPrice: priceOf(m) + specDiff(name, sel) + modsPriceOf(state.sp, targets),
-    kcal: nu.unknown ? null : nu.kcal
+    kcal: (fullyKnown || nu.kcal > 0) ? nu.kcal : null,
+    partial: !fullyKnown && nu.kcal > 0
   });
   log("query-meal-detail", rs ? `读取「${name}」组成与选配：${names.join(" + ")}`
                               : `读取「${name}」特调项${note.length ? "：" + note.join("、") : ""}`, false);
@@ -1428,15 +2156,20 @@ function pushCart(name, qty, cfg){
   const found = state.cart.find(l=> l.key === key);
   if(found) found.qty += qty;
   else state.cart.push({key, name, qty, unitPrice:cfg.unitPrice, kcal:cfg.kcal,
-                        note:cfg.note || [], combo:cfg.combo || null});
+                        partial: !!cfg.partial, note:cfg.note || [], combo:cfg.combo || null});
   renderCart(); renderHeat();
 }
 const cartQty   = () => state.cart.reduce((a,l)=>a+l.qty,0);
 const cartPrice = () => state.cart.reduce((a,l)=>a+l.unitPrice*l.qty,0);
 function cartKcal(){
-  let total = 0, unknown = 0;
-  state.cart.forEach(l=>{ if(l.kcal === null) unknown += l.qty; else total += l.kcal * l.qty; });
-  return {total, unknown};
+  /* partial：套餐里有些选项营养表没收录 —— 此时合计只是**下限**，界面必须标 ≥ */
+  let total = 0, unknown = 0, partial = 0;
+  state.cart.forEach(l=>{
+    if(l.kcal === null){ unknown += l.qty; return; }
+    total += l.kcal * l.qty;
+    if(l.partial) partial += l.qty;
+  });
+  return {total, unknown, partial};
 }
 const lineNote = l => [l.combo ? `套餐：${l.combo}` : null, ...(l.note || [])].filter(Boolean);
 
@@ -1449,9 +2182,10 @@ function renderCart(){
   roll($("#cartTotal"), price, v=>yuan(v));
   const kc = $("#cartKcal");
   kc.className = "ckcal" + (k.total > tier*1.12 ? " warn" : "");
-  kc.innerHTML = `<span class="dot"></span>本单约 ${k.total} 千卡` +
+  kc.innerHTML = `<span class="dot"></span>本单${k.partial ? "≥ " : "约 "}${k.total} 千卡` +
                  (n ? ` · ${state.tier()}档 ${tier}` : "") +
-                 (k.unknown ? ` · ${k.unknown} 件未知` : "");
+                 (k.unknown ? ` · ${k.unknown} 件未知` : "") +
+                 (k.partial ? ` · ${k.partial} 件含未收录` : "");
   $("#btnCheckout").disabled = !n;
 
   const body = $("#ctBody");
@@ -1467,7 +2201,7 @@ function renderCart(){
       <div class="cl-info">
         <div class="cl-name">${esc(l.name)}</div>
         ${lineNote(l).length?`<div class="cl-note">${esc(lineNote(l).join(" · "))}</div>`:""}
-        <div class="cl-price">${yuan(l.unitPrice*l.qty)}<span>${uk===null?"热量未知":(uk*l.qty)+" 千卡"}</span></div>
+        <div class="cl-price">${yuan(l.unitPrice*l.qty)}<span>${uk===null?"热量未知":(l.partial?"≥":"")+(uk*l.qty)+" 千卡"}</span></div>
       </div>
       <div class="stepper">
         <button type="button" class="minus" aria-label="减少 ${esc(l.name)}">−</button>
@@ -1654,9 +2388,9 @@ function renderHeat(){
       const uk = l.kcal;
       return `<tr><td class="name">${esc(l.name)}${lineNote(l).length?`<em>${esc(lineNote(l).join(" · "))}</em>`:""}</td>
         <td class="num">${l.qty}</td>
-        <td class="num ${uk===null?"unknown":""}">${uk===null?"未知":uk*l.qty}</td></tr>`;
+        <td class="num ${uk===null?"unknown":""}">${uk===null?"未知":(l.partial?"≥ ":"")+uk*l.qty}</td></tr>`;
     }).join("");
-    tf.innerHTML = `<tr><td>合计${k.unknown?`（另有 ${k.unknown} 件热量未知）`:""}</td><td class="num"></td><td class="num">${k.total}</td></tr>`;
+    tf.innerHTML = `<tr><td>合计${k.unknown?`（另有 ${k.unknown} 件热量未知）`:""}${k.partial?`（${k.partial} 件含未收录，按已收录项计）`:""}</td><td class="num"></td><td class="num">${k.partial?"≥ ":""}${k.total}</td></tr>`;
   }
   renderReco();
 }

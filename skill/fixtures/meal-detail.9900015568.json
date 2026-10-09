@@ -1,0 +1,192 @@
+{
+ "_meta": {
+  "storeCode": "3570190",
+  "orderType": 1,
+  "beType": 1,
+  "daypart": "午餐",
+  "fetchedAt": "2026-10-10 02:02:17",
+  "traceId": "718cbd096736a390458deaa91c9ad9ec",
+  "source": "query-meal-detail",
+  "note": "bulk 采集自 fetch_meal_details.py；剔除 image 与 modification 内部 key，仅保留 hasModification。"
+ },
+ "code": "9900015568",
+ "name": "精选超值随心配",
+ "price": null,
+ "supportModify": false,
+ "rounds": [
+  {
+   "id": 1,
+   "name": "蓝区",
+   "quantity": 1,
+   "minQuantity": 1,
+   "maxQuantity": 1,
+   "choices": [
+    {
+     "code": "521156",
+     "name": "那么大鸡排（椒盐风味）",
+     "isDefault": 1,
+     "diffPrice": "+ ¥0",
+     "supportModify": false
+    },
+    {
+     "code": "521316",
+     "name": "高达吉士双牛堡",
+     "isDefault": 0,
+     "diffPrice": "+ ¥0",
+     "supportModify": true,
+     "hasModification": true
+    },
+    {
+     "code": "1120",
+     "name": "双层吉士汉堡",
+     "isDefault": 0,
+     "diffPrice": "+ ¥1",
+     "supportModify": true,
+     "hasModification": true
+    },
+    {
+     "code": "1600",
+     "name": "麦香鱼",
+     "isDefault": 0,
+     "diffPrice": "+ ¥1",
+     "supportModify": true,
+     "hasModification": true
+    },
+    {
+     "code": "1401",
+     "name": "麦乐鸡5块",
+     "isDefault": 0,
+     "diffPrice": "+ ¥0",
+     "supportModify": false
+    },
+    {
+     "code": "1450",
+     "name": "麦香鸡",
+     "isDefault": 0,
+     "diffPrice": "+ ¥0",
+     "supportModify": true,
+     "hasModification": true
+    },
+    {
+     "code": "4800",
+     "name": "小薯条",
+     "isDefault": 0,
+     "diffPrice": "+ ¥0",
+     "supportModify": false
+    }
+   ]
+  },
+  {
+   "id": 2,
+   "name": "粉区",
+   "quantity": 1,
+   "minQuantity": 1,
+   "maxQuantity": 1,
+   "choices": [
+    {
+     "code": "515281",
+     "name": "阳光柠檬红茶中杯",
+     "isDefault": 1,
+     "diffPrice": "+ ¥0",
+     "supportModify": true,
+     "hasModification": true
+    },
+    {
+     "code": "521336",
+     "name": "怡泉+C麦炫酷",
+     "isDefault": 1,
+     "diffPrice": "+ ¥0",
+     "supportModify": false
+    },
+    {
+     "code": "3050",
+     "name": "可乐中杯",
+     "isDefault": 0,
+     "diffPrice": "+ ¥0",
+     "supportModify": true,
+     "hasModification": true
+    },
+    {
+     "code": "4437",
+     "name": "小杯玉米杯",
+     "isDefault": 0,
+     "diffPrice": "+ ¥0",
+     "supportModify": false
+    },
+    {
+     "code": "4106",
+     "name": "香芋派",
+     "isDefault": 0,
+     "diffPrice": "+ ¥0",
+     "supportModify": false
+    },
+    {
+     "code": "4420",
+     "name": "迷你草莓新地",
+     "isDefault": 0,
+     "diffPrice": "+ ¥0",
+     "supportModify": false
+    },
+    {
+     "code": "4422",
+     "name": "迷你朱古力新地",
+     "isDefault": 0,
+     "diffPrice": "+ ¥0",
+     "supportModify": false
+    },
+    {
+     "code": "521327",
+     "name": "鲜萃冰咖",
+     "isDefault": 0,
+     "diffPrice": "+ ¥0",
+     "supportModify": false
+    },
+    {
+     "code": "4105",
+     "name": "菠萝派",
+     "isDefault": 0,
+     "diffPrice": "+ ¥0",
+     "supportModify": false
+    },
+    {
+     "code": "521329",
+     "name": "无糖可乐麦炫酷",
+     "isDefault": 0,
+     "diffPrice": "+ ¥0",
+     "supportModify": false
+    },
+    {
+     "code": "3505",
+     "name": "锡兰红茶",
+     "isDefault": 0,
+     "diffPrice": "+ ¥0",
+     "supportModify": false
+    },
+    {
+     "code": "515520",
+     "name": "中杯怡泉+C",
+     "isDefault": 0,
+     "diffPrice": "+ ¥0",
+     "supportModify": true,
+     "hasModification": true
+    },
+    {
+     "code": "3060",
+     "name": "雪碧中杯",
+     "isDefault": 0,
+     "diffPrice": "+ ¥0",
+     "supportModify": true,
+     "hasModification": true
+    },
+    {
+     "code": "3071",
+     "name": "无糖可口可乐中杯",
+     "isDefault": 0,
+     "diffPrice": "+ ¥0",
+     "supportModify": true,
+     "hasModification": true
+    }
+   ]
+  }
+ ]
+}

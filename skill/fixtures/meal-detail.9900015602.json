@@ -4,58 +4,42 @@
   "orderType": 1,
   "beType": 1,
   "daypart": "午餐",
-  "fetchedAt": "2026-10-10 02:02:48",
-  "traceId": "0c4428296c65cda0e480bc1ed9085ce4",
+  "fetchedAt": "2026-10-10 02:02:17",
+  "traceId": "07bf90cfd0f126cacfc473ed29a28ae5",
   "source": "query-meal-detail",
   "note": "bulk 采集自 fetch_meal_details.py；剔除 image 与 modification 内部 key，仅保留 hasModification。"
  },
- "code": "9900004064",
- "name": "精选单人餐三件套",
+ "code": "9900015602",
+ "name": "大堡口福三件套",
  "price": null,
  "supportModify": false,
  "rounds": [
   {
    "id": 1,
-   "name": "主食任意选",
+   "name": "选择主食",
    "quantity": 1,
    "minQuantity": 1,
    "maxQuantity": 1,
    "choices": [
     {
-     "code": "1406",
-     "name": "板烧鸡腿堡",
+     "code": "521147",
+     "name": "Hold不住鸡排堡（椒盐风味）",
      "isDefault": 1,
      "diffPrice": "+ ¥0",
      "supportModify": true,
      "hasModification": true
     },
     {
-     "code": "1100",
-     "name": "巨无霸",
+     "code": "515295",
+     "name": "双层脆鸡堡",
      "isDefault": 0,
-     "diffPrice": "+ ¥2.5",
+     "diffPrice": "+ ¥1",
      "supportModify": true,
      "hasModification": true
     },
     {
-     "code": "1440",
-     "name": "麦辣鸡腿汉堡",
-     "isDefault": 0,
-     "diffPrice": "- ¥1",
-     "supportModify": true,
-     "hasModification": true
-    },
-    {
-     "code": "511781",
-     "name": "培根安格斯厚牛堡",
-     "isDefault": 0,
-     "diffPrice": "+ ¥10.5",
-     "supportModify": true,
-     "hasModification": true
-    },
-    {
-     "code": "520312",
-     "name": "原味双层深海鳕鱼堡",
+     "code": "520551",
+     "name": "培根芝士双牛堡",
      "isDefault": 0,
      "diffPrice": "+ ¥1",
      "supportModify": true,
@@ -65,7 +49,7 @@
   },
   {
    "id": 2,
-   "name": "选择套餐内小食",
+   "name": "选择小食",
    "quantity": 1,
    "minQuantity": 1,
    "maxQuantity": 1,
@@ -78,31 +62,10 @@
      "supportModify": false
     },
     {
-     "code": "521983",
-     "name": "5块心形薯饼+韩式辣椒黄油风味酱",
-     "isDefault": 0,
-     "diffPrice": "+ ¥1",
-     "supportModify": false
-    },
-    {
-     "code": "521901",
-     "name": "月下相思扭扭薯",
-     "isDefault": 0,
-     "diffPrice": "+ ¥1.5",
-     "supportModify": false
-    },
-    {
      "code": "4820",
      "name": "大薯条",
      "isDefault": 0,
      "diffPrice": "+ ¥1.5",
-     "supportModify": false
-    },
-    {
-     "code": "4437",
-     "name": "小杯玉米杯",
-     "isDefault": 0,
-     "diffPrice": "- ¥1.5",
      "supportModify": false
     },
     {
@@ -130,45 +93,6 @@
      "hasModification": true
     },
     {
-     "code": "521817",
-     "name": "【美汁源】“多汁柠柠”",
-     "isDefault": 0,
-     "diffPrice": "+ ¥1",
-     "supportModify": true,
-     "hasModification": true
-    },
-    {
-     "code": "515945",
-     "name": "热浓浓黑巧中杯",
-     "isDefault": 0,
-     "diffPrice": "+ ¥11",
-     "supportModify": true,
-     "hasModification": true
-    },
-    {
-     "code": "521904",
-     "name": "举杯邀月柚桂茶(冰)",
-     "isDefault": 0,
-     "diffPrice": "+ ¥3",
-     "supportModify": true,
-     "hasModification": true
-    },
-    {
-     "code": "521905",
-     "name": "举杯邀月柚桂茶(热)",
-     "isDefault": 0,
-     "diffPrice": "+ ¥3",
-     "supportModify": false
-    },
-    {
-     "code": "3071",
-     "name": "无糖可口可乐中杯",
-     "isDefault": 0,
-     "diffPrice": "+ ¥0",
-     "supportModify": true,
-     "hasModification": true
-    },
-    {
      "code": "3060",
      "name": "雪碧中杯",
      "isDefault": 0,
@@ -177,8 +101,16 @@
      "hasModification": true
     },
     {
-     "code": "515281",
-     "name": "阳光柠檬红茶中杯",
+     "code": "515520",
+     "name": "中杯怡泉+C",
+     "isDefault": 0,
+     "diffPrice": "+ ¥1.5",
+     "supportModify": true,
+     "hasModification": true
+    },
+    {
+     "code": "3071",
+     "name": "无糖可口可乐中杯",
      "isDefault": 0,
      "diffPrice": "+ ¥0",
      "supportModify": true,
@@ -191,6 +123,21 @@
      "diffPrice": "+ ¥9",
      "supportModify": true,
      "hasModification": true
+    },
+    {
+     "code": "515281",
+     "name": "阳光柠檬红茶中杯",
+     "isDefault": 0,
+     "diffPrice": "+ ¥0",
+     "supportModify": true,
+     "hasModification": true
+    },
+    {
+     "code": "521327",
+     "name": "鲜萃冰咖",
+     "isDefault": 0,
+     "diffPrice": "+ ¥1.5",
+     "supportModify": false
     },
     {
      "code": "520688",
@@ -217,25 +164,10 @@
      "hasModification": true
     },
     {
-     "code": "515946",
-     "name": "冰浓浓黑巧中杯",
+     "code": "507328",
+     "name": "麦咖啡™热奶铁中杯",
      "isDefault": 0,
      "diffPrice": "+ ¥11",
-     "supportModify": true,
-     "hasModification": true
-    },
-    {
-     "code": "515954",
-     "name": "热浓浓燕麦黑巧中杯",
-     "isDefault": 0,
-     "diffPrice": "+ ¥13",
-     "supportModify": false
-    },
-    {
-     "code": "515955",
-     "name": "冰浓浓燕麦黑巧中杯",
-     "isDefault": 0,
-     "diffPrice": "+ ¥13",
      "supportModify": true,
      "hasModification": true
     },
@@ -256,14 +188,6 @@
      "hasModification": true
     },
     {
-     "code": "515521",
-     "name": "大杯怡泉+C",
-     "isDefault": 0,
-     "diffPrice": "+ ¥3.5",
-     "supportModify": true,
-     "hasModification": true
-    },
-    {
      "code": "3110",
      "name": "雪碧大杯",
      "isDefault": 0,
@@ -272,10 +196,18 @@
      "hasModification": true
     },
     {
-     "code": "507328",
-     "name": "麦咖啡™热奶铁中杯",
+     "code": "515282",
+     "name": "阳光柠檬红茶大杯",
      "isDefault": 0,
-     "diffPrice": "+ ¥11",
+     "diffPrice": "+ ¥2",
+     "supportModify": true,
+     "hasModification": true
+    },
+    {
+     "code": "515521",
+     "name": "大杯怡泉+C",
+     "isDefault": 0,
+     "diffPrice": "+ ¥3.5",
      "supportModify": true,
      "hasModification": true
     },
@@ -295,27 +227,11 @@
      "supportModify": false
     },
     {
-     "code": "515282",
-     "name": "阳光柠檬红茶大杯",
-     "isDefault": 0,
-     "diffPrice": "+ ¥2",
-     "supportModify": true,
-     "hasModification": true
-    },
-    {
      "code": "6362",
      "name": "100%苹果汁",
      "isDefault": 0,
      "diffPrice": "+ ¥2",
      "supportModify": false
-    },
-    {
-     "code": "515520",
-     "name": "中杯怡泉+C",
-     "isDefault": 0,
-     "diffPrice": "+ ¥1.5",
-     "supportModify": true,
-     "hasModification": true
     }
    ]
   }

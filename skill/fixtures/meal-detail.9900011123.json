@@ -1,0 +1,106 @@
+{
+ "_meta": {
+  "storeCode": "3570190",
+  "orderType": 1,
+  "beType": 1,
+  "daypart": "午餐",
+  "fetchedAt": "2026-10-10 02:02:08",
+  "traceId": "9fe8bdc94117d934d7ff2d2b923c12bf",
+  "source": "query-meal-detail",
+  "note": "bulk 采集自 fetch_meal_details.py；剔除 image 与 modification 内部 key，仅保留 hasModification。"
+ },
+ "code": "9900011123",
+ "name": "“辣”么快乐套餐",
+ "price": null,
+ "supportModify": false,
+ "rounds": [
+  {
+   "id": 1,
+   "name": "麦辣鸡翅-2块",
+   "quantity": 1,
+   "minQuantity": 1,
+   "maxQuantity": 1,
+   "choices": [
+    {
+     "code": "1700",
+     "name": "麦辣鸡翅2块",
+     "isDefault": 1,
+     "diffPrice": "+ ¥0",
+     "supportModify": false
+    }
+   ]
+  },
+  {
+   "id": 2,
+   "name": "麦乐鸡4块",
+   "quantity": 1,
+   "minQuantity": 1,
+   "maxQuantity": 1,
+   "choices": [
+    {
+     "code": "515106",
+     "name": "麦乐鸡4块",
+     "isDefault": 1,
+     "diffPrice": "+ ¥0",
+     "supportModify": false
+    }
+   ]
+  },
+  {
+   "id": 3,
+   "name": "选择饮料",
+   "quantity": 1,
+   "minQuantity": 1,
+   "maxQuantity": 1,
+   "choices": [
+    {
+     "code": "3071",
+     "name": "无糖可口可乐中杯",
+     "isDefault": 1,
+     "diffPrice": "+ ¥0",
+     "supportModify": true,
+     "hasModification": true
+    },
+    {
+     "code": "3021",
+     "name": "无糖可口可乐小杯",
+     "isDefault": 0,
+     "diffPrice": "- ¥0.5",
+     "supportModify": true,
+     "hasModification": true
+    },
+    {
+     "code": "3111",
+     "name": "无糖可口可乐大杯",
+     "isDefault": 0,
+     "diffPrice": "+ ¥2",
+     "supportModify": true,
+     "hasModification": true
+    },
+    {
+     "code": "3505",
+     "name": "锡兰红茶",
+     "isDefault": 0,
+     "diffPrice": "+ ¥1.5",
+     "supportModify": false
+    },
+    {
+     "code": "507368",
+     "name": "麦咖啡™热美式中杯",
+     "isDefault": 0,
+     "diffPrice": "+ ¥9",
+     "supportModify": true,
+     "hasModification": true
+    },
+    {
+     "code": "507411",
+     "name": "麦咖啡™冰美式中杯",
+     "isDefault": 0,
+     "diffPrice": "+ ¥9",
+     "supportModify": true,
+     "hasModification": true
+    }
+   ]
+  }
+ ]
+}

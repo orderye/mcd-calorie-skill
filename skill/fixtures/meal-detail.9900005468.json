@@ -4,60 +4,28 @@
   "orderType": 1,
   "beType": 1,
   "daypart": "午餐",
-  "fetchedAt": "2026-10-10 02:02:48",
-  "traceId": "0c4428296c65cda0e480bc1ed9085ce4",
+  "fetchedAt": "2026-10-10 02:02:03",
+  "traceId": "90b0679b8aad499f9622b54cdc8f5baf",
   "source": "query-meal-detail",
   "note": "bulk 采集自 fetch_meal_details.py；剔除 image 与 modification 内部 key，仅保留 hasModification。"
  },
- "code": "9900004064",
- "name": "精选单人餐三件套",
+ "code": "9900005468",
+ "name": "培根蔬萃双层牛堡三件套",
  "price": null,
  "supportModify": false,
  "rounds": [
   {
    "id": 1,
-   "name": "主食任意选",
+   "name": "培根蔬萃双层牛堡",
    "quantity": 1,
    "minQuantity": 1,
    "maxQuantity": 1,
    "choices": [
     {
-     "code": "1406",
-     "name": "板烧鸡腿堡",
+     "code": "1106",
+     "name": "培根蔬萃双层牛堡",
      "isDefault": 1,
      "diffPrice": "+ ¥0",
-     "supportModify": true,
-     "hasModification": true
-    },
-    {
-     "code": "1100",
-     "name": "巨无霸",
-     "isDefault": 0,
-     "diffPrice": "+ ¥2.5",
-     "supportModify": true,
-     "hasModification": true
-    },
-    {
-     "code": "1440",
-     "name": "麦辣鸡腿汉堡",
-     "isDefault": 0,
-     "diffPrice": "- ¥1",
-     "supportModify": true,
-     "hasModification": true
-    },
-    {
-     "code": "511781",
-     "name": "培根安格斯厚牛堡",
-     "isDefault": 0,
-     "diffPrice": "+ ¥10.5",
-     "supportModify": true,
-     "hasModification": true
-    },
-    {
-     "code": "520312",
-     "name": "原味双层深海鳕鱼堡",
-     "isDefault": 0,
-     "diffPrice": "+ ¥1",
      "supportModify": true,
      "hasModification": true
     }
