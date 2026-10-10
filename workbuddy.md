@@ -14,7 +14,7 @@
 | 接入的 MCP | 麦当劳中国官方 MCP `mcd-mcp`（`https://mcp.mcd.cn`，Streamable HTTP，Bearer Token 鉴权） |
 | 运行环境 | macOS；本地计算脚本为 Python 3.10+，无第三方依赖 |
 | 版本控制 | Git + GitHub（Public 仓库 `orderye/mcd-calorie-skill`） |
-| 交付形态 | Agent Skill（`skill/`，v0.8.0）+ 单文件 HTML（演示页 / 点餐页）+ 参赛文档 + `cover/`·`assets/` 品牌资产 |
+| 交付形态 | Agent Skill（`skill/`，v0.8.0）+ 单文件 HTML（`food.html` 仪表/像素双风格 + `food-pixel.html` 独立像素版）+ 参赛文档 + `cover/`·`assets/` 品牌资产 |
 
 ---
 
@@ -102,6 +102,10 @@
 - **User**：营养表覆盖不全、菜单名常缺规格（「薯条」「可乐」），能不能让 Skill 自己消化实时菜单的变化，而不是手工改数据？
 - **WorkBuddy**：实测确认 `list-nutrition-foods` 是官方 MCP 唯一营养数据源（`query-meals` / `query-meal-detail` / `query-order` 均无营养字段）；利用「同一 code 在 `query-meals` 与 `query-meal-detail` 中指向同一商品」，新增 `scripts/mcd_spec_evidence.py` 用套餐具体命名反推菜单缺失规格，按 A（可补录）/ B（多值保持歧义）/ C1（疑似错误映射）/ C2（证据冲突）/ D（已解决）五级分级，`--apply` 仅写 A 级进 `alias.json#defaults`。实测补录 5 条默认规格（优品豆浆→小杯、怡泉+C→中杯、玉米杯→小杯、鲜萃咖啡→小杯、麦乐鸡→5块）、修正 2 条错误映射（牛奶→热牛奶中杯、麦咖啡™奶铁→冰奶铁中杯，修正前后均跑回归）；`category-rules.json` 拆分 `excludeNamePatterns` / `excludeNonFoodPatterns`，修复「蘸酱炸鸡」等含酱食物被误挡在候选外的隐患；Skill 版本升至 **v0.8.0**，常见订单集匹配率 92.3% → **13/13 = 100%**（歧义 0 / 未知 0）。Skill 由此具备「餐品数据实时更新」能力：推荐候选 100% 取当次 `query-meals` 实时可售（上新/下架/调价即时生效），本地快照持续沉淀为规格证据，别名表只在有实测证据时更新。
 
+### 节点 21 — 演示页更名双风格合并 + 脚本架构分层与缓存/测试落地
+- **User**：演示页更名并合并像素风；持续工程化。
+- **WorkBuddy**：`点餐页.html` 更名 **`food.html`**（页头新增「仪表风 / 像素风」切换器，`localStorage` 记忆选择，样式表加载前先落 `data-skin` 避免首屏闪风格；像素风以 `html[data-skin="pixel"]` 前缀追加为第二皮肤，数据块零改动），独立像素版更名 **`food-pixel.html`**（数据冻结）；同步 `index.html` 跳转与各文档引用。随后脚本架构分层：新增 `mcd_taxonomy.py`（品类归类与排除规则**唯一加载点**）、`mcd_review.py`（复盘管线**唯一实现**，import/history 薄壳共用）、`mcd_cache.py`（带 TTL 缓存：营养 24h / 菜单 10min / 429 退避，CLI list/show/clear）；新增 `tests/test_engine.py` 引擎回归套件（47 断言：nutrition 矩阵 / daypart 21:59→22:00 边界 / goal 硬上限与 ±12% 不放宽 / taxonomy / cache），全绿；基线验证 worktree 输出与改动前逐字节一致 + `inject` 幂等。
+
 ---
 
 ## 3. 与麦当劳 MCP 的联动证据
@@ -115,4 +119,4 @@
 
 ## 4. 核验声明
 
-本人确认：本项目基于 WorkBuddy 完成创意构思、编码、调试、代码审校（含专家评审与真实 bug 修复）、资产生成与文档产出，底层实时数据通过麦当劳官方 `mcd-mcp` 提供；项目为参赛者独立开发的参赛作品，非麦当劳官方产品。本文件如实导出覆盖「初始化 → 功能迭代 → 审校优化 → 资产与工程档案 → 目标场景收敛 → v0.8 营养缺口攻坚与餐品数据实时更新」共 20 个节点的开发对话上下文，用于核验是否符合 WorkBuddy 联动活动奖励条件。
+本人确认：本项目基于 WorkBuddy 完成创意构思、编码、调试、代码审校（含专家评审与真实 bug 修复）、资产生成与文档产出，底层实时数据通过麦当劳官方 `mcd-mcp` 提供；项目为参赛者独立开发的参赛作品，非麦当劳官方产品。本文件如实导出覆盖「初始化 → 功能迭代 → 审校优化 → 资产与工程档案 → 目标场景收敛 → v0.8 营养缺口攻坚 → 双风格合并与脚本架构分层」共 21 个节点的开发对话上下文，用于核验是否符合 WorkBuddy 联动活动奖励条件。

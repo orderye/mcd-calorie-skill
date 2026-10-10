@@ -121,7 +121,8 @@ Skill 的餐品数据**不靠静态菜单维护**，而是随 MCP 实时接口�
 - **`query-meals` 无 daypart**：以 `reservationDate`=目标餐段代表时刻代替；分类可出现 `meals{}` 里没有的 code（夜市 9900000881）→ 必须保留 UNKNOWN 兜底。
 - **换品 vs 特调**：换品在 `rounds`/`choices` 层（差价 `diffPrice`）；特调看 `supportModify`/`modification`（去冰、换燕麦奶等），传参须同时带 `selectedKey` 与 `unselectedKey`。
 - **同一 code 跨接口共享**：`query-meals` 与 `query-meal-detail` 的 code 指向同一商品——套餐内该 code 的具体命名即菜单名缺失规格的证据（v0.8 规格证据挖掘的依据）；但两个接口**均无营养字段**，`list-nutrition-foods` 仍是唯一营养数据源。
-- **限流与缓存**：连接器 600 次/分钟；营养表缓存 ≥24h，菜单按 店+餐段 缓存 10min；429 退避重试。
+- **限流与缓存**：连接器 600 次/分钟；营养表缓存 ≥24h，菜单按 店+餐段 缓存 10min；429 退避重试。**已机制化**：`mcd_cache.py`（put/get 带 TTL、退避状态、CLI `list/show/clear`），重复采集先查缓存，命中直接复用。
+- **脚本架构分层**：品类归类与排除规则唯一加载点 `mcd_taxonomy.py`（`category-rules.json` 唯一入口）；复盘管线唯一实现 `mcd_review.py`（import/history 薄壳共用）；引擎回归套件 `tests/test_engine.py`（47 断言：nutrition 矩阵 / daypart 边界 / goal 硬上限与 ±12% 不放宽 / taxonomy / cache）。
 - **主动收窄的能力**：券包（`available-coupons`/`query-my-coupons`/`auto-bind-coupons`）、积分账户、团餐（`party-*`/`query-promotions`）、商城（`mall-*`）官方已提供，但本期仅用 `query-store-coupons` 标注、不介入核销，保持最小依赖、降低合规面。
 
 ---
@@ -130,6 +131,6 @@ Skill 的餐品数据**不靠静态菜单维护**，而是随 MCP 实时接口�
 
 - **能力闭环**：将营养查询、菜单、订单、报价、下单、历史复盘等原子 MCP 工具，编排成「估算 → 推荐 → 替换 → 复盘 → 下单」一条可用链路，单点工具变成用户场景。
 - **餐品数据实时更新、自我进化**：实时餐品以当次 `query-meals` 为唯一来源（上新/下架/调价即时生效）；本地快照沉淀为规格证据（`mcd_spec_evidence.py` 五级分级），别名表只在有实测证据时更新——菜单名缺规格的歧义从 92.3% 匹配率收敛到 13/13 = 100%，且全程「用证据消歧、不猜测」。
-- **计算与数据分离**：实时数据交给官方 MCP 保证准确与合规；热量匹配、组合枚举、档位筛选、历史复盘等计算下沉到本地无依赖脚本，可离线评测（常见订单集匹配率 **13/13 = 100% PASS**，≥90% 验收）。
+- **计算与数据分离**：实时数据交给官方 MCP 保证准确与合规；热量匹配、组合枚举、档位筛选、历史复盘等计算下沉到本地无依赖脚本（基座层 `nutrition/daypart/goal/taxonomy` 零互相依赖），可离线评测（常见订单集匹配率 **13/13 = 100% PASS**，≥90% 验收；引擎回归 47 断言全绿）。
 - **安全与合规内建**：下单强制确认闸门、Token 不落盘、营养失败不凭记忆编造、不使用官方图片商标；图片字段一律不落盘；契合活动合规要求。
 - **低门槛复用**：以 Agent Skill 形态交付，在支持 MCP 的客户端（如 WorkBuddy）配置 Token 后即可对话使用，无需额外部署。
