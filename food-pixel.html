@@ -1,0 +1,3326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1b1712">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f1ea">
+<title>热麦卡路里 · 点餐流程演示【像素风 · 8-BIT】（模拟数据）</title>
+<style>
+/* ══════════════════════════════════════════════════════════════
+   热麦卡路里 · 点餐页【像素风 · 8-BIT】
+   设计主张：把整页装进一台「快餐包装里的复古掌机」。
+     · 包装层（页面底 / 面板 / 弹窗）= 快餐红 × 奶油纸 × 像素黄
+       配色取自 cover/cover-v3-pixel.png，两处同一套语言
+     · 屏幕层（掌机壳内）= 深墨点阵屏 + 荧光热量色阶
+       「热量即色彩」的连续色阶机制原样保留，只换成荧光调
+     · 像素语言：直角、粗硬描边、无模糊 offset 硬阴影、点阵纹理、扫描线
+   两套令牌靠 CSS 变量作用域切分（:root = 奶油纸 / .phone = 深墨屏），
+   原有选择器名保持零改动，JS 逻辑不受影响。
+   ══════════════════════════════════════════════════════════════ */
+
+@property --heat-h{ syntax:"<number>"; inherits:true; initial-value:158 }
+
+/* ═══ 令牌 ═══ */
+:root{
+  /* —— 包装层色板（快餐红 × 奶油 × 像素黄）—— */
+  --pkg-red:    #C8102E;
+  --pkg-red-dk: #8A0B1C;
+  --pkg-red-dp: #4E0711;
+  --pkg-red-hi: #E8434A;
+  --cream:      #F7E9CE;
+  --paper:      #FCF5E6;
+  --yellow:     #FFC72C;
+  --nk:         #1E0A0C;   /* 暖黑：所有描边与硬阴影 */
+
+  /* —— 面：奶油纸（页面 / 面板 / 弹窗层）—— */
+  --surf-0: #E4CFA9;   /* 页面底 */
+  --surf-1: #FCF5E6;   /* 抬升面（卡片）*/
+  --surf-2: #F4E6CB;   /* 次级面 */
+  --surf-3: #E9D6B2;   /* hover 面 */
+  --line:   #C9A97E;
+  --line-2: #A8825A;
+
+  /* —— 文字：暖墨 —— */
+  --ink-0: #1E0A0C;
+  --ink-1: #35170F;
+  --ink-2: #55301F;
+  --ink-3: #73503A;
+  --ink-4: #8E6C52;
+
+  /* —— 品牌：像素黄只留给主行动 —— */
+  --brand:     #FFC72C;
+  --brand-lt:  #FFDE73;
+  --brand-dk:  #C98D0A;
+  --brand-ink: #1E0A0C;
+  --brand-tx:  #9C6100;   /* 黄作文字时压暗 */
+
+  /* —— 语义色（奶油底：压暗）—— */
+  --ok:   #2F7A16;
+  --info: #0D6288;
+  --bad:  #B8241A;
+
+  /* —— 热量色阶：奶油底压暗才读得出 —— */
+  --heat-l: 42%;
+  --heat-bar-l: 50%;
+  --heat:     oklch(var(--heat-l) 0.165 var(--heat-h));
+  --heat-bar: oklch(var(--heat-bar-l) 0.180 var(--heat-h));
+
+  /* —— 主题相关硬编码面 —— */
+  color-scheme: light;
+  --page-glow:   oklch(62% 0.20 28 / .55);
+  --rail-bg:     #E6D2AD;
+  --thumb-a:     #F6E9D0;
+  --thumb-b:     #E4CDA4;
+  --thumb-ring:  #B8936A;
+  --hover-bg:    #E9D6B2;
+  --scrim:       #2A0C12;
+  --tick:        #A8825A;
+  --band-edge:   #7D5A38;
+  --heat-glow:   oklch(70% 0.17 var(--heat-h) / .18);
+  --shadow-hard: 5px 5px 0 var(--nk);
+  --edge-hi:     #FFFFFF;
+  --chip-sub:    #6B4526;
+
+  /* —— 掌机外壳（塑料，非金属）—— */
+  --case-1:  #F2E2C2;   /* 外壳高光面 */
+  --case-2:  #E3CFA6;   /* 外壳主面 */
+  --case-3:  #CBB286;   /* 外壳暗面 */
+  --bezel:   #241A15;   /* 屏幕外框 */
+  --bezel-2: #171210;
+  --screen:  #0E0A09;
+
+  --font-sans: "PingFang SC", "HarmonyOS Sans SC", "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "Courier New", monospace;
+  --font-serif: var(--font-mono);   /* 数字一律等宽，像素风不衬线 */
+
+  --dur-1:110ms; --dur-2:200ms; --dur-3:360ms; --dur-4:560ms;
+  --e-out-quart: cubic-bezier(.25,1,.5,1);
+  --e-out-expo:  cubic-bezier(.16,1,.3,1);
+  --e-in-quart:  cubic-bezier(.7,0,.84,0);
+  --e-pix:       steps(5, end);      /* 像素风硬跳变 */
+
+  --z-sticky:200; --z-sheet-mask:300; --z-sheet:320; --z-modal:400; --z-toast:500;
+}
+
+/* ═══ 屏幕作用域：掌机屏内 = 深墨点阵 ═══ */
+.phone{
+  --surf-0: #0E0A09;
+  --surf-1: #171211;
+  --surf-2: #221A17;
+  --surf-3: #312521;
+  --line:   #45342B;
+  --line-2: #6A4F3E;
+
+  --ink-0: #FAEDD2;
+  --ink-1: #E9D9BA;
+  --ink-2: #CBB894;
+  --ink-3: #A28E6F;
+  --ink-4: #806D55;
+
+  --brand-lt: #FFDE73;
+  --brand-tx: #FFC72C;
+  --chip-sub: #3A2A1E;
+
+  --ok:   #7BE04A;
+  --info: #4FD6E8;
+  --bad:  #FF5A3C;
+
+  --heat-l: 78%;
+  --heat-bar-l: 70%;
+
+  --rail-bg:    #141010;
+  --thumb-a:    #2C2220;
+  --thumb-b:    #1B1413;
+  --thumb-ring: #5A4638;
+  --hover-bg:   #312521;
+  --tick:       #4E3B30;
+  --band-edge:  #8A6A50;
+  --heat-glow:  oklch(72% 0.18 var(--heat-h) / .26);
+  --edge-hi:    #4A3A30;
+  --shadow-hard: 4px 4px 0 #000;
+}
+
+/* ═══ 全局 ═══ */
+html{ transition:--heat-h var(--dur-4) var(--e-out-quart) }
+*{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent }
+[hidden]{ display:none!important }
+body{
+  background:
+    repeating-linear-gradient(45deg, oklch(0% 0 0 / .055) 0 5px, transparent 5px 10px),
+    radial-gradient(oklch(88% 0.14 84 / .09) 1px, transparent 1px) 0 0/7px 7px,
+    linear-gradient(180deg, var(--pkg-red-dk) 0, var(--pkg-red-dp) 100%);
+  color:var(--ink-1);
+  font-family:var(--font-sans); font-size:14px; line-height:1.62;
+  font-kerning:normal; -webkit-font-smoothing:antialiased;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+button,textarea{ font:inherit; color:inherit }
+:focus-visible{ outline:3px solid var(--yellow); outline-offset:2px; border-radius:0 }
+.sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0 }
+.skip{ position:absolute; left:14px; top:-60px; z-index:999; background:var(--cream); color:var(--nk);
+  padding:10px 16px; border:3px solid var(--nk); text-decoration:none; font-weight:700;
+  transition:top var(--dur-2) var(--e-pix) }
+.skip:focus{ top:14px }
+
+/* 像素风通用件：硬描边 + 无模糊投影 */
+.panel,.item,.reco,.log,.ho,.hs-c,.sp-sum,.sp-nutri,.goal-plan,.goal-params,.default-line,
+.chip,.goaltab,.seg,.mini-table,.remarks,.gauge .track{ border-radius:0 }
+
+/* ═══ 01 页头 ═══ */
+.page{ max-width:1240px; margin:0 auto; padding:clamp(20px,3vw,34px) clamp(14px,3vw,26px) 60px }
+
+.head{
+  display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:16px;
+  padding:18px 20px; margin-bottom:26px;
+  background:var(--pkg-red);
+  border:4px solid var(--nk);
+  box-shadow:8px 8px 0 oklch(0% 0 0 / .38);
+  position:relative;
+}
+.head::before{  /* 包装条上的像素斜纹 */
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background:repeating-linear-gradient(-45deg, oklch(100% 0 0 / .045) 0 6px, transparent 6px 14px);
+}
+h1{
+  font-size:clamp(17px,2.1vw,21px); font-weight:800; letter-spacing:.04em; line-height:1.45;
+  color:var(--cream); position:relative;
+  -webkit-text-stroke:3px var(--nk); paint-order:stroke fill;
+  text-shadow:4px 4px 0 oklch(0% 0 0 / .34);
+}
+h1 .sim,h1::after{ -webkit-text-stroke:0 }
+h1::after{
+  content:"8-BIT EDITION"; display:inline-block; margin-left:10px; vertical-align:middle;
+  font-family:var(--font-mono); font-size:10px; font-weight:700; letter-spacing:.16em;
+  color:var(--yellow); border:2px solid var(--yellow); padding:2px 6px; text-shadow:none;
+}
+h1 .sim{
+  display:inline-block; font-family:var(--font-mono); font-size:10.5px; font-weight:700;
+  color:var(--nk); background:var(--yellow);
+  border:2px solid var(--nk); padding:2px 7px; margin-left:10px; vertical-align:middle;
+  letter-spacing:.14em; text-shadow:none; box-shadow:2px 2px 0 var(--nk);
+  text-transform:uppercase;
+}
+.head .clock{
+  color:oklch(85% 0.06 80 / .82); font-family:var(--font-mono); font-size:12px; text-align:right;
+  font-variant-numeric:tabular-nums; white-space:nowrap; position:relative; letter-spacing:.06em;
+}
+.head .clock b{ display:block; color:var(--yellow); font-weight:700; font-size:15px; letter-spacing:.1em }
+
+/* ═══ 02 舞台 ═══ */
+.stage{ display:grid; grid-template-columns:auto minmax(0,580px); justify-content:start;
+  column-gap:clamp(18px,2.4vw,34px); row-gap:clamp(18px,2.4vw,34px); align-items:start }
+.side{ container-type:inline-size }
+.side-top{ grid-row:1; grid-column:2 }
+.side-bottom{ grid-row:2; grid-column:1/-1; display:grid; grid-template-columns:repeat(2,minmax(0,1fr));
+  column-gap:clamp(18px,2.4vw,34px); align-items:start }
+.side-bottom > .panel{ margin-bottom:0 }
+@media(max-width:1000px){
+  .stage{ grid-template-columns:minmax(0,1fr); justify-items:center }
+  .side-top,.side-bottom{ grid-row:auto; grid-column:auto; width:100% }
+  .side-bottom{ grid-template-columns:minmax(0,1fr); row-gap:20px }
+}
+
+/* ═══ 03 掌机外壳 ═══ */
+.device{
+  position:relative; flex:none; width:432px; height:900px;
+  padding:20px 20px 104px;                       /* 底部留出扬声器区 */
+  background:
+    repeating-linear-gradient(0deg, oklch(0% 0 0 / .035) 0 2px, transparent 2px 4px),
+    linear-gradient(160deg, var(--case-1) 0%, var(--case-2) 46%, var(--case-3) 100%);
+  border:4px solid var(--nk);
+  box-shadow:
+    10px 10px 0 oklch(0% 0 0 / .42),
+    inset 0 3px 0 oklch(100% 0 0 / .55),
+    inset 0 -4px 0 oklch(0% 0 0 / .14);
+}
+/* 掌机底部：像素扬声器孔 */
+.device::after{
+  content:""; position:absolute; left:24px; right:24px; bottom:26px; height:46px; pointer-events:none;
+  background:
+    repeating-linear-gradient(90deg, var(--nk) 0 5px, transparent 5px 12px);
+  opacity:.62;
+  clip-path:polygon(0 0,100% 0,100% 100%,0 100%);
+}
+/* 掌机铭牌：像素黄小标签 */
+.device::before{
+  content:""; position:absolute; left:24px; bottom:84px; width:104px; height:14px; pointer-events:none;
+  background:var(--yellow); border:2px solid var(--nk);
+}
+/* 侧键：方块像素键 */
+.dbtn{ position:absolute; width:8px; z-index:2; background:var(--case-3);
+  border:2px solid var(--nk); box-shadow:inset 0 2px 0 oklch(100% 0 0 / .45) }
+.dbtn.l{ left:-8px }
+.dbtn.r{ right:-8px }
+.dbtn.action{ top:17%; height:9% }
+.dbtn.vol-up{ top:31%; height:11% }
+.dbtn.vol-dn{ top:43.5%; height:11% }
+.dbtn.power{ top:36%; height:12.5% }
+.dbtn.camera{ top:56%; height:9.5% }
+
+.phone{
+  width:100%; height:100%; position:relative; overflow:hidden;
+  background:var(--screen);
+  border:6px solid var(--bezel);
+  box-shadow:inset 0 0 0 3px var(--bezel-2), inset 0 0 0 4px oklch(100% 0 0 / .07);
+  display:flex; flex-direction:column;
+  border-radius:0;
+  color:var(--ink-1);   /* color 需显式设，否则继承 body 的奶油层深墨 */
+}
+/* 屏幕辉光 + CRT 扫描线（覆盖整个屏幕，不挡交互）*/
+.phone-glow{ position:absolute; inset:0; pointer-events:none; z-index:60;
+  background:
+    repeating-linear-gradient(0deg, oklch(0% 0 0 / .13) 0 1px, transparent 1px 3px),
+    radial-gradient(120% 60% at 50% 0%, var(--heat-glow), transparent 70%);
+  mix-blend-mode:normal;
+}
+/* 屏幕点阵底纹 */
+.phone::before{
+  content:""; position:absolute; inset:0; pointer-events:none; z-index:1;
+  background:radial-gradient(oklch(88% 0.14 84 / .045) 1px, transparent 1px) 0 0/4px 4px;
+}
+@media(max-width:1000px){ .device{ width:min(100%,432px); height:min(900px,90svh) } }
+@media(max-width:440px){
+  .device{ height:min(900px,88svh); padding:12px 12px 72px }
+  .dbtn{ width:5px }
+  .dbtn.l{ left:-5px } .dbtn.r{ right:-5px }
+  .device::after{ left:16px; right:16px; bottom:18px; height:32px; background:repeating-linear-gradient(90deg,var(--nk) 0 4px,transparent 4px 9px) }
+  .device::before{ left:16px; bottom:58px; width:72px; height:11px }
+  .rail{ width:94px }
+  .rail button{ font-size:11.5px }
+  .thumb{ width:56px; height:56px; font-size:22px }
+  .items{ padding:12px 11px 104px }
+}
+
+.statusbar{ position:relative; display:flex; justify-content:space-between; align-items:center; gap:8px;
+  padding:14px 18px 10px; font-family:var(--font-mono); font-size:11.5px; color:var(--ink-3);
+  flex:none; font-variant-numeric:tabular-nums; letter-spacing:.1em; z-index:2 }
+/* 屏幕顶部装饰灯（替代灵动岛）*/
+.island{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:52px; height:8px; background:var(--yellow); border:2px solid var(--nk); pointer-events:none;
+  display:flex; align-items:center; justify-content:space-evenly; padding:0 4px }
+.island::after{ content:""; width:4px; height:4px; background:var(--scr-0, #0E0A09); box-shadow:8px 0 0 var(--scr-0, #0E0A09) }
+
+.viewport{ flex:1; overflow-y:auto; overflow-x:hidden; position:relative; overscroll-behavior:contain; z-index:2 }
+.viewport::-webkit-scrollbar{ width:0 }
+.screen{ animation:screen-in var(--dur-3) var(--e-out-quart) both }
+@keyframes screen-in{ from{ opacity:0; transform:translate3d(0,14px,0) } to{ opacity:1; transform:none } }
+
+/* ═══ 04 门店卡与取餐方式 ═══ */
+.storecard{ padding:14px 16px 13px; border-bottom:2px solid var(--line) }
+.storecard .row1{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px }
+.storecard .sname{ font-size:15px; font-weight:800; color:var(--ink-0); letter-spacing:.02em }
+.storecard .smeta{ font-family:var(--font-mono); font-size:11px; color:var(--ink-3); margin-top:4px; line-height:1.6; letter-spacing:.02em }
+.storecard .change{ font-family:var(--font-mono); font-size:11.5px; font-weight:700; color:var(--brand-tx);
+  background:none; border:2px solid var(--line-2); cursor:pointer; flex:none; padding:5px 8px;
+  letter-spacing:.06em; transition:color var(--dur-1),background var(--dur-1) }
+.storecard .change:hover{ color:var(--brand-ink); background:var(--brand) }
+.seg{ display:flex; gap:0; padding:0; background:var(--surf-2); border:2px solid var(--nk) }
+.seg button{ flex:1; background:none; border:none; border-right:2px solid var(--nk); color:var(--ink-3);
+  padding:9px 6px; font-size:12.5px; font-weight:600; cursor:pointer;
+  transition:color var(--dur-1),background var(--dur-1) }
+.seg button:last-child{ border-right:none }
+.seg button:hover{ color:var(--ink-1); background:var(--surf-3) }
+.seg button.active{ background:var(--brand); color:var(--brand-ink); font-weight:800 }
+.storecard .seg{ margin-top:12px }
+
+/* ═══ 05 分类 + 菜单 ═══ */
+.menu-body{ display:flex; min-height:100%; align-items:stretch }
+.rail{ width:106px; flex:none; background:var(--rail-bg); padding:6px 0 104px; border-right:2px solid var(--line) }
+.rail button{ display:flex; align-items:baseline; justify-content:space-between; gap:4px; width:100%;
+  background:none; border:none; border-bottom:1px solid var(--line);
+  color:var(--ink-3); font-size:12px; font-weight:600; text-align:left; padding:10px 9px 10px 12px;
+  cursor:pointer; position:relative; line-height:1.4; transition:color var(--dur-1),background var(--dur-1) }
+.rail button:hover{ color:var(--ink-1); background:var(--surf-1) }
+.rail button[aria-current="true"]{ background:var(--surf-1); color:var(--ink-0); font-weight:800 }
+.rail button[aria-current="true"]::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--brand) }
+.rail .cnt{ font-family:var(--font-mono); font-size:10.5px; color:var(--ink-4); font-variant-numeric:tabular-nums }
+.rail button[aria-current="true"] .cnt{ color:var(--brand-tx) }
+
+.items{ flex:1; padding:12px 14px 104px; display:flex; flex-direction:column; gap:10px; min-width:0 }
+.item{ background:var(--surf-2); border:2px solid var(--line-2); padding:12px; display:flex; gap:12px;
+  animation:item-in var(--dur-3) var(--e-out-quart) both; animation-delay:calc(var(--i,0)*34ms) }
+@keyframes item-in{ from{ opacity:0; transform:translate3d(0,12px,0) } to{ opacity:1; transform:none } }
+@media(hover:hover){ .item:hover{ background:var(--surf-3); border-color:var(--brand); box-shadow:3px 3px 0 var(--nk) } }
+.thumb{ width:64px; height:64px; flex:none; position:relative;
+  background:var(--thumb-a); border:2px solid var(--thumb-ring);
+  display:flex; align-items:center; justify-content:center; font-size:26px; line-height:1;
+  image-rendering:pixelated }
+.thumb::after{ content:""; position:absolute; inset:2px; pointer-events:none;
+  background:radial-gradient(oklch(0% 0 0 / .10) 1px, transparent 1px) 0 0/4px 4px }
+.info{ flex:1; min-width:0 }
+.info .n{ font-size:14.5px; font-weight:700; line-height:1.4; color:var(--ink-0); overflow-wrap:anywhere }
+.tagrow{ display:flex; flex-wrap:wrap; gap:5px; margin-top:5px }
+.tag{ font-family:var(--font-mono); font-size:10.5px; font-weight:600; padding:1px 6px;
+  border:2px solid var(--line-2); color:var(--ink-3); letter-spacing:.04em }
+.tag.combo{ color:var(--brand-tx); border-color:var(--brand-tx) }
+.tag.kcal{ color:var(--ink-2); border-color:var(--line-2) }
+.tag.kcal.partial{ color:var(--ink-3); border-color:var(--line-2); border-style:dashed }
+.tag.unknown{ color:var(--bad); border-color:var(--bad) }
+.tag.ok{ color:var(--ok); border-color:var(--ok) }
+.tag.bad{ color:var(--ink-4); border-color:var(--line-2); text-decoration:line-through }
+.item.dim{ opacity:.5 }
+.info .desc{ font-size:11.5px; color:var(--ink-3); margin-top:6px; line-height:1.65; overflow-wrap:anywhere }
+.priceline{ display:flex; align-items:flex-end; justify-content:space-between; gap:10px; margin-top:9px; min-width:0 }
+.price{ font-family:var(--font-mono); font-size:17px; font-weight:700; color:var(--ink-0);
+  font-variant-numeric:tabular-nums; letter-spacing:.01em }
+.price small{ font-family:var(--font-mono); font-size:11px; font-weight:400; color:var(--ink-3) }
+.price .orig{ display:block; font-family:var(--font-mono); font-size:11.5px; color:var(--ink-4);
+  text-decoration:line-through; margin:2px 0 0; font-weight:400 }
+.add{ width:32px; height:32px; background:var(--brand); color:var(--brand-ink);
+  border:2px solid var(--nk); font-size:19px; line-height:1; cursor:pointer; font-weight:800; flex:none;
+  position:relative; box-shadow:3px 3px 0 var(--nk);
+  transition:transform var(--dur-1) var(--e-pix), background var(--dur-1), box-shadow var(--dur-1) }
+.add::before{ content:""; position:absolute; inset:-9px }
+.add:hover{ background:var(--brand-lt) }
+.add:active{ transform:translate(3px,3px); box-shadow:0 0 0 var(--nk) }
+.add.done{ background:var(--ok); animation:pop var(--dur-2) var(--e-pix) }
+@keyframes pop{ 0%{ transform:scale(.9) } 55%{ transform:scale(1.14) } 100%{ transform:scale(1) } }
+
+/* ═══ 06 吸底购物车栏 ═══ */
+.cartbar{ position:absolute; left:0; right:0; bottom:0; min-height:70px; background:var(--surf-2);
+  border-top:3px solid var(--line-2); display:flex; align-items:center; gap:12px; padding:10px 14px; z-index:var(--z-sticky) }
+.cartbar::before{ content:""; position:absolute; inset:-3px 0 auto 0; height:3px; background:var(--brand) }
+.cartbar .cicon{ width:46px; height:46px; background:var(--surf-3); border:2px solid var(--line-2);
+  display:flex; align-items:center; justify-content:center; font-size:20px; cursor:pointer; position:relative; flex:none;
+  box-shadow:3px 3px 0 var(--nk);
+  transition:background var(--dur-2),border-color var(--dur-2),transform var(--dur-2) var(--e-pix) }
+.cartbar .cicon:hover{ background:var(--hover-bg) }
+.cartbar .cicon.empty{ opacity:.45 }
+.cartbar .cicon.pulse{ animation:cart-pulse var(--dur-3) var(--e-pix) }
+@keyframes cart-pulse{ 0%{ transform:scale(1) } 40%{ transform:scale(1.14) } 100%{ transform:scale(1) } }
+.badge{ position:absolute; top:-8px; right:-8px; min-width:20px; height:20px; background:var(--bad);
+  color:#fff; border:2px solid var(--nk); font-family:var(--font-mono); font-size:10.5px;
+  display:flex; align-items:center; justify-content:center; padding:0 5px; font-weight:700;
+  font-variant-numeric:tabular-nums }
+.cartbar .csum{ flex:1; min-width:0 }
+.cartbar .ctotal{ font-family:var(--font-mono); font-size:19px; font-weight:800; color:var(--ink-0);
+  font-variant-numeric:tabular-nums; line-height:1.3; letter-spacing:.01em }
+.cartbar .ckcal{ font-family:var(--font-mono); font-size:11.5px; color:var(--heat); font-variant-numeric:tabular-nums;
+  display:flex; align-items:flex-start; gap:6px; letter-spacing:.03em; line-height:1.5 }
+.cartbar .ckcal .dot{ width:6px; height:6px; background:currentColor; flex:none; margin-top:4px }
+.cartbar .ckcal.warn{ color:var(--bad) }
+.btn{ background:var(--brand); color:var(--brand-ink); border:2px solid var(--nk);
+  padding:11px 20px; font-size:13.5px; font-weight:800; cursor:pointer; letter-spacing:.04em;
+  box-shadow:4px 4px 0 var(--nk);
+  transition:background var(--dur-1),transform var(--dur-1) var(--e-pix),box-shadow var(--dur-1) }
+.btn:hover{ background:var(--brand-lt) }
+.btn:active{ transform:translate(4px,4px); box-shadow:0 0 0 var(--nk) }
+.btn:disabled{ background:var(--surf-3); color:var(--ink-4); cursor:not-allowed; transform:none;
+  box-shadow:4px 4px 0 var(--line-2); border-color:var(--line-2) }
+.btn.ghost{ background:var(--surf-1); color:var(--ink-2); border-color:var(--line-2); font-weight:600;
+  box-shadow:4px 4px 0 var(--line-2) }
+.btn.ghost:hover{ background:var(--surf-3); color:var(--ink-0) }
+.btn.block{ display:block; width:100%; padding:14px }
+.link{ background:none; border:none; color:var(--brand-tx); font-size:12px; font-weight:600; cursor:pointer;
+  padding:4px 2px; letter-spacing:.03em }
+.link:hover{ color:var(--brand-ink); background:var(--brand) }
+
+/* ═══ 07 弹层 ═══ */
+.sheet-mask{ position:absolute; inset:0; background:color-mix(in oklab, var(--scrim) 68%, transparent);
+  z-index:var(--z-sheet-mask); opacity:0; transition:opacity var(--dur-2) var(--e-out-quart); pointer-events:none }
+.sheet-mask.show{ opacity:1; pointer-events:auto }
+.sheet{ position:absolute; left:0; right:0; bottom:0; max-height:88%; background:var(--surf-1);
+  border-top:4px solid var(--nk); z-index:var(--z-sheet);
+  display:flex; flex-direction:column; visibility:hidden; transform:translate3d(0,100%,0);
+  transition:transform var(--dur-3) var(--e-out-expo), visibility var(--dur-3) linear;
+  box-shadow:0 -8px 0 oklch(0% 0 0 / .35) }
+.sheet.show{ transform:none; visibility:visible; transition:transform var(--dur-3) var(--e-out-expo), visibility 0s }
+.sheet .s-head{ padding:16px 18px 10px; display:flex; align-items:flex-start; gap:12px; border-bottom:2px solid var(--line) }
+.sheet .s-title{ font-size:16px; font-weight:800; color:var(--ink-0); letter-spacing:.02em }
+.sheet .s-sub{ font-family:var(--font-mono); font-size:12px; color:var(--ink-3); margin-top:4px;
+  font-variant-numeric:tabular-nums; letter-spacing:.02em }
+.sheet .s-sub .orig{ color:var(--ink-4); text-decoration:line-through; margin-left:6px }
+.sheet .s-sub b{ color:var(--heat); font-weight:800 }
+.sheet .s-body{ padding:14px 18px; overflow-y:auto; flex:1; overscroll-behavior:contain }
+.sheet .s-body::-webkit-scrollbar{ width:0 }
+.sheet .s-foot{ padding:12px 18px; border-top:2px solid var(--line); display:flex; align-items:center; gap:14px;
+  padding-bottom:max(14px,env(safe-area-inset-bottom)) }
+.sheet .s-foot .btn{ flex:1 }
+.x{ margin-left:auto; background:none; border:2px solid var(--line-2); color:var(--ink-3); font-size:17px;
+  cursor:pointer; padding:4px 8px; line-height:1; font-weight:700;
+  transition:color var(--dur-1),background var(--dur-1) }
+.x:hover{ color:var(--brand-ink); background:var(--brand); border-color:var(--nk) }
+
+.sp-nutri{ display:flex; flex-wrap:wrap; gap:7px 16px; background:var(--surf-2); border:2px solid var(--line);
+  padding:11px 13px; font-family:var(--font-mono); font-size:11.5px; color:var(--ink-3); margin-bottom:16px }
+.sp-nutri b{ color:var(--ink-0); font-weight:700; font-variant-numeric:tabular-nums }
+.round{ padding:14px 0; border-top:2px solid var(--line) }
+.round-h{ display:flex; align-items:center; justify-content:flex-start; gap:7px; flex-wrap:wrap; margin-bottom:10px }
+.r-name{ font-size:13px; font-weight:800; color:var(--ink-0) }
+.r-req{ font-family:var(--font-mono); font-size:10.5px; color:var(--ink-4); letter-spacing:.06em; white-space:nowrap }
+.chips{ display:flex; gap:8px; flex-wrap:wrap }
+.chip{ background:var(--surf-1); border:2px solid var(--line-2); color:var(--ink-2);
+  padding:8px 13px; font-size:12.5px; cursor:pointer; text-align:left; line-height:1.4;
+  box-shadow:2px 2px 0 var(--line-2);
+  transition:color var(--dur-1),background var(--dur-1),box-shadow var(--dur-1),border-color var(--dur-1) }
+.chip:hover{ color:var(--ink-0); background:var(--surf-3); border-color:var(--nk) }
+.chip.active{ background:var(--brand); color:var(--brand-ink); font-weight:800;
+  border-color:var(--nk); box-shadow:2px 2px 0 var(--nk) }
+.chip small{ display:block; font-family:var(--font-mono); font-size:11px; font-weight:500;
+  color:var(--ink-4); margin-top:2px; font-variant-numeric:tabular-nums }
+.chip.active small{ color:var(--brand-ink) }
+.chip.sm{ padding:7px 11px; font-size:12px }
+.spec-tag{ display:inline-block; margin-left:7px; font-family:var(--font-mono); font-size:10.5px; font-weight:700;
+  color:var(--brand-ink); background:var(--yellow); border:2px solid var(--nk);
+  padding:0 5px; vertical-align:middle; font-style:normal }
+.spec-tag-sm{ display:inline-block; margin-left:5px; font-family:var(--font-mono); font-size:10.5px; font-style:normal;
+  font-weight:700; color:var(--brand-ink); background:var(--yellow); border:2px solid var(--nk);
+  padding:0 3px; transform:translateY(-1px) }
+.default-line{ margin-top:14px; padding:10px 12px; background:var(--yellow);
+  border:2px solid var(--nk); font-size:12px; color:var(--nk); line-height:1.65;
+  box-shadow:3px 3px 0 var(--nk) }
+.default-line b{ color:var(--nk) }
+
+/* 套餐搭配概览 */
+.sp-sum{ background:var(--surf-2); border:2px solid var(--line); padding:11px 13px; margin-bottom:6px;
+  display:flex; flex-direction:column; gap:7px }
+.ss-row{ display:flex; align-items:baseline; gap:10px; font-size:12.5px; color:var(--ink-2) }
+.ss-row.sub{ font-size:11.5px; color:var(--ink-3) }
+.ss-k{ flex:none; min-width:112px; color:var(--ink-3) }
+.ss-v{ font-family:var(--font-mono); font-variant-numeric:tabular-nums; color:var(--ink-1) }
+.ss-v b{ font-family:var(--font-mono); font-size:19px; font-weight:800; color:var(--ink-0); margin-right:2px }
+.ss-d{ margin-left:auto; font-family:var(--font-mono); font-size:11px; font-weight:700; letter-spacing:.03em;
+  padding:1px 6px; white-space:nowrap; border:2px solid currentColor }
+.ss-d.down,.ss-d.ok{ color:var(--ok) }
+.ss-d.up{ color:var(--bad) }
+.ss-d.warn{ color:var(--info) }
+.ss-d.same{ color:var(--ink-4) }
+.ss-note{ font-size:11px; color:var(--ink-3); line-height:1.55 }
+
+/* 轮次表头 */
+.r-idx{ flex:none; width:18px; height:18px; display:grid; place-items:center;
+  font-family:var(--font-mono); font-size:10.5px; font-weight:800;
+  color:var(--brand-ink); background:var(--yellow); border:2px solid var(--nk) }
+.r-cat{ font-family:var(--font-mono); font-size:10.5px; font-weight:700; color:var(--ink-3);
+  border:2px solid var(--line-2); padding:0 5px; letter-spacing:.04em }
+.r-range{ margin-left:auto; font-family:var(--font-mono); font-size:11px; color:var(--ink-3);
+  font-variant-numeric:tabular-nums; white-space:nowrap }
+.round.fixed{ padding:11px 0 }
+.r-fixed{ display:flex; align-items:baseline; justify-content:space-between; gap:10px;
+  font-size:12.5px; color:var(--ink-3); padding-left:25px }
+.r-fixed b{ color:var(--ink-0); font-weight:700 }
+.fx-k{ font-family:var(--font-mono); font-size:11.5px; color:var(--ink-3); font-variant-numeric:tabular-nums; white-space:nowrap }
+
+/* 长选项列表 */
+.chips.scroll{ max-height:190px; overflow-y:auto; padding:4px; margin:-4px; overscroll-behavior:contain; scrollbar-width:thin }
+.chips.scroll::-webkit-scrollbar{ width:8px }
+.chips.scroll::-webkit-scrollbar-thumb{ background:var(--line-2) }
+
+/* 选项内标记 */
+.c-n{ display:block }
+.c-best{ display:inline-block; margin-left:5px; font-family:var(--font-mono); font-size:10px; font-weight:800;
+  letter-spacing:.03em; color:var(--ok); border:2px solid var(--ok); padding:0 3px; transform:translateY(-1px) }
+.c-d{ font-weight:800 }
+.c-d.down{ color:var(--ok) }
+.c-d.up{ color:var(--bad) }
+.chip.zero small,.chip.unknown small{ color:var(--ink-3) }
+.mod-block{ margin-top:16px; padding-top:14px; border-top:2px solid var(--line) }
+.mod-toggle{ width:100%; background:var(--surf-2); border:2px solid var(--line-2); color:var(--ink-1);
+  padding:11px; font-size:12.5px; font-weight:600; cursor:pointer; text-align:left;
+  box-shadow:2px 2px 0 var(--line-2);
+  transition:color var(--dur-1),box-shadow var(--dur-1),background var(--dur-1) }
+.mod-toggle:hover{ color:var(--brand-ink); background:var(--brand); border-color:var(--nk); box-shadow:2px 2px 0 var(--nk) }
+.mod-group{ margin-top:14px }
+.og-title{ font-size:12px; color:var(--ink-3); margin-bottom:8px }
+.og-title b{ color:var(--ink-1); font-weight:700 }
+.og-hint,.hint-note{ font-size:11.5px; color:var(--ink-4); margin-top:8px; line-height:1.7 }
+.stepper{ display:flex; align-items:center; gap:12px }
+.stepper button{ width:30px; height:30px; border:2px solid var(--line-2); background:var(--surf-3);
+  color:var(--ink-1); font-size:15px; cursor:pointer; line-height:1; position:relative;
+  box-shadow:2px 2px 0 var(--line-2);
+  transition:background var(--dur-1),transform var(--dur-1) var(--e-pix) }
+.stepper button::before{ content:""; position:absolute; inset:-8px }
+.stepper button:hover{ background:var(--hover-bg); border-color:var(--nk) }
+.stepper button:active{ transform:translate(2px,2px); box-shadow:0 0 0 }
+.stepper .q{ font-family:var(--font-mono); font-size:14px; min-width:18px; text-align:center; font-weight:800; font-variant-numeric:tabular-nums }
+.cart-line{ display:flex; gap:12px; align-items:center; padding:13px 0; border-bottom:2px solid var(--line) }
+.cart-line:first-child{ padding-top:2px }
+.cart-line .cl-info{ flex:1; min-width:0 }
+.cart-line .cl-name{ font-size:13.5px; font-weight:700; color:var(--ink-0); overflow-wrap:anywhere }
+.cart-line .cl-note{ font-size:11.5px; color:var(--ink-3); margin-top:3px; line-height:1.6; overflow-wrap:anywhere }
+.cart-line .cl-price{ font-family:var(--font-mono); font-size:13px; color:var(--ink-1); margin-top:6px; font-weight:700; font-variant-numeric:tabular-nums }
+.cart-line .cl-price span{ color:var(--ink-4); font-size:11.5px; font-weight:400; margin-left:7px }
+.empty{ color:var(--ink-3); font-size:12.5px; text-align:center; padding:26px 16px; border:2px dashed var(--line-2); line-height:1.8 }
+.empty .e-ico{ display:block; font-size:22px; margin-bottom:8px; opacity:.7 }
+
+/* ═══ 08 结算 ═══ */
+.co{ padding:8px 18px 124px }
+.co-sec{ padding:16px 0; border-top:2px solid var(--line) }
+.co-sec:first-child{ border-top:none; padding-top:6px }
+.co-h{ display:flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:11.5px;
+  color:var(--ink-3); letter-spacing:.1em; margin-bottom:11px }
+.co-h .num{ width:19px; height:19px; background:var(--yellow); color:var(--brand-ink); border:2px solid var(--nk);
+  font-family:var(--font-mono); font-size:11px; font-weight:800; display:inline-flex; align-items:center;
+  justify-content:center; flex:none; letter-spacing:0 }
+.co-h .link{ margin-left:auto; letter-spacing:.03em }
+.kv{ display:flex; justify-content:space-between; gap:12px; font-size:13px; padding:5px 0; color:var(--ink-3) }
+.kv b{ font-family:var(--font-mono); color:var(--ink-1); font-weight:700; text-align:right; overflow-wrap:anywhere }
+.kv.total{ font-size:14px; color:var(--ink-1); padding-top:12px; margin-top:8px; border-top:2px solid var(--line); align-items:baseline }
+.kv.total b{ font-family:var(--font-mono); font-size:22px; color:var(--brand-tx); font-variant-numeric:tabular-nums }
+.kv.discount b,.kv.discount{ color:var(--ok) }
+.co-line{ display:flex; justify-content:space-between; gap:12px; font-size:13px; padding:9px 0; border-bottom:1px dashed var(--line) }
+.co-line:last-child{ border-bottom:none }
+.co-line .l-note{ font-size:11.5px; color:var(--ink-4); margin-top:3px }
+.co-line .r{ text-align:right; white-space:nowrap; font-family:var(--font-mono); font-variant-numeric:tabular-nums;
+  color:var(--ink-1); font-weight:700 }
+.remarks{ width:100%; background:var(--surf-1); border:2px solid var(--line-2); color:var(--ink-0);
+  padding:11px 12px; font-size:12.5px; resize:none; height:60px; line-height:1.65 }
+.remarks::placeholder{ color:var(--ink-4) }
+.remarks:focus{ outline:none; border-color:var(--brand-tx); box-shadow:3px 3px 0 var(--line-2) }
+.co-foot{ position:absolute; left:0; right:0; bottom:0; background:var(--surf-2); border-top:3px solid var(--line-2);
+  padding:12px 16px; display:flex; align-items:center; gap:14px; z-index:var(--z-sticky);
+  padding-bottom:max(12px,env(safe-area-inset-bottom)) }
+.co-foot .csum{ flex:1; min-width:0 }
+.co-foot .ctotal{ font-family:var(--font-mono); font-size:21px; font-weight:800; color:var(--ink-0); font-variant-numeric:tabular-nums }
+.co-heat{ font-family:var(--font-mono); font-size:11.5px; color:var(--ink-3); display:flex; align-items:center; gap:6px }
+.co-heat b{ color:var(--heat); font-weight:800; font-variant-numeric:tabular-nums }
+.co-heat.warn b{ color:var(--bad) }
+.co-heat .dot{ width:6px; height:6px; background:currentColor; flex:none; color:var(--heat) }
+.co-heat.warn .dot{ color:var(--bad) }
+
+/* ═══ 09 右侧面板 ═══ */
+.panel{
+  padding:16px 18px 20px; margin-bottom:22px;
+  background:var(--surf-1);
+  border:3px solid var(--nk);
+  box-shadow:7px 7px 0 oklch(0% 0 0 / .34);
+  position:relative;
+}
+.panel::before{  /* 面板左上角的像素装饰角标 */
+  content:""; position:absolute; left:-3px; top:-3px; width:46px; height:10px;
+  background:var(--yellow); border:3px solid var(--nk); border-right:none; border-bottom:none;
+}
+.panel:last-child{ margin-bottom:0 }
+.p-title{ font-size:12px; font-weight:800; color:var(--ink-0); display:flex; align-items:center; gap:8px;
+  margin:16px 0 16px; letter-spacing:.06em }
+.p-title .num{ width:21px; height:21px; background:var(--nk); color:var(--yellow); border:2px solid var(--nk);
+  font-family:var(--font-mono); font-size:11.5px; font-weight:800; display:inline-flex; align-items:center;
+  justify-content:center; flex:none; letter-spacing:0 }
+.p-title .hint{ margin-left:auto; font-family:var(--font-mono); font-size:10.5px; color:var(--ink-4); font-weight:500; letter-spacing:.06em }
+.panel .seg{ margin-bottom:18px }
+
+.heat-total{ display:flex; align-items:flex-start; justify-content:space-between; gap:14px; margin-bottom:22px }
+.heat-total .v{ font-family:var(--font-mono); font-size:clamp(38px,4.4vw,52px); font-weight:800; line-height:1;
+  color:var(--heat); font-variant-numeric:tabular-nums; letter-spacing:-.01em;
+  -webkit-text-stroke:4px var(--nk); paint-order:stroke fill;
+  text-shadow:5px 5px 0 var(--nk) }
+.heat-total .v small{ font-family:var(--font-sans); font-size:12.5px; font-weight:600; color:var(--ink-3);
+  margin-left:6px; letter-spacing:.08em; text-shadow:none; -webkit-text-stroke:0 }
+.verdict{ font-family:var(--font-mono); font-size:11.5px; font-weight:700; padding:5px 10px; white-space:nowrap;
+  margin-top:6px; border:2px solid currentColor; letter-spacing:.04em }
+.verdict.ok{ color:var(--ok) }
+.verdict.high{ color:var(--bad) }
+.verdict.low{ color:var(--info) }
+.verdict.idle{ color:var(--ink-4) }
+
+/* 仪表：像素格子 + 方头指针 */
+.gauge{ position:relative; height:52px; margin:0 2px 28px }
+.gauge .track{ position:absolute; top:20px; left:0; right:0; height:12px; background:var(--surf-3);
+  border:2px solid var(--nk); overflow:hidden }
+.gauge .fill{ position:absolute; top:0; left:0; bottom:0; background:var(--heat-bar);
+  transition:width var(--dur-4) var(--e-out-quart) }
+.gauge .ticks{ position:absolute; inset:0;
+  background:repeating-linear-gradient(90deg, var(--nk) 0 2px, transparent 2px 10%) }
+.gauge .band{ position:absolute; top:16px; height:20px; border-left:3px solid var(--band-edge);
+  border-right:3px solid var(--band-edge); background:color-mix(in oklab, var(--heat-bar) 22%, transparent);
+  transition:left var(--dur-4) var(--e-out-quart), width var(--dur-4) var(--e-out-quart) }
+.gauge .needle{ position:absolute; top:8px; width:4px; height:36px; background:var(--nk); margin-left:-2px;
+  transition:left var(--dur-4) var(--e-out-quart) }
+.gauge .needle i{ position:absolute; left:50%; transform:translateX(-50%); top:-24px;
+  font-family:var(--font-mono); font-size:11px; font-style:normal; font-weight:700; color:var(--nk);
+  white-space:nowrap; font-variant-numeric:tabular-nums; background:var(--yellow);
+  border:2px solid var(--nk); padding:1px 5px }
+.gauge .scale{ position:absolute; top:38px; left:0; right:0; height:14px }
+.gauge .scale span{ position:absolute; transform:translateX(-50%); font-family:var(--font-mono); font-size:11px;
+  color:var(--ink-3); white-space:nowrap; font-variant-numeric:tabular-nums }
+.gauge .scale span.on{ color:var(--ink-1); font-weight:700 }
+
+.mini-table{ width:100%; border-collapse:collapse; font-size:12.5px; border:2px solid var(--nk) }
+.mini-table th{ color:var(--ink-3); font-family:var(--font-mono); font-weight:700; text-align:left;
+  padding:7px 7px; border-bottom:2px solid var(--nk); border-right:1px solid var(--line); letter-spacing:.06em;
+  background:var(--surf-2); font-size:11px }
+.mini-table th:last-child{ border-right:none }
+.mini-table td{ padding:8px 7px; border-bottom:1px solid var(--line); border-right:1px solid var(--line);
+  color:var(--ink-3); vertical-align:top }
+.mini-table td:last-child{ border-right:none }
+.mini-table td.num,.mini-table th.num{ text-align:right; font-family:var(--font-mono); font-variant-numeric:tabular-nums; white-space:nowrap }
+.mini-table td.name{ color:var(--ink-1); font-weight:600; overflow-wrap:anywhere }
+.mini-table td.name em{ display:block; font-style:normal; font-size:11.5px; color:var(--ink-4); margin-top:2px; line-height:1.55 }
+.mini-table .unknown{ color:var(--bad) }
+.mini-table tfoot td{ border-bottom:none; padding-top:11px; font-weight:800; color:var(--ink-0) }
+.mini-table tfoot td.num{ color:var(--heat); font-size:14px }
+
+.reco-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(196px,1fr)); gap:12px }
+@container (max-width:400px){ .reco-grid{ grid-template-columns:1fr } }
+.reco{ background:var(--surf-2); border:2px solid var(--line-2); padding:13px; display:flex; flex-direction:column; gap:7px;
+  transition:box-shadow var(--dur-2),transform var(--dur-2) var(--e-pix),border-color var(--dur-2) }
+@media(hover:hover){ .reco:hover{ border-color:var(--nk); transform:translate(-2px,-2px); box-shadow:4px 4px 0 var(--nk) } }
+.reco .r-items{ font-size:12.5px; font-weight:700; line-height:1.55; color:var(--ink-0); overflow-wrap:anywhere }
+.reco .r-kcal{ font-family:var(--font-mono); font-size:22px; font-weight:800; color:var(--heat);
+  font-variant-numeric:tabular-nums; line-height:1.15 }
+.reco .r-kcal small{ font-family:var(--font-mono); font-size:11.5px; color:var(--ink-4); font-weight:400; margin-left:5px; letter-spacing:.04em }
+.reco .r-delta{ font-family:var(--font-mono); font-size:11.5px; font-weight:700; font-variant-numeric:tabular-nums }
+.r-delta.down{ color:var(--ok) } .r-delta.up{ color:var(--bad) }
+.reco .r-nutri{ font-family:var(--font-mono); font-size:11.5px; color:var(--ink-3); line-height:1.65 }
+.reco .r-foot{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:auto;
+  padding-top:9px; border-top:2px dashed var(--line-2) }
+.reco .r-price{ font-family:var(--font-mono); font-size:13.5px; font-weight:800; color:var(--ink-1); font-variant-numeric:tabular-nums }
+.reco .use{ background:var(--surf-1); border:2px solid var(--nk); color:var(--ink-0);
+  padding:5px 11px; font-size:11.5px; font-weight:700; cursor:pointer; box-shadow:2px 2px 0 var(--nk);
+  transition:background var(--dur-1),color var(--dur-1),transform var(--dur-1) var(--e-pix),box-shadow var(--dur-1) }
+.reco .use:hover{ background:var(--brand) }
+.reco .use:active{ transform:translate(2px,2px); box-shadow:0 0 0 }
+
+.log-list{ display:flex; flex-direction:column; gap:8px; max-height:340px; overflow-y:auto; scrollbar-width:thin }
+.log{ background:var(--surf-2); border:2px solid var(--line); border-left:6px solid var(--brand);
+  padding:9px 12px; font-size:12px;
+  animation:log-in var(--dur-3) var(--e-out-quart) both }
+@keyframes log-in{ from{ opacity:0; transform:translate3d(0,-8px,0) } to{ opacity:1; transform:none } }
+.log.sys{ border-left-color:var(--info) }
+.log .tool{ font-family:var(--font-mono); font-size:11px; font-weight:800; color:var(--brand-tx); letter-spacing:.03em; overflow-wrap:anywhere }
+.log.sys .tool{ color:var(--info) }
+.log .desc{ color:var(--ink-2); margin-top:3px; line-height:1.65; overflow-wrap:anywhere }
+.log .time{ font-family:var(--font-mono); color:var(--ink-4); font-size:11px; font-weight:500; margin-top:2px; font-variant-numeric:tabular-nums }
+
+/* ═══ 09·B 目标场景预设 ═══ */
+.goal-groups{ display:flex; flex-direction:column; gap:11px; margin-bottom:14px }
+.goal-g{ display:flex; flex-direction:column; gap:7px }
+.goal-g > .gg-t{ font-family:var(--font-mono); font-size:11px; color:var(--ink-4); letter-spacing:.08em; font-weight:700 }
+.goal-grid{ display:flex; flex-wrap:wrap; gap:7px }
+.goaltab{ background:var(--surf-2); border:2px solid var(--line-2); color:var(--ink-2);
+  padding:7px 11px; font-size:12.5px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:7px;
+  box-shadow:2px 2px 0 var(--line-2);
+  transition:color var(--dur-1),background var(--dur-1),box-shadow var(--dur-1),border-color var(--dur-1) }
+.goaltab:hover{ color:var(--ink-0); background:var(--surf-3); border-color:var(--nk) }
+.goaltab[aria-pressed="true"]{ background:var(--brand); color:var(--brand-ink); font-weight:800;
+  border-color:var(--nk); box-shadow:2px 2px 0 var(--nk) }
+.goaltab .gt-l{ font-variant-numeric:tabular-nums }
+.goaltab .gt-rank{ font-family:var(--font-mono); font-size:10px; color:var(--ink-4); letter-spacing:.05em }
+.goaltab[aria-pressed="true"] .gt-rank{ color:var(--brand-ink) }
+
+.goal-params{ display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end; background:var(--surf-2);
+  border:2px solid var(--line); padding:11px 13px; margin-bottom:12px }
+.gp-f{ display:flex; flex-direction:column; gap:5px }
+.gp-f > label{ font-family:var(--font-mono); font-size:11px; color:var(--ink-3); letter-spacing:.04em }
+.gp-f input[type=number]{ width:88px; background:var(--surf-1); border:2px solid var(--line-2);
+  padding:6px 8px; font-family:var(--font-mono); font-size:12.5px; color:var(--ink-0); font-variant-numeric:tabular-nums }
+.gp-f input:focus{ outline:none; border-color:var(--brand-tx); box-shadow:2px 2px 0 var(--line-2) }
+.gp-al{ display:flex; flex-wrap:wrap; gap:6px 12px }
+.gp-al label{ display:flex; align-items:center; gap:5px; font-size:12px; color:var(--ink-2); cursor:pointer }
+.gp-al input{ accent-color:var(--pkg-red); width:15px; height:15px }
+
+.goal-plan{ background:var(--surf-2); border:2px solid var(--line); padding:12px 13px; margin-bottom:14px;
+  display:flex; flex-direction:column; gap:8px }
+.gp-row{ display:flex; align-items:baseline; gap:10px; font-size:12.5px; color:var(--ink-2) }
+.gp-row.sub{ font-size:11.5px; color:var(--ink-3) }
+.gp-k{ flex:none; min-width:86px; color:var(--ink-3) }
+.gp-v{ font-family:var(--font-mono); font-variant-numeric:tabular-nums; color:var(--ink-1) }
+.gp-v b{ font-family:var(--font-mono); font-size:18px; font-weight:800; color:var(--ink-0); margin-right:2px }
+.gp-d{ margin-left:auto; font-family:var(--font-mono); font-size:11px; font-weight:700; padding:1px 6px;
+  white-space:nowrap; border:2px solid currentColor }
+.gp-d.ok{ color:var(--ok) }
+.gp-d.warn{ color:var(--info) }
+.gp-lim{ display:flex; flex-wrap:wrap; gap:6px }
+.gp-lim span{ font-family:var(--font-mono); font-size:11px; color:var(--brand-ink); background:var(--yellow);
+  border:2px solid var(--nk); padding:1px 7px; font-variant-numeric:tabular-nums }
+.gp-lim span.off{ color:var(--ink-4); background:var(--surf-3); border-color:var(--line-2) }
+.goal-warn{ font-size:11.5px; color:var(--ink-1); line-height:1.7;
+  background:color-mix(in oklab, var(--info) 12%, var(--paper)); border:2px solid var(--info); padding:8px 10px }
+.goal-empty{ font-size:12px; color:var(--ink-3); padding:14px; text-align:center; border:2px dashed var(--line-2); line-height:1.75 }
+
+/* ═══ 09·C 历史订单一键导入 ═══ */
+.hist-actions{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:14px }
+.hist-note{ font-size:11.5px; color:var(--ink-4); line-height:1.7; flex:1; min-width:180px }
+.hist-note code{ font-family:var(--font-mono); font-size:11px; color:var(--ink-2); background:var(--surf-2);
+  border:1px solid var(--line-2); padding:0 4px }
+.btn-import{ background:var(--pkg-red); color:var(--cream); border:2px solid var(--nk);
+  padding:9px 15px; font-size:12.5px; font-weight:800; cursor:pointer; white-space:nowrap;
+  box-shadow:3px 3px 0 var(--nk);
+  transition:transform var(--dur-1) var(--e-pix),background var(--dur-1),box-shadow var(--dur-1) }
+.btn-import:hover{ background:var(--pkg-red-hi) }
+.btn-import:active{ transform:translate(3px,3px); box-shadow:0 0 0 }
+.btn-import[disabled]{ opacity:.5; cursor:default; transform:none; box-shadow:3px 3px 0 var(--line-2) }
+.hist-sum{ display:grid; grid-template-columns:repeat(auto-fit,minmax(112px,1fr)); gap:10px; margin-bottom:14px }
+.hs-c{ background:var(--surf-2); border:2px solid var(--line-2); padding:11px 12px }
+.hs-c .hs-k{ font-family:var(--font-mono); font-size:10.5px; color:var(--ink-4); letter-spacing:.05em; margin-bottom:5px }
+.hs-c .hs-v{ font-family:var(--font-mono); font-size:21px; font-weight:800; color:var(--ink-0);
+  font-variant-numeric:tabular-nums; line-height:1.2 }
+.hs-c .hs-v small{ font-family:var(--font-mono); font-size:11px; color:var(--ink-4); font-weight:400; margin-left:4px }
+.hs-c.over .hs-v{ color:var(--bad) }
+.hs-c.ok .hs-v{ color:var(--ok) }
+.hist-list{ display:flex; flex-direction:column; gap:11px }
+.ho{ background:var(--surf-2); border:2px solid var(--line-2); padding:13px; display:flex; flex-direction:column; gap:9px }
+.ho-h{ display:flex; align-items:baseline; gap:9px; flex-wrap:wrap }
+.ho-time{ font-family:var(--font-mono); font-size:13px; font-weight:800; color:var(--ink-0); font-variant-numeric:tabular-nums }
+.ho-store{ font-size:11.5px; color:var(--ink-4) }
+.ho-dp{ font-family:var(--font-mono); font-size:10.5px; font-weight:700; color:var(--brand-ink); background:var(--yellow);
+  border:2px solid var(--nk); padding:0 6px }
+.ho-main{ margin-left:auto; display:flex; align-items:baseline; gap:8px }
+.ho-kcal{ font-family:var(--font-mono); font-size:19px; font-weight:800; color:var(--heat); font-variant-numeric:tabular-nums }
+.ho-kcal small{ font-family:var(--font-mono); font-size:11px; color:var(--ink-4); font-weight:400 }
+.ho-v{ font-family:var(--font-mono); font-size:11px; font-weight:700; padding:2px 7px; border:2px solid currentColor }
+.ho-v.high{ color:var(--bad) }
+.ho-v.low{ color:var(--info) }
+.ho-v.ok{ color:var(--ok) }
+.ho-items{ display:flex; flex-direction:column; gap:4px; font-size:12px }
+.ho-i{ display:flex; align-items:baseline; gap:8px; color:var(--ink-2); padding:3px 0; border-bottom:1px dashed var(--line) }
+.ho-i:last-child{ border-bottom:none }
+.ho-i .hi-mk{ flex:none; width:14px; text-align:center; font-size:11px }
+.ho-i .hi-mk.hit{ color:var(--ok) }
+.ho-i .hi-mk.unknown{ color:var(--bad) }
+.ho-i .hi-n{ flex:1; min-width:0; overflow-wrap:anywhere }
+.ho-i .hi-k{ font-family:var(--font-mono); font-variant-numeric:tabular-nums; color:var(--ink-1); font-weight:700; white-space:nowrap }
+.ho-i .hi-k.unknown{ color:var(--bad); font-weight:400 }
+.ho-f{ display:flex; align-items:center; gap:10px; padding-top:8px; border-top:2px dashed var(--line-2) }
+.ho-amt{ font-family:var(--font-mono); font-size:12px; color:var(--ink-3); font-variant-numeric:tabular-nums }
+.ho-amt b{ color:var(--ink-1) }
+.ho-rebuy{ margin-left:auto; background:var(--surf-1); border:2px solid var(--nk); color:var(--ink-0);
+  padding:5px 11px; font-size:11.5px; font-weight:700; cursor:pointer; box-shadow:2px 2px 0 var(--nk);
+  transition:background var(--dur-1),transform var(--dur-1) var(--e-pix),box-shadow var(--dur-1) }
+.ho-rebuy:hover{ background:var(--brand) }
+.ho-rebuy:active{ transform:translate(2px,2px); box-shadow:0 0 0 }
+
+/* ═══ 10 确认弹窗（原生 dialog）═══ */
+dialog{ border:none; background:transparent; padding:0; max-width:none; max-height:none }
+dialog::backdrop{ background:color-mix(in oklab, var(--scrim) 74%, transparent) }
+.modal{ background:var(--paper); border:4px solid var(--nk); padding:24px; width:min(420px,92vw);
+  box-shadow:10px 10px 0 oklch(0% 0 0 / .45);
+  animation:modal-in var(--dur-3) var(--e-out-expo) both }
+@keyframes modal-in{ from{ opacity:0; transform:translate3d(0,14px,0) scale(.98) } to{ opacity:1; transform:none } }
+.modal h3{ font-size:17px; font-weight:800; color:var(--ink-0); margin-bottom:5px; letter-spacing:.02em }
+.modal .m-sub{ font-size:12px; color:var(--ink-3); margin-bottom:16px; line-height:1.65 }
+.modal .m-items{ font-size:13px; color:var(--ink-2); max-height:170px; overflow-y:auto; margin-bottom:12px }
+.modal .m-items div{ padding:5px 0; border-bottom:1px dashed var(--line); display:flex; justify-content:space-between; gap:12px }
+.modal .m-total{ display:flex; justify-content:space-between; align-items:baseline; padding:12px 0;
+  border-top:2px solid var(--nk); border-bottom:2px solid var(--nk); margin-bottom:14px; font-size:13px; color:var(--ink-2) }
+.modal .m-total b{ font-family:var(--font-mono); font-size:24px; color:var(--pkg-red); font-variant-numeric:tabular-nums }
+.modal .m-heat{ font-size:12px; color:var(--ink-2); margin-bottom:16px; padding:11px 13px; background:var(--surf-2);
+  border:2px solid var(--line-2); line-height:1.75 }
+.modal .m-heat b{ color:var(--heat); font-variant-numeric:tabular-nums }
+.modal .m-actions{ display:flex; gap:10px; justify-content:flex-end }
+.pay{ color:var(--info); font-size:12px; word-break:break-all; font-family:var(--font-mono) }
+.ok-line{ font-size:12.5px; color:var(--ok); font-weight:700; margin-bottom:5px }
+
+/* ═══ 11 Toast ═══ */
+.toast{ position:fixed; left:50%; bottom:26px; transform:translate3d(-50%,160%,0); z-index:var(--z-toast);
+  background:var(--paper); border:3px solid var(--nk);
+  padding:12px 16px; display:flex; align-items:center; gap:14px; font-size:12.5px; color:var(--ink-1);
+  max-width:min(92vw,440px); box-shadow:6px 6px 0 oklch(0% 0 0 / .4);
+  transition:transform var(--dur-3) var(--e-out-expo) }
+.toast.show{ transform:translate3d(-50%,0,0) }
+.toast-act{ background:none; border:none; color:var(--brand-tx); font-weight:800; font-size:12.5px; cursor:pointer; padding:4px 2px }
+.toast-act:hover{ color:var(--brand-ink); background:var(--brand) }
+
+/* ═══ 12 飞入购物车 ═══ */
+.fly{ position:fixed; left:0; top:0; width:12px; height:12px; background:var(--yellow); border:2px solid var(--nk);
+  pointer-events:none; z-index:var(--z-toast); will-change:transform }
+.fly i{ display:block; width:100%; height:100%; background:inherit }
+
+footer{ margin-top:36px; padding:16px 18px; border:3px solid oklch(100% 0 0 / .22);
+  color:oklch(86% 0.05 80 / .78); font-family:var(--font-mono); font-size:11.5px;
+  display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; line-height:1.8 }
+
+/* ═══ 降低动效偏好 ═══ */
+@media (prefers-reduced-motion: reduce){
+  html{ transition:none }
+  *,*::before,*::after{ animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important }
+  .item,.screen,.log{ animation:none!important }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#stage">跳到主内容</a>
+<div class="page">
+
+  <!-- 01 页头 -->
+  <header class="head">
+    <h1>热麦卡路里 · 点餐流程演示<span class="sim">模拟数据</span></h1>
+    <div class="clock"><b id="clockTime">--:--</b><span id="clock">--</span></div>
+  </header>
+
+  <div class="stage" id="stage" tabindex="-1">
+    <!-- ══════════ 手机 ══════════ -->
+    <!-- 机身：iPhone 18 Pro 中框 + 侧键（左：操作/音量　右：电源/相机控制）-->
+    <div class="device">
+      <span class="dbtn l action" aria-hidden="true"></span>
+      <span class="dbtn l vol-up" aria-hidden="true"></span>
+      <span class="dbtn l vol-dn" aria-hidden="true"></span>
+      <span class="dbtn r power" aria-hidden="true"></span>
+      <span class="dbtn r camera" aria-hidden="true"></span>
+      <div class="phone">
+        <div class="phone-glow" aria-hidden="true"></div>
+        <div class="statusbar">
+          <span id="statusTime">--:--</span>
+          <span class="island" aria-hidden="true"></span>
+          <span>100%</span>
+        </div>
+
+        <div class="viewport" id="viewport">
+          <!-- 菜单屏 -->
+          <section class="screen" id="screenMenu" aria-label="点餐菜单">
+            <div class="storecard">
+              <div class="row1">
+                <div>
+                  <div class="sname" id="storeName">热麦餐厅 · 陆家嘴中心店</div>
+                  <div class="smeta" id="storeMeta">距你 480m · 营业中 · 取餐预计 12 分钟</div>
+                </div>
+                <button class="change" id="btnChangeStore">切换门店</button>
+              </div>
+              <div class="seg" id="segService" role="group" aria-label="取餐方式">
+                <button type="button" data-s="到店取餐" class="active" aria-pressed="true">到店取餐</button>
+                <button type="button" data-s="外送" aria-pressed="false">外送</button>
+              </div>
+            </div>
+            <div class="menu-body">
+              <nav class="rail" id="rail" aria-label="餐品分类"></nav>
+              <div class="items" id="items"></div>
+            </div>
+          </section>
+
+          <!-- 结算屏 -->
+          <section class="screen" id="screenCheckout" hidden aria-label="确认订单">
+            <div class="co" id="coBody"></div>
+          </section>
+        </div>
+
+        <!-- 吸底购物车栏（仅菜单屏） -->
+        <div class="cartbar" id="cartbar">
+          <button class="cicon empty" id="cartIcon" aria-label="查看已选餐品">🛒<span class="badge" id="cartBadge" hidden>0</span></button>
+          <div class="csum">
+            <div class="ctotal" id="cartTotal">¥0.00</div>
+            <div class="ckcal" id="cartKcal" aria-live="polite"><span class="dot"></span>本单约 0 千卡</div>
+          </div>
+          <button class="btn" id="btnCheckout" disabled>去结算</button>
+        </div>
+        <div class="co-foot" id="coFoot" hidden>
+          <div class="csum">
+            <div class="ctotal" id="coTotal">¥0.00</div>
+            <div class="co-heat" id="coHeat"><span class="dot"></span>本单约 <b>0</b> 千卡</div>
+          </div>
+          <button class="btn" id="btnSubmit">提交订单</button>
+        </div>
+
+        <!-- 规格弹层 -->
+        <div class="sheet" id="sheetSpec" role="dialog" aria-modal="true" aria-labelledby="spTitle" inert>
+          <div class="s-head">
+            <div style="min-width:0">
+              <div class="s-title" id="spTitle">商品</div>
+              <div class="s-sub" id="spSub"></div>
+            </div>
+            <button class="x" id="spClose" aria-label="关闭" data-autofocus>✕</button>
+          </div>
+          <div class="s-body" id="spBody"></div>
+          <div class="s-foot">
+            <div class="stepper">
+              <button class="minus" id="spMinus" aria-label="减少数量">−</button><span class="q" id="spQty" aria-live="polite">1</span><button id="spPlus" aria-label="增加数量">＋</button>
+            </div>
+            <button class="btn" id="spAdd">加入购物车 ¥0.00</button>
+          </div>
+        </div>
+
+        <!-- 购物车弹层 -->
+        <div class="sheet" id="sheetCart" role="dialog" aria-modal="true" aria-label="已选餐品" inert>
+          <div class="s-head">
+            <div style="min-width:0"><div class="s-title">已选餐品</div></div>
+            <button class="x" id="ctClear" data-autofocus>清空</button>
+          </div>
+          <div class="s-body" id="ctBody"></div>
+        </div>
+
+        <div class="sheet-mask" id="sheetMask"></div>
+      </div>
+    </div>
+
+    <!-- ══════════ 右侧面板 · 第 1 行：与演示框并列（06 → 07）══════════ -->
+    <div class="side side-top">
+      <section class="panel">
+        <h2 class="p-title"><span class="num">06</span>热量估算与档位对比<span class="hint">F1 · F2 · P0</span></h2>
+        <div class="seg" id="segDaypart" role="group" aria-label="餐段"></div>
+        <div class="heat-total">
+          <div>
+            <div class="v" id="heatTotal">0<small>千卡</small></div>
+            <div class="verdict idle" id="heatVerdict" aria-live="polite">未选餐</div>
+          </div>
+        </div>
+        <div class="gauge" id="gauge" role="img" aria-label="热量档位仪表">
+          <div class="track">
+            <div class="fill" id="gFill" style="width:0%"></div>
+            <div class="ticks"></div>
+          </div>
+          <div class="band" id="gBand" style="left:0%;width:0%"></div>
+          <div class="needle" id="gNeedle" style="left:0%"><i id="gLabel"></i></div>
+          <div class="scale" id="gScale"></div>
+        </div>
+        <table class="mini-table" id="heatTable">
+          <thead><tr><th>已选餐品</th><th class="num">数量</th><th class="num">热量</th></tr></thead>
+          <tbody></tbody>
+          <tfoot></tfoot>
+        </table>
+      </section>
+
+      <section class="panel" id="panelGoal">
+        <h2 class="p-title"><span class="num">07</span>目标场景预设<span class="hint">F8 · 13 个场景</span></h2>
+        <div class="goal-groups" id="goalGroups"></div>
+        <div class="goal-params" id="goalParams" hidden></div>
+        <div class="goal-plan" id="goalPlan" hidden></div>
+        <div class="reco-grid" id="goalReco"></div>
+      </section>
+
+      <section class="panel" id="panelReco" hidden>
+        <h2 class="p-title"><span class="num">08</span>替换建议<span class="hint">F4 · P1 · 命中标准档 ±12%</span></h2>
+        <div class="reco-grid" id="recoGrid"></div>
+      </section>
+    </div>
+
+    <!-- ══════════ 右侧面板 · 第 2 行：09 与 10 并列（在演示框、06、07 下方）══════════ -->
+    <div class="side side-bottom">
+      <section class="panel" id="panelHist">
+        <h2 class="p-title"><span class="num">09</span>一键导入历史订单<span class="hint">F9 · 自动脱敏 · 热量复盘</span></h2>
+        <div class="hist-actions">
+          <button class="btn-import" id="btnImport" type="button">一键导入历史订单</button>
+          <div class="hist-note" id="histNote">导入官方 <code>order-list</code> 历史订单：先自动脱敏（去除 orderId / storeCode / storeName / beCode，门店代称化），再逐单展开套餐、匹配营养表、按 <code>createTime</code> 推断餐段并与标准档对比。原始响应不落盘。</div>
+        </div>
+        <div class="hist-sum" id="histSum" hidden></div>
+        <div class="hist-list" id="histList"></div>
+      </section>
+
+      <section class="panel">
+        <h2 class="p-title"><span class="num">10</span>工具调用日志<span class="hint">Skill → MCP（模拟）</span></h2>
+        <div class="log-list" id="logList"></div>
+      </section>
+    </div>
+  </div>
+
+  <footer>
+    <span>餐品名称、分类、标签、价格与营养成分取自 mcd-mcp 实时接口（门店 3570190，2026-10-10 五个餐段快照，去重 179 项）；目标场景策略、历史订单与订单分析口径与 skill 脚本一致；门店地址、优惠、订单与支付为模拟。不使用任何品牌商标、Logo 与官方图片。</span>
+    <span>营养表未收录的商品一律标注「热量未知」，不按 0 计入合计；含未收录项的组合合计仅作下限（标 ≥）。历史订单已自动脱敏，不含 orderId / storeCode / storeName / beCode。热量为估算参考，不构成医学或减重建议。</span>
+  </footer>
+</div>
+
+<!-- 09 提交确认弹窗 -->
+<dialog id="dlg" aria-labelledby="mTitle">
+  <div class="modal">
+    <h3 id="mTitle">确认提交订单</h3>
+    <div class="m-sub" id="mSub">提交前请核对餐品与金额</div>
+    <div class="m-items" id="mItems"></div>
+    <div class="m-total"><span>应付金额</span><b id="mTotal">¥0.00</b></div>
+    <div class="m-heat" id="mHeat"></div>
+    <div id="mPay" hidden style="margin-bottom:16px">
+      <div class="ok-line">✅ 订单已创建，请前往支付</div>
+      <div class="pay" id="payLink"></div>
+    </div>
+    <div class="m-actions">
+      <button class="btn ghost" id="mCancel">再想想</button>
+      <button class="btn" id="mConfirm">确认提交</button>
+    </div>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+   一、商品数据（全部取自 mcd-mcp 实时接口，非模拟）
+   门店 3570190 · 2026-10-10 五个餐段快照：
+     早餐 08:00 / 午餐 12:00 / 随便吃吃≡下午茶 16:00(同午餐) / 晚餐 19:00 / 宵夜 23:36
+     → 去重 179 项，剔除蘸酱等非食品后 171 项
+   套餐组成 90/90 全部来自 query-meal-detail（scripts/fetch_meal_details.py 批量采集）：
+     269 个选配轮次 / 94 个不同选项列表（重复率 65%，抽成 LISTS 共用）
+     轮次按 code 匹配而非名称——同一套餐在菜单与详情里的名称常不一致
+     （菜单「麦香鸡套餐」/ 详情「麦香鸡中套餐」）
+   营养表 160 项官方数据 + 别名归一；未命中者一律标「热量未知」，绝不按 0 计算。
+   非食品项（玩具、单卖蘸酱）单列 ZERO，按 0 千卡计而非「未知」。
+   本节数据块全部由 scripts/build_demo_menu.py 生成（inject 模式写回），改数据请改脚本重跑。
+   ══════════════════════════════════════════════════════════════ */
+
+const CATS = {
+  "早餐":["人气热卖","超值早餐","6折起早餐卡专区","厚松饼堡系列","麦满分系列","麦咖啡™","炒双蛋堡系列","早安营养卷","一早现磨","小食甜品/其他","饮品"],
+  "午餐":["人气热卖","精选单人餐","鸡肉汉堡/卷","小食拼盘/多人餐","蘸酱炸鸡","随心配1+1","大堡口福单人餐","巨无霸牛鱼肉堡","安格斯MAX厚牛堡","炸鸡","小食甜品/其他","开心乐园","麦咖啡™","500大卡套餐","饮品"],
+  "随便吃吃":["人气热卖","精选单人餐","鸡肉汉堡/卷","小食拼盘/多人餐","蘸酱炸鸡","随心配1+1","大堡口福单人餐","巨无霸牛鱼肉堡","安格斯MAX厚牛堡","炸鸡","小食甜品/其他","开心乐园","麦咖啡™","500大卡套餐","饮品"],
+  "晚餐":["人气热卖","精选单人餐","鸡肉汉堡/卷","小食拼盘/多人餐","蘸酱炸鸡","随心配1+1","大堡口福单人餐","巨无霸牛鱼肉堡","安格斯MAX厚牛堡","炸鸡","小食甜品/其他","开心乐园","麦咖啡™","500大卡套餐","饮品"],
+  "宵夜":["人气热卖","精选单人餐","鸡肉汉堡/卷","小食拼盘/多人餐","蘸酱炸鸡","随心配1+1","巨无霸牛鱼肉堡","安格斯MAX厚牛堡","炸鸡","大堡口福单人餐","小食甜品/其他","开心乐园","麦咖啡™","500大卡套餐","饮品"]
+};
+/* 零热量 / 非食品项：按 0 千卡计（玩具、单卖蘸酱），不计入「热量未知」 */
+const ZERO = new Set(["海绵宝宝×航海王系列玩具","韩式辣椒黄油风味酱"]);
+const NUTRI = {
+  "猪柳蛋麦满分":{kcal:387,p:23,f:21,c:25,na:846},
+  "猪柳麦满分":{kcal:308,p:16,f:16,c:24,na:781},
+  "咖啡阿芙佳朵":{kcal:139,p:4,f:4,c:21,na:49},
+  "【美汁源】“黄金橙橙”":{kcal:165,p:0,f:0,c:41,na:53},
+  "麦咖啡™热奶铁中杯":{kcal:186,p:11,f:8,c:17,na:99},
+  "麦咖啡™热美式中杯":{kcal:13,p:1,f:0,c:2,na:0},
+  "火腿扒麦满分":{kcal:261,p:14,f:12,c:24,na:608},
+  "火腿扒早安营养卷":{kcal:444,p:16,f:24,c:39,na:1065},
+  "100% 苹果汁(盒装)":{kcal:88,p:0,f:0,c:21,na:0},
+  "冰牛奶中杯":{kcal:224,p:13,f:11,c:19,na:128},
+  "图林根香肠早安营养卷":{kcal:425,p:14,f:23,c:38,na:977},
+  "雪碧":{kcal:105,p:0,f:0,c:26,na:29},
+  "脆香油条":{kcal:202,p:5,f:12,c:19,na:230},
+  "牛奶":{kcal:176,p:10,f:8,c:15,na:101},
+  "优品豆浆":{kcal:151,p:6,f:3,c:25,na:32},
+  "双层猪柳蛋麦满分":{kcal:513,p:29,f:32,c:26,na:1210},
+  "猪柳炒双蛋堡":{kcal:437,p:25,f:24,c:29,na:705},
+  "可乐":{kcal:147,p:0,f:0,c:36,na:0},
+  "原味板烧鸡腿麦满分":{kcal:246,p:15,f:9,c:25,na:611},
+  "双层原味板烧鸡腿麦满分":{kcal:355,p:23,f:17,c:27,na:984},
+  "脆薯饼":{kcal:146,p:1,f:9,c:14,na:311},
+  "圆筒冰淇淋":{kcal:93,p:2,f:3,c:14,na:36},
+  "原味板烧鸡腿炒双蛋堡":{kcal:419,p:27,f:21,c:30,na:715},
+  "鲜萃咖啡":{kcal:15,p:1,f:0,c:3,na:2},
+  "麦咖啡™奶铁":{kcal:148,p:8,f:7,c:13,na:77},
+  "锡兰红茶":{kcal:2,p:0,f:0,c:0,na:0},
+  "德式图林根香肠":{kcal:87,p:5,f:6,c:2,na:293},
+  "大脆鸡扒麦满分":{kcal:361,p:16,f:17,c:35,na:804},
+  "玉米杯":{kcal:53,p:2,f:1,c:7,na:1},
+  "培根安格斯厚牛堡":{kcal:707,p:34,f:44,c:43,na:1037},
+  "芝士安格斯厚牛堡":{kcal:696,p:32,f:44,c:43,na:897},
+  "培根蔬萃双层牛堡":{kcal:442,p:24,f:23,c:34,na:728},
+  "巨无霸":{kcal:513,p:27,f:26,c:42,na:961},
+  "双层吉士汉堡":{kcal:429,p:27,f:22,c:31,na:1017},
+  "麦乐鸡":{kcal:213,p:12,f:12,c:13,na:422},
+  "板烧鸡腿堡":{kcal:391,p:23,f:17,c:35,na:1041},
+  "那么大鸡排（椒盐风味）":{kcal:385,p:24,f:21,c:24,na:996},
+  "不素之霸双层牛堡":{kcal:493,p:28,f:27,c:34,na:1012},
+  "双层深海鳕鱼堡":{kcal:485,p:28,f:21,c:46,na:917},
+  "麦辣鸡翅":{kcal:224,p:13,f:15,c:9,na:537},
+  "薯条":{kcal:289,p:4,f:12,c:38,na:165},
+  "麦辣鸡腿汉堡":{kcal:485,p:24,f:24,c:42,na:1208},
+  "苹果片":{kcal:32,p:0,f:0,c:7,na:0},
+  "麦香鸡":{kcal:369,p:15,f:17,c:39,na:731},
+  "薄皮焦香V翅":{kcal:192,p:17,f:11,c:6,na:594},
+  "麦香鱼":{kcal:325,p:16,f:13,c:35,na:556},
+  "中薯条":{kcal:289,p:4,f:12,c:38,na:165},
+  "奥利奥麦旋风":{kcal:266,p:5,f:9,c:40,na:116},
+  "小杯玉米杯":{kcal:53,p:2,f:1,c:7,na:1},
+  "大杯玉米杯":{kcal:87,p:4,f:1,c:12,na:2},
+  "麦乐鸡4块":{kcal:170,p:10,f:10,c:11,na:337},
+  "麦辣鸡翅2块":{kcal:224,p:13,f:15,c:9,na:537},
+  "麦麦脆汁鸡-琵琶腿":{kcal:328,p:21,f:20,c:16,na:905},
+  "可乐中杯":{kcal:147,p:0,f:0,c:36,na:0},
+  "冰浓浓黑巧中杯":{kcal:135,p:8,f:6,c:12,na:77},
+  "麦咖啡™冰美式中杯":{kcal:13,p:1,f:0,c:2,na:0},
+  "大杯鲜萃咖啡":{kcal:13,p:1,f:0,c:0,na:3},
+  "麦咖啡™冰奶铁中杯":{kcal:148,p:8,f:7,c:13,na:77},
+  "热浓浓黑巧中杯":{kcal:176,p:10,f:8,c:15,na:101},
+  "冰浓浓燕麦黑巧中杯":{kcal:120,p:2,f:5,c:16,na:87},
+  "热浓浓燕麦黑巧中杯":{kcal:157,p:3,f:6,c:21,na:114},
+  "无糖可口可乐中杯":{kcal:0,p:0,f:0,c:1,na:35},
+  "可乐大杯":{kcal:224,p:0,f:0,c:55,na:0},
+  "无糖可口可乐大杯":{kcal:0,p:0,f:0,c:1,na:53},
+  "大杯怡泉+C":{kcal:168,p:0,f:0,c:41,na:0},
+  "雪碧大杯":{kcal:160,p:0,f:0,c:39,na:45},
+  "阳光柠檬红茶大杯":{kcal:178,p:0,f:0,c:43,na:25},
+  "中杯怡泉+C":{kcal:110,p:0,f:0,c:27,na:0},
+  "雪碧中杯":{kcal:105,p:0,f:0,c:26,na:29},
+  "阳光柠檬红茶中杯":{kcal:117,p:0,f:0,c:29,na:17},
+  "100%苹果汁":{kcal:88,p:0,f:0,c:21,na:0},
+  "原味双层深海鳕鱼堡":{kcal:485,p:28,f:21,c:46,na:917},
+  "小杯鲜萃咖啡":{kcal:15,p:1,f:0,c:3,na:2},
+  "优品豆浆小杯":{kcal:151,p:6,f:3,c:25,na:32},
+  "优品豆浆大杯":{kcal:202,p:8,f:4,c:33,na:43},
+  "冰燕麦奶铁中杯":{kcal:132,p:3,f:5,c:17,na:87},
+  "热燕麦奶铁中杯":{kcal:167,p:4,f:6,c:22,na:112},
+  "热牛奶中杯":{kcal:176,p:10,f:8,c:15,na:101},
+  "麦乐鸡5块":{kcal:213,p:12,f:12,c:13,na:422},
+  "大薯条":{kcal:379,p:6,f:16,c:50,na:216},
+  "麦乐鸡-5块":{kcal:213,p:12,f:12,c:13,na:422},
+  "麦辣鸡翅-2块":{kcal:224,p:13,f:15,c:9,na:537},
+  "吉士汉堡包":{kcal:294,p:16,f:12,c:30,na:673},
+  "苹果片一袋(60g)":{kcal:32,p:0,f:0,c:7,na:0},
+  "无糖可口可乐小杯":{kcal:0,p:0,f:0,c:0,na:25},
+  "草莓麦旋风":{kcal:295,p:6,f:9,c:47,na:122},
+  "迷你薯条":{kcal:106,p:2,f:4,c:14,na:61},
+  "汉堡包":{kcal:248,p:13,f:8,c:29,na:492},
+  "小薯条":{kcal:210,p:3,f:9,c:28,na:120},
+  "香芋派":{kcal:232,p:2,f:12,c:28,na:159},
+  "迷你草莓新地":{kcal:122,p:2,f:3,c:21,na:42},
+  "迷你朱古力新地":{kcal:140,p:3,f:4,c:22,na:63},
+  "菠萝派":{kcal:221,p:2,f:11,c:27,na:147},
+  "5块麦乐鸡":{kcal:213,p:12,f:12,c:13,na:422}
+};
+const TIERS = {
+  "早餐":{轻量:300,标准:450,吃饱:600},
+  "午餐":{轻量:500,标准:750,吃饱:1000},
+  "随便吃吃":{轻量:150,标准:300,吃饱:450},
+  "晚餐":{轻量:500,标准:750,吃饱:1000},
+  "宵夜":{轻量:300,标准:450,吃饱:600}
+};
+/* 选项列表池：套餐轮次里高度重复（269 轮 → 94 个不同列表），抽出来共用 */
+const LISTS = {
+  0:[["大脆鸡扒麦满分",0,true]],
+  1:[["鲜萃冰咖",0,true],["小杯鲜萃咖啡",0,false],["优品豆浆小杯",0,false],["冰浓浓黑巧中杯",6.9,false],["麦咖啡™冰美式中杯",6,false],["麦咖啡™冰奶铁中杯",6.9,false],["热浓浓黑巧中杯",6.9,false],["热浓浓燕麦黑巧中杯",8.9,false],["冰浓浓燕麦黑巧中杯",8.9,false],["麦咖啡™热美式中杯",6,false],["麦咖啡™热奶铁中杯",6.9,false],["阳光柠檬红茶大杯",2.5,false],["【美汁源】“多汁柠柠”",2.5,false],["【美汁源】“黄金橙橙”",3.5,false],["100%苹果汁",2.5,false],["优品豆浆大杯",2,false],["锡兰红茶",2,false],["阳光柠檬红茶中杯",0.5,false],["冰燕麦奶铁中杯",8.9,false],["热燕麦奶铁中杯",8.9,false],["大杯鲜萃咖啡",2,false],["大杯怡泉+C",4,false],["可乐大杯",2.5,false],["无糖可口可乐大杯",2.5,false],["雪碧大杯",2.5,false],["中杯怡泉+C",2,false],["可乐中杯",0.5,false],["无糖可口可乐中杯",0.5,false],["雪碧中杯",0.5,false],["热牛奶中杯",6,false]],
+  2:[["图林根香肠早安营养卷",0,true]],
+  3:[["鲜萃冰咖",0,true],["小杯鲜萃咖啡",0,false],["优品豆浆小杯",0,false],["冰浓浓黑巧中杯",8,false],["麦咖啡™冰美式中杯",6,false],["麦咖啡™冰奶铁中杯",8,false],["热浓浓黑巧中杯",8,false],["热浓浓燕麦黑巧中杯",10,false],["冰浓浓燕麦黑巧中杯",10,false],["麦咖啡™热美式中杯",6,false],["麦咖啡™热奶铁中杯",8,false],["阳光柠檬红茶大杯",2.5,false],["【美汁源】“多汁柠柠”",2.5,false],["【美汁源】“黄金橙橙”",3.5,false],["100%苹果汁",2.5,false],["优品豆浆大杯",2,false],["锡兰红茶",2,false],["阳光柠檬红茶中杯",0.5,false],["冰燕麦奶铁中杯",10,false],["热燕麦奶铁中杯",10,false],["大杯鲜萃咖啡",2,false],["大杯怡泉+C",4,false],["可乐大杯",2.5,false],["无糖可口可乐大杯",2.5,false],["雪碧大杯",2.5,false],["中杯怡泉+C",2,false],["可乐中杯",0.5,false],["无糖可口可乐中杯",0.5,false],["雪碧中杯",0.5,false],["热牛奶中杯",6,false]],
+  4:[["火腿扒早安营养卷",0,true]],
+  5:[["双层原味板烧鸡腿麦满分",0,true]],
+  6:[["猪柳炒双蛋堡",0,true]],
+  7:[["脆香油条",0,true],["脆薯饼",0,false],["德式图林根香肠",1,false]],
+  8:[["鲜萃冰咖",0,true],["大杯鲜萃咖啡",0,false],["优品豆浆大杯",0,false],["冰浓浓黑巧中杯",6,false],["麦咖啡™冰美式中杯",4,false],["麦咖啡™冰奶铁中杯",6,false],["热浓浓黑巧中杯",6,false],["热浓浓燕麦黑巧中杯",8,false],["冰浓浓燕麦黑巧中杯",8,false],["麦咖啡™热美式中杯",4,false],["麦咖啡™热奶铁中杯",6,false],["阳光柠檬红茶大杯",0.5,false],["【美汁源】“多汁柠柠”",0.5,false],["【美汁源】“黄金橙橙”",1.5,false],["100%苹果汁",0.5,false],["锡兰红茶",0,false],["阳光柠檬红茶中杯",-1.5,false],["冰燕麦奶铁中杯",8,false],["热燕麦奶铁中杯",8,false],["大杯怡泉+C",2,false],["可乐大杯",0.5,false],["无糖可口可乐大杯",0.5,false],["雪碧大杯",0.5,false],["中杯怡泉+C",0,false],["可乐中杯",-1.5,false],["无糖可口可乐中杯",-1.5,false],["雪碧中杯",-1.5,false],["热牛奶中杯",4,false]],
+  9:[["原味板烧鸡腿炒双蛋堡",0,true]],
+  10:[["猪柳麦满分",0,true]],
+  11:[["脆薯饼",0,true],["脆香油条",0,false],["德式图林根香肠",1,false]],
+  12:[["东南亚风味椰香鸡扒堡",0,true]],
+  13:[["北非蛋风味猪柳蛋麦满分",0,true]],
+  14:[["北非蛋风味脆鸡排麦满分",0,true]],
+  15:[["枫糖风味厚松饼猪柳堡",0,true]],
+  16:[["枫糖风味厚松饼猪柳蛋堡",0,true]],
+  17:[["吉士蛋麦满分",0,true]],
+  18:[["鲜萃冰咖",0,true],["小杯鲜萃咖啡",0,false],["优品豆浆小杯",0,false],["冰浓浓黑巧中杯",7.5,false],["麦咖啡™冰美式中杯",6,false],["麦咖啡™冰奶铁中杯",7.5,false],["热浓浓黑巧中杯",7.5,false],["热浓浓燕麦黑巧中杯",9.5,false],["冰浓浓燕麦黑巧中杯",9.5,false],["麦咖啡™热美式中杯",6,false],["麦咖啡™热奶铁中杯",7.5,false],["【美汁源】“多汁柠柠”",2.5,false],["【美汁源】“黄金橙橙”",3.5,false],["阳光柠檬红茶大杯",2.5,false],["100%苹果汁",2.5,false],["优品豆浆大杯",2,false],["锡兰红茶",2,false],["阳光柠檬红茶中杯",0.5,false],["冰燕麦奶铁中杯",9.5,false],["热燕麦奶铁中杯",9.5,false],["大杯鲜萃咖啡",2,false],["大杯怡泉+C",4,false],["可乐大杯",2.5,false],["无糖可口可乐大杯",2.5,false],["雪碧大杯",2.5,false],["中杯怡泉+C",2,false],["可乐中杯",0.5,false],["无糖可口可乐中杯",0.5,false],["雪碧中杯",0.5,false],["热牛奶中杯",6,false]],
+  19:[["脆香油条",0,true]],
+  20:[["北非蛋风味麦满分",0,true]],
+  21:[["原味板烧鸡腿麦满分",0,true]],
+  22:[["猪柳蛋麦满分",0,true]],
+  23:[["芝芝火腿扒堡",0,true]],
+  24:[["吉士蛋麦满分",0,true],["北非蛋风味麦满分",6.5,false],["大脆鸡扒麦满分",0,false],["火腿扒麦满分",0,false],["原味板烧鸡腿麦满分",4.5,false]],
+  25:[["麦咖啡™冰美式中杯",0,true],["麦咖啡™热美式中杯",0,false],["麦咖啡™冰奶铁中杯",2,false],["麦咖啡™热奶铁中杯",2,false],["冰燕麦奶铁中杯",2,false],["热燕麦奶铁中杯",2,false]],
+  26:[["优品豆浆大杯",0,true],["鲜萃冰咖",0,false],["大杯鲜萃咖啡",0,false],["冰浓浓黑巧中杯",6,false],["麦咖啡™冰美式中杯",4,false],["麦咖啡™冰奶铁中杯",6,false],["热浓浓黑巧中杯",6,false],["热浓浓燕麦黑巧中杯",8,false],["冰浓浓燕麦黑巧中杯",8,false],["麦咖啡™热美式中杯",4,false],["麦咖啡™热奶铁中杯",6,false],["阳光柠檬红茶大杯",0.5,false],["【美汁源】“多汁柠柠”",0.5,false],["【美汁源】“黄金橙橙”",1.5,false],["100%苹果汁",0.5,false],["锡兰红茶",0,false],["阳光柠檬红茶中杯",-1.5,false],["冰燕麦奶铁中杯",8,false],["热燕麦奶铁中杯",8,false],["大杯怡泉+C",2,false],["可乐大杯",0.5,false],["无糖可口可乐大杯",0.5,false],["雪碧大杯",0.5,false],["中杯怡泉+C",0,false],["可乐中杯",-1.5,false],["无糖可口可乐中杯",-1.5,false],["雪碧中杯",-1.5,false],["热牛奶中杯",4,false]],
+  27:[["火腿扒麦满分",0,true]],
+  28:[["麦辣鸡腿汉堡",0,true]],
+  29:[["中薯条",0,true],["5块心形薯饼+韩式辣椒黄油风味酱",1,false],["月下相思扭扭薯",1.5,false],["大薯条",1.5,false],["小杯玉米杯",-1.5,false],["大杯玉米杯",1,false]],
+  30:[["可乐中杯",0,true],["【美汁源】“多汁柠柠”",1,false],["热浓浓黑巧中杯",11,false],["举杯邀月柚桂茶(冰)",3,false],["举杯邀月柚桂茶(热)",3,false],["无糖可口可乐中杯",0,false],["雪碧中杯",0,false],["阳光柠檬红茶中杯",0,false],["麦咖啡™冰美式中杯",9,false],["大杯鲜萃咖啡",1.5,false],["麦咖啡™热美式中杯",9,false],["麦咖啡™冰奶铁中杯",11,false],["冰浓浓黑巧中杯",11,false],["热浓浓燕麦黑巧中杯",13,false],["冰浓浓燕麦黑巧中杯",13,false],["可乐大杯",2,false],["无糖可口可乐大杯",2,false],["大杯怡泉+C",3.5,false],["雪碧大杯",2,false],["麦咖啡™热奶铁中杯",11,false],["【美汁源】“黄金橙橙”",3,false],["锡兰红茶",1.5,false],["阳光柠檬红茶大杯",2,false],["100%苹果汁",2,false],["中杯怡泉+C",1.5,false]],
+  31:[["板烧鸡腿堡",0,true],["龙焰鸡腿堡",1,false],["龙焰芝士棒鸡腿堡",4,false],["麦辣鸡腿汉堡",0,false]],
+  32:[["麦乐鸡4块",0,true],["韩式烟熏芝士风味酱麦麦脆汁鸡-腿",6,false],["韩式烟熏芝士风味酱甜辣酱鸡球",6.5,false],["薄皮焦香V翅",3.5,false],["韩式甜辣酱鸡块",3.5,false],["麦辣鸡翅2块",2.5,false],["麦麦脆汁鸡-琵琶腿",3,false]],
+  33:[["麦辣鸡翅2块",0,true],["韩式烟熏芝士风味酱麦麦脆汁鸡-腿",3.5,false],["韩式烟熏芝士风味酱甜辣酱鸡球",4,false],["薄皮焦香V翅",1,false],["麦麦脆汁鸡-琵琶腿",0.5,false]],
+  34:[["中薯条",0,true],["马苏里拉拉丝芝士条",1.5,false],["蓝莓爆爆珠麦旋风",1,false],["5块心形薯饼+韩式辣椒黄油风味酱",1,false],["月下相思扭扭薯",1.5,false],["泷愿成真麦旋风——大米风味",1,false],["奥利奥麦旋风",0,false],["草莓麦旋风",0,false],["大杯玉米杯",1,false]],
+  35:[["可乐中杯",0,true],["冰浓浓黑巧中杯",11,false],["麦咖啡™冰美式中杯",9,false],["鲜萃冰咖",1.5,false],["大杯鲜萃咖啡",1.5,false],["麦咖啡™热美式中杯",9,false],["麦咖啡™冰奶铁中杯",11,false],["热浓浓黑巧中杯",11,false],["冰浓浓燕麦黑巧中杯",13,false],["热浓浓燕麦黑巧中杯",13,false],["麦咖啡™热奶铁中杯",11,false],["举杯邀月柚桂茶(冰)",3,false],["举杯邀月柚桂茶(热)",3,false],["怡泉+C麦炫酷",4.5,false],["无糖可乐麦炫酷",3,false],["无糖可口可乐中杯",0,false],["可乐大杯",2,false],["无糖可口可乐大杯",2,false],["【美汁源】“多汁柠柠”",2,false],["【美汁源】“黄金橙橙”",3,false],["大杯怡泉+C",3.5,false],["雪碧大杯",2,false],["阳光柠檬红茶大杯",2,false],["中杯怡泉+C",1.5,false],["雪碧中杯",0,false],["阳光柠檬红茶中杯",0,false],["锡兰红茶",0,false],["100%苹果汁",2,false]],
+  36:[["5块心形薯饼",0,true]],
+  37:[["韩式辣椒黄油风味酱",0,true]],
+  38:[["5块麦乐鸡",0,true]],
+  39:[["龙焰芝士棒鸡腿堡",0,true]],
+  40:[["龙焰鸡腿堡",0,true]],
+  41:[["麦香鱼",0,true]],
+  42:[["板烧鸡腿堡",0,true]],
+  43:[["双层吉士汉堡",0,true]],
+  44:[["麦辣鸡腿汉堡",0,true],["龙焰鸡腿堡",1,false],["龙焰芝士棒鸡腿堡",4,false],["双层脆鸡堡",0,false],["板烧鸡腿堡",0,false]],
+  45:[["中薯条",0,true],["马苏里拉拉丝芝士条",1.5,false],["蓝莓爆爆珠麦旋风",1,false],["5块心形薯饼+韩式辣椒黄油风味酱",1,false],["月下相思扭扭薯",1.5,false],["泷愿成真麦旋风——大米风味",1,false],["奥利奥麦旋风",0,false],["小杯玉米杯",0,false],["大杯玉米杯",1,false]],
+  46:[["麦乐鸡4块",0,true],["韩式烟熏芝士风味酱麦麦脆汁鸡-腿",6,false],["韩式烟熏芝士风味酱甜辣酱鸡球",6.5,false],["薄皮焦香V翅",3.5,false],["4个韩式甜辣酱鸡球（山葵酱）",6.5,false],["韩式甜辣酱鸡块",3.5,false],["麦辣鸡翅2块",2.5,false],["麦麦脆汁鸡-琵琶腿",3,false]],
+  47:[["可乐中杯",0,true],["【美汁源】“多汁柠柠”",1,false],["冰浓浓黑巧中杯",11,false],["麦咖啡™冰美式中杯",9,false],["鲜萃冰咖",1.5,false],["大杯鲜萃咖啡",1.5,false],["麦咖啡™热美式中杯",9,false],["麦咖啡™冰奶铁中杯",11,false],["热浓浓黑巧中杯",11,false],["冰浓浓燕麦黑巧中杯",13,false],["热浓浓燕麦黑巧中杯",13,false],["麦咖啡™热奶铁中杯",11,false],["举杯邀月柚桂茶(冰)",3,false],["举杯邀月柚桂茶(热)",3,false],["怡泉+C麦炫酷",4.5,false],["无糖可乐麦炫酷",3,false],["无糖可口可乐中杯",0,false],["可乐大杯",2,false],["无糖可口可乐大杯",2,false],["【美汁源】“黄金橙橙”",3,false],["大杯怡泉+C",3.5,false],["雪碧大杯",2,false],["阳光柠檬红茶大杯",2,false],["中杯怡泉+C",1.5,false],["雪碧中杯",0,false],["阳光柠檬红茶中杯",0,false],["锡兰红茶",0,false],["100%苹果汁",2,false]],
+  48:[["巨无霸",0,true]],
+  49:[["吉士汉堡包",0,true]],
+  50:[["巨无霸",0,true],["培根蔬萃双层牛堡",0,false],["不素之霸双层牛堡",0,false],["风味双层深海鳕鱼堡",0,false],["原味双层深海鳕鱼堡",0,false]],
+  51:[["麦辣鸡翅4块",0,true]],
+  52:[["麦香鸡",0,true]],
+  53:[["培根蔬萃双层牛堡",0,true]],
+  54:[["芝士安格斯厚牛堡",0,true],["培根安格斯厚牛堡",0,false]],
+  55:[["原味双层深海鳕鱼堡",0,true],["风味双层深海鳕鱼堡",0,false]],
+  56:[["麦辣鸡翅-2块",0,true],["麦乐鸡-5块",0,false],["麦麦脆汁鸡-琵琶腿",0.5,false],["那么大鸡排（椒盐风味）",-0.5,false],["薄皮焦香V翅",1,false]],
+  57:[["小薯条",0,true],["中薯条",3.5,false],["大薯条",5,false]],
+  58:[["麦乐鸡5块",0,true]],
+  59:[["双层吉士汉堡",0,true],["高达吉士双牛堡",-1,false],["麦香鱼",0,false],["那么大鸡排（椒盐风味）",-1,false],["麦乐鸡5块",-1,false],["麦香鸡",-1,false],["小薯条",-1,false]],
+  60:[["阳光柠檬红茶中杯",0,true],["可乐中杯",0,false],["怡泉+C麦炫酷",0,false],["小杯玉米杯",0,false],["香芋派",0,false],["迷你草莓新地",0,false],["迷你朱古力新地",0,false],["鲜萃冰咖",0,false],["菠萝派",0,false],["无糖可乐麦炫酷",0,false],["锡兰红茶",0,false],["中杯怡泉+C",0,false],["雪碧中杯",0,false],["无糖可口可乐中杯",0,false]],
+  61:[["麦麦脆汁鸡-琵琶腿",0,true]],
+  62:[["迷你薯条",0,true]],
+  63:[["无糖可口可乐中杯",0,true],["无糖可口可乐小杯",-0.5,false],["无糖可口可乐大杯",2,false],["锡兰红茶",1.5,false],["麦咖啡™热美式中杯",9,false],["麦咖啡™冰美式中杯",9,false]],
+  64:[["Hold不住鸡排堡（椒盐风味）",0,true],["双层脆鸡堡",1,false],["培根芝士双牛堡",1,false]],
+  65:[["中薯条",0,true],["大薯条",1.5,false],["大杯玉米杯",1,false]],
+  66:[["可乐中杯",0,true],["雪碧中杯",0,false],["中杯怡泉+C",1.5,false],["无糖可口可乐中杯",0,false],["麦咖啡™冰美式中杯",9,false],["阳光柠檬红茶中杯",0,false],["鲜萃冰咖",1.5,false],["大杯鲜萃咖啡",1.5,false],["麦咖啡™热美式中杯",9,false],["麦咖啡™冰奶铁中杯",11,false],["麦咖啡™热奶铁中杯",11,false],["可乐大杯",2,false],["无糖可口可乐大杯",2,false],["雪碧大杯",2,false],["阳光柠檬红茶大杯",2,false],["大杯怡泉+C",3.5,false],["【美汁源】“黄金橙橙”",3,false],["锡兰红茶",1.5,false],["100%苹果汁",2,false]],
+  67:[["汉堡包",0,true]],
+  68:[["麦乐鸡4块",0,true]],
+  69:[["苹果片一袋(60g)",0,true]],
+  70:[["小杯玉米杯",0,true]],
+  71:[["锡兰红茶",0,true],["无糖可口可乐中杯",-1.5,false],["无糖可口可乐小杯",-2,false],["无糖可口可乐大杯",0.5,false],["麦咖啡™热美式中杯",7.5,false],["麦咖啡™冰美式中杯",7.5,false]],
+  72:[["那么大鸡排（椒盐风味）",0,true],["高达吉士双牛堡",0,false],["双层吉士汉堡",1,false],["麦香鱼",1,false],["麦乐鸡5块",0,false],["麦香鸡",0,false],["小薯条",0,false]],
+  73:[["阳光柠檬红茶中杯",0,true],["怡泉+C麦炫酷",0,false],["可乐中杯",0,false],["小杯玉米杯",0,false],["香芋派",0,false],["迷你草莓新地",0,false],["迷你朱古力新地",0,false],["鲜萃冰咖",0,false],["菠萝派",0,false],["无糖可乐麦炫酷",0,false],["锡兰红茶",0,false],["中杯怡泉+C",0,false],["雪碧中杯",0,false],["无糖可口可乐中杯",0,false]],
+  74:[["麦辣鸡翅2块",0,true]],
+  75:[["不素之霸双层牛堡",0,true]],
+  76:[["芝士安格斯厚牛堡",0,true]],
+  77:[["培根安格斯厚牛堡",0,true]],
+  78:[["麦辣鸡腿汉堡",0,true],["板烧鸡腿堡",0,false],["麦香鱼",0,false],["巨无霸",0,false],["双层吉士汉堡",0,false]],
+  79:[["麦辣鸡翅2块",0,true],["麦乐鸡5块",0,false],["麦麦脆汁鸡-琵琶腿",0,false],["奥利奥麦旋风",0,false],["中薯条",0,false],["那么大鸡排（椒盐风味）",0,false],["大杯玉米杯",0,false]],
+  80:[["可乐中杯",0,true],["雪碧中杯",0,false],["无糖可口可乐中杯",0,false],["阳光柠檬红茶中杯",0,false],["中杯怡泉+C",0,false],["【美汁源】“黄金橙橙”",0,false],["麦咖啡™冰美式中杯",0,false],["麦咖啡™热美式中杯",0,false],["锡兰红茶",0,false]],
+  81:[["板烧鸡腿堡",0,true],["巨无霸",2.5,false],["麦辣鸡腿汉堡",-1,false],["培根安格斯厚牛堡",10.5,false],["原味双层深海鳕鱼堡",1,false]],
+  82:[["鱼排堡",0,true]],
+  83:[["小杯玉米杯",0,true],["苹果片一袋(60g)",0,false]],
+  84:[["100%苹果汁",0,true]],
+  85:[["海绵宝宝×航海王系列玩具",0,true]],
+  86:[["无糖可口可乐中杯",0,true],["无糖可口可乐小杯",-0.5,false],["锡兰红茶",1.5,false]],
+  87:[["中薯条",0,true]],
+  88:[["麦乐鸡-5块",0,true]],
+  89:[["薄皮焦香V翅",0,true],["麦辣鸡翅-2块",0,false],["那么大鸡排（椒盐风味）",0,false]],
+  90:[["可乐中杯",0,true],["无糖可口可乐中杯",0,false]],
+  91:[["龙焰鸡腿堡",0,true],["龙焰芝士棒鸡腿堡",3,false]],
+  92:[["可乐中杯",0,true],["雪碧中杯",0,false],["无糖可口可乐中杯",0,false],["阳光柠檬红茶中杯",0,false],["中杯怡泉+C",1.5,false],["【美汁源】“黄金橙橙”",3,false]],
+  93:[["中薯条",0,true],["麦乐鸡5块",0,false],["麦辣鸡翅2块",0,false],["奥利奥麦旋风",0,false],["麦香鱼",7.5,false],["麦辣鸡腿汉堡",8.5,false]]
+};
+const MENU = [
+  {n:"一早现磨 超值二件套",role:"套餐",c:["人气热卖"],dp:["早餐"],p:{"早餐":14.9},o:{"早餐":29},t:["金奖豆","现磨"],combo:1,def:["吉士蛋麦满分","麦咖啡™冰美式中杯"]},
+  {n:"厚松饼猪柳蛋堡三件套",role:"套餐",c:["人气热卖"],dp:["早餐"],p:{"早餐":17.94},o:{"早餐":29.9},t:["早餐卡专享价"],combo:1,def:["枫糖风味厚松饼猪柳蛋堡","脆薯饼","鲜萃冰咖"]},
+  {n:"猪柳蛋麦满分套餐",role:"套餐",c:["人气热卖"],dp:["早餐"],p:{"早餐":15.6},o:{"早餐":26},t:["早餐卡专享价","三件套","人气产品"],combo:1,def:["猪柳蛋麦满分","脆薯饼","鲜萃冰咖"]},
+  {n:"芝芝火腿扒堡套餐",role:"套餐",c:["人气热卖"],dp:["早餐"],p:{"早餐":11.4},o:{"早餐":19},t:["早餐卡专享价"],combo:1,def:["芝芝火腿扒堡","脆薯饼","鲜萃冰咖"]},
+  {n:"芝芝火腿扒堡组合",role:"套餐",c:["人气热卖"],dp:["早餐"],p:{"早餐":9.9},t:["人气产品","超值早餐"],combo:1,def:["芝芝火腿扒堡","鲜萃冰咖"]},
+  {n:"东南亚风味椰香鸡扒堡",role:"主食",c:["超值早餐"],dp:["早餐"],p:{"早餐":13},t:["新品上市"]},
+  {n:"东南亚风味椰香鸡扒堡套餐",role:"套餐",c:["超值早餐"],dp:["早餐"],p:{"早餐":11.4},o:{"早餐":19},t:["早餐卡专享价"],combo:1,def:["东南亚风味椰香鸡扒堡","脆薯饼","鲜萃冰咖"]},
+  {n:"东南亚风味椰香鸡扒堡组合",role:"套餐",c:["超值早餐"],dp:["早餐"],p:{"早餐":9.9},t:["超值早餐"],combo:1,def:["东南亚风味椰香鸡扒堡","鲜萃冰咖"]},
+  {n:"芝芝火腿扒堡",role:"主食",c:["超值早餐"],dp:["早餐"],p:{"早餐":13},t:["人气产品"]},
+  {n:"原味板烧鸡腿炒双蛋堡组合",role:"套餐",c:["6折起早餐卡专区"],dp:["早餐"],p:{"早餐":13.2},o:{"早餐":22},t:["二件套"],combo:1,def:["原味板烧鸡腿炒双蛋堡","鲜萃冰咖"]},
+  {n:"原味板烧鸡腿麦满分组合",role:"套餐",c:["6折起早餐卡专区"],dp:["早餐"],p:{"早餐":11.1},o:{"早餐":18.5},t:["二件套"],combo:1,def:["鲜萃冰咖","原味板烧鸡腿麦满分"]},
+  {n:"吉士蛋麦满分组合",role:"套餐",c:["6折起早餐卡专区"],dp:["早餐"],p:{"早餐":7.5},o:{"早餐":12.5},t:["二件套"],combo:1,def:["吉士蛋麦满分","鲜萃冰咖"]},
+  {n:"大脆鸡扒麦满分套餐",role:"套餐",c:["6折起早餐卡专区"],dp:["早餐"],p:{"早餐":10.8},o:{"早餐":18},t:["三件套"],combo:1,def:["大脆鸡扒麦满分","脆薯饼","鲜萃冰咖"]},
+  {n:"火腿扒早安营养卷组合",role:"套餐",c:["6折起早餐卡专区"],dp:["早餐"],p:{"早餐":11.4},o:{"早餐":19},t:["二件套"],combo:1,def:["火腿扒早安营养卷","鲜萃冰咖"]},
+  {n:"脆香油条组合",role:"套餐",c:["6折起早餐卡专区"],dp:["早餐"],p:{"早餐":6.6},o:{"早餐":11},combo:1,def:["脆香油条","鲜萃冰咖"]},
+  {n:"枫糖风味厚松饼猪柳堡",role:"主食",c:["厚松饼堡系列"],dp:["早餐"],p:{"早餐":18},t:["单品","咸甜美味"]},
+  {n:"枫糖风味厚松饼猪柳堡套餐",role:"套餐",c:["厚松饼堡系列"],dp:["早餐"],p:{"早餐":15.54},o:{"早餐":25.9},t:["三件套","咸甜美味"],combo:1,def:["枫糖风味厚松饼猪柳堡","脆薯饼","鲜萃冰咖"]},
+  {n:"枫糖风味厚松饼猪柳堡组合",role:"套餐",c:["厚松饼堡系列"],dp:["早餐"],p:{"早餐":12.9},o:{"早餐":21.5},t:["二件套","咸甜美味"],combo:1,def:["枫糖风味厚松饼猪柳堡","鲜萃冰咖"]},
+  {n:"枫糖风味厚松饼猪柳蛋堡",role:"主食",c:["厚松饼堡系列"],dp:["早餐"],p:{"早餐":22},t:["单品","咸甜美味"]},
+  {n:"枫糖风味厚松饼猪柳蛋堡套餐",role:"套餐",c:["厚松饼堡系列"],dp:["早餐"],p:{"早餐":17.94},o:{"早餐":29.9},t:["三件套","早餐卡专享价"],combo:1,def:["枫糖风味厚松饼猪柳蛋堡","脆薯饼","鲜萃冰咖"]},
+  {n:"枫糖风味厚松饼猪柳蛋堡组合",role:"套餐",c:["厚松饼堡系列"],dp:["早餐"],p:{"早餐":15.3},o:{"早餐":25.5},t:["二件套","咸甜美味"],combo:1,def:["枫糖风味厚松饼猪柳蛋堡","鲜萃冰咖"]},
+  {n:"北非蛋风味猪柳蛋麦满分",role:"主食",c:["麦满分系列"],dp:["早餐"],p:{"早餐":22},t:["单品","人气回归（图片）"]},
+  {n:"北非蛋风味猪柳蛋麦满分套餐",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":18},o:{"早餐":30},t:["三件套","早餐卡专享价"],combo:1,def:["北非蛋风味猪柳蛋麦满分","脆薯饼","鲜萃冰咖"]},
+  {n:"北非蛋风味猪柳蛋麦满分组合",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":15.3},o:{"早餐":25.5},t:["二件套","人气回归（图片）"],combo:1,def:["北非蛋风味猪柳蛋麦满分","鲜萃冰咖"]},
+  {n:"北非蛋风味脆鸡排麦满分",role:"主食",c:["麦满分系列"],dp:["早餐"],p:{"早餐":20.5},t:["单品","新品上市（图片）"]},
+  {n:"北非蛋风味脆鸡排麦满分套餐",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":17.1},o:{"早餐":28.5},t:["三件套","早餐卡专享价"],combo:1,def:["北非蛋风味脆鸡排麦满分","脆薯饼","鲜萃冰咖"]},
+  {n:"北非蛋风味脆鸡排麦满分组合",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":14.4},o:{"早餐":24},t:["二件套","新品上市（图片）"],combo:1,def:["北非蛋风味脆鸡排麦满分","鲜萃冰咖"]},
+  {n:"北非蛋风味麦满分",role:"主食",c:["麦满分系列"],dp:["早餐"],p:{"早餐":18},t:["单品","人气回归（图片）"]},
+  {n:"北非蛋风味麦满分套餐",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":15.6},o:{"早餐":26},t:["三件套","早餐卡专享价"],combo:1,def:["北非蛋风味麦满分","脆薯饼","鲜萃冰咖"]},
+  {n:"北非蛋风味麦满分组合",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":12.9},o:{"早餐":21.5},t:["二件套","人气回归（图片）"],combo:1,def:["北非蛋风味麦满分","鲜萃冰咖"]},
+  {n:"原味板烧鸡腿麦满分",role:"主食",c:["麦满分系列"],dp:["早餐"],p:{"早餐":15},sc:"主食",t:["单品"]},
+  {n:"原味板烧鸡腿麦满分套餐",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":13.8},o:{"早餐":23},t:["三件套","早餐卡专享价"],combo:1,def:["原味板烧鸡腿麦满分","脆薯饼","鲜萃冰咖"]},
+  {n:"双层原味板烧鸡腿麦满分",role:"主食",c:["麦满分系列"],dp:["早餐"],p:{"早餐":19},sc:"主食",t:["单品"]},
+  {n:"双层原味板烧鸡腿麦满分套餐",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":16.2},o:{"早餐":27},t:["三件套"],combo:1,def:["双层原味板烧鸡腿麦满分","脆薯饼","鲜萃冰咖"]},
+  {n:"双层原味板烧鸡腿麦满分组合",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":13.5},o:{"早餐":22.5},t:["二件套"],combo:1,def:["鲜萃冰咖","双层原味板烧鸡腿麦满分"]},
+  {n:"双层猪柳蛋麦满分",role:"主食",c:["麦满分系列"],dp:["早餐"],p:{"早餐":21},sc:"主食",t:["单品"]},
+  {n:"吉士蛋麦满分",role:"主食",c:["麦满分系列"],dp:["早餐"],p:{"早餐":10},t:["单品"]},
+  {n:"吉士蛋麦满分套餐",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":10.2},o:{"早餐":17},t:["三件套"],combo:1,def:["吉士蛋麦满分","脆薯饼","鲜萃冰咖"]},
+  {n:"大脆鸡扒麦满分",role:"主食",c:["麦满分系列"],dp:["早餐"],p:{"早餐":11},sc:"主食",t:["单品"]},
+  {n:"大脆鸡扒麦满分组合",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":8.1},o:{"早餐":13.5},t:["二件套"],combo:1,def:["大脆鸡扒麦满分","鲜萃冰咖"]},
+  {n:"火腿扒麦满分",role:"主食",c:["麦满分系列"],dp:["早餐"],p:{"早餐":11},sc:"主食",t:["单品"]},
+  {n:"火腿扒麦满分套餐",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":10.8},o:{"早餐":18},t:["三件套"],combo:1,def:["火腿扒麦满分","脆薯饼","鲜萃冰咖"]},
+  {n:"火腿扒麦满分组合",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":8.1},o:{"早餐":13.5},t:["二件套"],combo:1,def:["火腿扒麦满分","鲜萃冰咖"]},
+  {n:"猪柳蛋麦满分",role:"主食",c:["麦满分系列"],dp:["早餐"],p:{"早餐":18},sc:"主食",t:["单品","人气产品"]},
+  {n:"猪柳蛋麦满分组合",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":12.9},o:{"早餐":21.5},t:["二件套","人气产品"],combo:1,def:["鲜萃冰咖","猪柳蛋麦满分"]},
+  {n:"猪柳麦满分",role:"主食",c:["麦满分系列"],dp:["早餐"],p:{"早餐":14},sc:"主食",t:["单品"]},
+  {n:"猪柳麦满分套餐",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":13.2},o:{"早餐":22},t:["三件套"],combo:1,def:["猪柳麦满分","脆薯饼","鲜萃冰咖"]},
+  {n:"猪柳麦满分组合",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":10.5},o:{"早餐":17.5},t:["二件套"],combo:1,def:["猪柳麦满分","鲜萃冰咖"]},
+  {n:"精选麦满分套餐",role:"套餐",c:["麦满分系列"],dp:["早餐"],p:{"早餐":15.6},o:{"早餐":26},t:["麦金卡同享"],combo:1,def:["猪柳蛋麦满分","脆薯饼","鲜萃冰咖"]},
+  {n:"原味板烧鸡腿炒双蛋堡",role:"主食",c:["炒双蛋堡系列"],dp:["早餐"],p:{"早餐":18.5},sc:"主食",t:["单品"]},
+  {n:"原味板烧鸡腿炒双蛋堡套餐",role:"套餐",c:["炒双蛋堡系列"],dp:["早餐"],p:{"早餐":15.9},o:{"早餐":26.5},t:["三件套"],combo:1,def:["原味板烧鸡腿炒双蛋堡","脆薯饼","鲜萃冰咖"]},
+  {n:"猪柳炒双蛋堡",role:"主食",c:["炒双蛋堡系列"],dp:["早餐"],p:{"早餐":18.5},sc:"主食",t:["单品"]},
+  {n:"猪柳炒双蛋堡套餐",role:"套餐",c:["炒双蛋堡系列"],dp:["早餐"],p:{"早餐":15.9},o:{"早餐":26.5},t:["三件套"],combo:1,def:["猪柳炒双蛋堡","脆薯饼","鲜萃冰咖"]},
+  {n:"猪柳炒双蛋堡组合",role:"套餐",c:["炒双蛋堡系列"],dp:["早餐"],p:{"早餐":13.2},o:{"早餐":22},t:["二件套"],combo:1,def:["猪柳炒双蛋堡","鲜萃冰咖"]},
+  {n:"图林根香肠早安营养卷",role:"主食",c:["早安营养卷"],dp:["早餐"],p:{"早餐":16.5},sc:"主食",t:["单品"]},
+  {n:"图林根香肠早安营养卷套餐",role:"套餐",c:["早安营养卷"],dp:["早餐"],p:{"早餐":14.7},o:{"早餐":24.5},t:["三件套"],combo:1,def:["图林根香肠早安营养卷","脆香油条","鲜萃冰咖"]},
+  {n:"图林根香肠早安营养卷组合",role:"套餐",c:["早安营养卷"],dp:["早餐"],p:{"早餐":12},o:{"早餐":20},t:["二件套"],combo:1,def:["图林根香肠早安营养卷","鲜萃冰咖"]},
+  {n:"火腿扒早安营养卷",role:"主食",c:["早安营养卷"],dp:["早餐"],p:{"早餐":15.5},sc:"主食",t:["单品"]},
+  {n:"火腿扒早安营养卷套餐",role:"套餐",c:["早安营养卷"],dp:["早餐"],p:{"早餐":14.1},o:{"早餐":23.5},t:["三件套"],combo:1,def:["火腿扒早安营养卷","脆香油条","鲜萃冰咖"]},
+  {n:"德式图林根香肠",role:"小食",c:["小食甜品/其他"],dp:["早餐"],p:{"早餐":9.5},sc:"小食",t:["小食"]},
+  {n:"脆香油条",role:"小食",c:["小食甜品/其他"],dp:["早餐"],p:{"早餐":8.5},sc:"小食",t:["小食"]},
+  {n:"脆香油条豆浆组合",role:"套餐",c:["小食甜品/其他"],dp:["早餐"],p:{"早餐":17.5},t:["小食"],combo:1,def:["脆香油条","优品豆浆大杯"]},
+  {n:"优品豆浆",role:"饮品",c:["饮品"],dp:["早餐"],p:{"早餐":9.5},t:["热饮"]},
+  {n:"冰牛奶中杯",role:"饮品",c:["饮品"],dp:["早餐"],p:{"早餐":19},sc:"饮品",t:["冷饮"]},
+  {n:"麦咖啡™热奶铁中杯",role:"饮品",c:["饮品"],dp:["早餐"],p:{"早餐":13.9},sc:"饮品",o:{"早餐":21},t:["热饮","更奶更浓"]},
+  {n:"麦咖啡™热美式中杯",role:"饮品",c:["饮品"],dp:["早餐"],p:{"早餐":11.9},sc:"饮品",o:{"早餐":19},t:["热饮"]},
+  {n:"“我就喜欢”鸡薯双全盒",role:"套餐",c:["人气热卖"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":15.9,"随便吃吃":15.9,"晚餐":15.9,"宵夜":15.9},o:{"午餐":30,"随便吃吃":30,"晚餐":30,"宵夜":30},t:["心形薯饼同款比心","上新"],combo:1,def:["5块心形薯饼","韩式辣椒黄油风味酱","5块麦乐鸡"]},
+  {n:"全明星双人分享餐八件套",role:"套餐",c:["人气热卖","小食拼盘/多人餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":49.9,"随便吃吃":49.9,"晚餐":49.9,"宵夜":49.9},o:{"午餐":116.5,"随便吃吃":116.5,"晚餐":116.5,"宵夜":116.5},t:["麦金卡"],combo:1,def:["麦辣鸡腿汉堡","板烧鸡腿堡","麦乐鸡4块","麦辣鸡翅2块","中薯条","可乐中杯"]},
+  {n:"精选单人餐三件套",role:"套餐",c:["人气热卖"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":35,"随便吃吃":35,"晚餐":35,"宵夜":35},o:{"午餐":47.5,"随便吃吃":47.5,"晚餐":47.5,"宵夜":47.5},t:["爆款","经典精选"],combo:1,def:["板烧鸡腿堡","中薯条","可乐中杯"]},
+  {n:"蓝莓爆爆珠麦旋风",role:"甜品",c:["小食甜品/其他","人气热卖"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":15.5,"午餐":15.5,"随便吃吃":15.5,"晚餐":15.5,"宵夜":15.5},t:["上新","蓝莓"]},
+  {n:"麦咖啡™奶铁",role:"饮品",c:["人气热卖","麦咖啡™"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":13.9,"午餐":9.9,"随便吃吃":9.9,"晚餐":9.9,"宵夜":13.9},sc:"饮品",o:{"早餐":21,"午餐":21,"随便吃吃":21,"晚餐":21,"宵夜":21},t:["更奶更浓","限定特惠","冷饮"]},
+  {n:"麦咖啡™美式",role:"饮品",c:["麦咖啡™","人气热卖"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":11.9,"午餐":9.9,"随便吃吃":9.9,"晚餐":9.9,"宵夜":11.9},o:{"早餐":19,"午餐":19,"随便吃吃":19,"晚餐":19,"宵夜":19},t:["限定特惠","冷饮"]},
+  {n:"龙焰芝士棒鸡腿堡三件套",role:"套餐",c:["人气热卖"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":29.9,"随便吃吃":29.9,"晚餐":29.9,"宵夜":29.9},o:{"午餐":52,"随便吃吃":52,"晚餐":52,"宵夜":52},t:["浓郁奶香拉丝芝士","上新"],combo:1,def:["龙焰芝士棒鸡腿堡","中薯条","可乐中杯"]},
+  {n:"龙焰鸡腿堡三件套",role:"套餐",c:["人气热卖"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":26.9,"随便吃吃":26.9,"晚餐":26.9,"宵夜":26.9},o:{"午餐":49,"随便吃吃":49,"晚餐":49,"宵夜":49},t:["韩式辣椒黄油风味","上新"],combo:1,def:["龙焰鸡腿堡","中薯条","可乐中杯"]},
+  {n:"人气超值四件套随心选",role:"套餐",c:["精选单人餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":28,"随便吃吃":28,"晚餐":28,"宵夜":28},o:{"午餐":58,"随便吃吃":58,"晚餐":58,"宵夜":58},t:["麦金卡"],combo:1,def:["麦辣鸡腿汉堡","中薯条","麦乐鸡4块","可乐中杯"]},
+  {n:"安格斯厚牛堡四件套随心选",role:"套餐",c:["精选单人餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":37,"随便吃吃":37,"晚餐":37,"宵夜":37},o:{"午餐":66.5,"随便吃吃":66.5,"晚餐":66.5,"宵夜":66.5},t:["麦金卡"],combo:1,def:["芝士安格斯厚牛堡","中薯条","麦乐鸡4块","可乐中杯"]},
+  {n:"鱼牛汉堡四件套随心选",role:"套餐",c:["精选单人餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":32,"随便吃吃":32,"晚餐":32,"宵夜":32},o:{"午餐":59.5,"随便吃吃":59.5,"晚餐":59.5,"宵夜":59.5},t:["麦金卡"],combo:1,def:["巨无霸","中薯条","麦乐鸡4块","可乐中杯"]},
+  {n:"板烧鸡腿堡",role:"主食",c:["鸡肉汉堡/卷"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":24,"随便吃吃":24,"晚餐":24,"宵夜":24},sc:"主食",t:["单品","板烧滋滋","多汁惹味"]},
+  {n:"板烧鸡腿堡三件套",role:"套餐",c:["鸡肉汉堡/卷"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":35,"随便吃吃":35,"晚餐":35,"宵夜":35},o:{"午餐":48.5,"随便吃吃":48.5,"晚餐":48.5,"宵夜":48.5},t:["套餐","新升级","更多汁"],combo:1,def:["板烧鸡腿堡","中薯条","可乐中杯"]},
+  {n:"板烧鸡腿堡四件套",role:"套餐",c:["鸡肉汉堡/卷"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":28,"随便吃吃":28,"晚餐":28,"宵夜":28},o:{"午餐":58,"随便吃吃":58,"晚餐":58,"宵夜":58},t:["麦金卡"],combo:1,def:["板烧鸡腿堡","中薯条","麦乐鸡4块","可乐中杯"]},
+  {n:"鸡肉堡单品精选",role:"主食",c:["鸡肉汉堡/卷"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":24,"随便吃吃":24,"晚餐":24,"宵夜":24},t:["单品","人气"]},
+  {n:"麦辣鸡腿堡四件套",role:"套餐",c:["鸡肉汉堡/卷"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":28,"随便吃吃":28,"晚餐":28,"宵夜":28},o:{"午餐":58,"随便吃吃":58,"晚餐":58,"宵夜":58},t:["麦金卡"],combo:1,def:["麦辣鸡腿汉堡","中薯条","麦乐鸡4块","可乐中杯"]},
+  {n:"麦辣鸡腿汉堡",role:"主食",c:["鸡肉汉堡/卷"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":23,"随便吃吃":23,"晚餐":23,"宵夜":23},sc:"主食",t:["单品","人气经典","外酥里嫩"]},
+  {n:"麦辣鸡腿汉堡三件套",role:"套餐",c:["鸡肉汉堡/卷"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":34,"随便吃吃":34,"晚餐":34,"宵夜":34},o:{"午餐":47.5,"随便吃吃":47.5,"晚餐":47.5,"宵夜":47.5},t:["套餐","立省10.5元起"],combo:1,def:["麦辣鸡腿汉堡","中薯条","可乐中杯"]},
+  {n:"麦香鸡",role:"小食",c:["鸡肉汉堡/卷"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":16.5,"随便吃吃":16.5,"晚餐":16.5,"宵夜":16.5},sc:"主食",t:["单品"]},
+  {n:"麦香鸡套餐",role:"套餐",c:["鸡肉汉堡/卷"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":27.5,"随便吃吃":27.5,"晚餐":27.5,"宵夜":27.5},o:{"午餐":41,"随便吃吃":41,"晚餐":41,"宵夜":41},t:["套餐","立省10.5元起"],combo:1,def:["麦香鸡","中薯条","可乐中杯"]},
+  {n:"龙焰芝士棒鸡腿堡",role:"主食",c:["鸡肉汉堡/卷"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":27.5,"随便吃吃":27.5,"晚餐":27.5,"宵夜":27.5},t:["上新","浓郁奶香拉丝芝士"]},
+  {n:"龙焰芝士棒鸡腿堡四件套",role:"套餐",c:["鸡肉汉堡/卷"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":32,"随便吃吃":32,"晚餐":32,"宵夜":32},o:{"午餐":58,"随便吃吃":58,"晚餐":58,"宵夜":58},t:["麦金卡"],combo:1,def:["龙焰芝士棒鸡腿堡","中薯条","麦乐鸡4块","可乐中杯"]},
+  {n:"龙焰鸡腿堡",role:"主食",c:["鸡肉汉堡/卷"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":24.5,"随便吃吃":24.5,"晚餐":24.5,"宵夜":24.5},t:["上新","韩式辣椒黄油风味"]},
+  {n:"龙焰鸡腿堡四件套",role:"套餐",c:["鸡肉汉堡/卷"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":29,"随便吃吃":29,"晚餐":29,"宵夜":29},o:{"午餐":58,"随便吃吃":58,"晚餐":58,"宵夜":58},t:["麦金卡"],combo:1,def:["龙焰鸡腿堡","中薯条","麦乐鸡4块","可乐中杯"]},
+  {n:"BFF四宫格小食盘",role:"套餐",c:["小食拼盘/多人餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":40.3,"随便吃吃":40.3,"晚餐":40.3,"宵夜":40.3},o:{"午餐":54.5,"随便吃吃":54.5,"晚餐":54.5,"宵夜":54.5},t:["小食拼盘","随心拼"],combo:1,def:["麦辣鸡翅-2块","小薯条"]},
+  {n:"BFF四宫格小食盘双人餐",role:"套餐",c:["小食拼盘/多人餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":62.9,"随便吃吃":62.9,"晚餐":62.9,"宵夜":62.9},o:{"午餐":124.5,"随便吃吃":124.5,"晚餐":124.5,"宵夜":124.5},t:["麦金卡"],combo:1,def:["麦辣鸡腿汉堡","板烧鸡腿堡","中薯条","麦乐鸡-5块","薄皮焦香V翅","可乐中杯"]},
+  {n:"堡堡随心拼（7件任选）",role:"套餐",c:["小食拼盘/多人餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":73,"随便吃吃":73,"晚餐":73,"宵夜":73},o:{"午餐":103,"随便吃吃":103,"晚餐":103,"宵夜":103},t:["小食拼盘","万种组合"],combo:1,def:["麦辣鸡腿汉堡","麦辣鸡翅2块","可乐中杯"]},
+  {n:"薄皮V翅双拼十翅",role:"小食",c:["小食拼盘/多人餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":49.9,"随便吃吃":49.9,"晚餐":49.9,"宵夜":49.9},o:{"午餐":74.5,"随便吃吃":74.5,"晚餐":74.5,"宵夜":74.5},t:["小食拼盘","超值"]},
+  {n:"韩式甜辣酱鸡块8块",role:"小食",c:["小食拼盘/多人餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":19.9,"随便吃吃":19.9,"晚餐":19.9,"宵夜":19.9},o:{"午餐":31,"随便吃吃":31,"晚餐":31,"宵夜":31},t:["上新","韩式风味"]},
+  {n:"人气经典随心配",role:"套餐",c:["随心配1+1"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":14.9,"随便吃吃":14.9,"晚餐":14.9,"宵夜":14.9},t:["超值百种组合随心配"],combo:1,def:["双层吉士汉堡","阳光柠檬红茶中杯"]},
+  {n:"精选超值随心配",role:"套餐",c:["随心配1+1"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":13.9,"随便吃吃":13.9,"晚餐":13.9,"宵夜":13.9},t:["超值百种组合随心配"],combo:1,def:["那么大鸡排（椒盐风味）","阳光柠檬红茶中杯"]},
+  {n:"大堡口福三件套",role:"套餐",c:["大堡口福单人餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":22.9,"随便吃吃":22.9,"晚餐":22.9,"宵夜":22.9},o:{"午餐":48.5,"随便吃吃":48.5,"晚餐":48.5,"宵夜":48.5},t:["大口吃肉好快乐"],combo:1,def:["Hold不住鸡排堡（椒盐风味）","中薯条","可乐中杯"]},
+  {n:"不素之霸双层牛堡",role:"主食",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":26.5,"随便吃吃":26.5,"晚餐":26.5,"宵夜":26.5},sc:"主食",t:["单品","100%纯牛肉"]},
+  {n:"不素之霸双层牛堡三件套",role:"套餐",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":37.5,"随便吃吃":37.5,"晚餐":37.5,"宵夜":37.5},o:{"午餐":51,"随便吃吃":51,"晚餐":51,"宵夜":51},t:["套餐","100%纯牛肉"],combo:1,def:["不素之霸双层牛堡","中薯条","可乐中杯"]},
+  {n:"不素之霸双层牛堡四件套",role:"套餐",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":32,"随便吃吃":32,"晚餐":32,"宵夜":32},o:{"午餐":59.5,"随便吃吃":59.5,"晚餐":59.5,"宵夜":59.5},t:["麦金卡"],combo:1,def:["不素之霸双层牛堡","中薯条","麦乐鸡4块","可乐中杯"]},
+  {n:"双层吉士汉堡",role:"主食",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":22.5,"随便吃吃":22.5,"晚餐":22.5,"宵夜":22.5},sc:"主食",t:["单品","100%纯牛肉"]},
+  {n:"双层吉士汉堡套餐",role:"套餐",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":33.5,"随便吃吃":33.5,"晚餐":33.5,"宵夜":33.5},o:{"午餐":47,"随便吃吃":47,"晚餐":47,"宵夜":47},t:["套餐","100%纯牛肉"],combo:1,def:["双层吉士汉堡","中薯条","可乐中杯"]},
+  {n:"双层深海鳕鱼堡",role:"主食",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":25,"随便吃吃":25,"晚餐":25,"宵夜":25},sc:"主食",t:["单品","麦香鱼系列"]},
+  {n:"双层深海鳕鱼堡三件套",role:"套餐",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":36,"随便吃吃":36,"晚餐":36,"宵夜":36},o:{"午餐":49.5,"随便吃吃":49.5,"晚餐":49.5,"宵夜":49.5},t:["套餐","麦香鱼系列"],combo:1,def:["原味双层深海鳕鱼堡","中薯条","可乐中杯"]},
+  {n:"双层深海鳕鱼堡四件套",role:"套餐",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":32,"随便吃吃":32,"晚餐":32,"宵夜":32},o:{"午餐":59.5,"随便吃吃":59.5,"晚餐":59.5,"宵夜":59.5},t:["麦金卡"],combo:1,def:["原味双层深海鳕鱼堡","中薯条","麦乐鸡4块","可乐中杯"]},
+  {n:"吉士汉堡包套餐",role:"套餐",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":26,"随便吃吃":26,"晚餐":26,"宵夜":26},o:{"午餐":39.5,"随便吃吃":39.5,"晚餐":39.5,"宵夜":39.5},t:["套餐","100%纯牛肉"],combo:1,def:["吉士汉堡包","中薯条","可乐中杯"]},
+  {n:"培根蔬萃双层牛堡",role:"主食",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":24.5,"随便吃吃":24.5,"晚餐":24.5,"宵夜":24.5},sc:"主食",t:["单品","100%纯牛肉"]},
+  {n:"培根蔬萃双层牛堡三件套",role:"套餐",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":35.5,"随便吃吃":35.5,"晚餐":35.5,"宵夜":35.5},o:{"午餐":49,"随便吃吃":49,"晚餐":49,"宵夜":49},t:["套餐","100%纯牛肉"],combo:1,def:["培根蔬萃双层牛堡","中薯条","可乐中杯"]},
+  {n:"培根蔬萃双层牛堡四件套",role:"套餐",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":32,"随便吃吃":32,"晚餐":32,"宵夜":32},o:{"午餐":59.5,"随便吃吃":59.5,"晚餐":59.5,"宵夜":59.5},t:["麦金卡"],combo:1,def:["培根蔬萃双层牛堡","中薯条","麦乐鸡4块","可乐中杯"]},
+  {n:"巨无霸",role:"主食",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":26.5,"随便吃吃":26.5,"晚餐":26.5,"宵夜":26.5},sc:"主食",t:["单品","100%纯牛肉"]},
+  {n:"巨无霸三件套",role:"套餐",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":37.5,"随便吃吃":37.5,"晚餐":37.5,"宵夜":37.5},o:{"午餐":51,"随便吃吃":51,"晚餐":51,"宵夜":51},t:["套餐","100%纯牛肉"],combo:1,def:["巨无霸","中薯条","可乐中杯"]},
+  {n:"巨无霸四件套",role:"套餐",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":32,"随便吃吃":32,"晚餐":32,"宵夜":32},o:{"午餐":59.5,"随便吃吃":59.5,"晚餐":59.5,"宵夜":59.5},t:["麦金卡"],combo:1,def:["巨无霸","中薯条","麦乐鸡4块","可乐中杯"]},
+  {n:"牛肉堡单品精选",role:"主食",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":14,"随便吃吃":14,"晚餐":14,"宵夜":14},t:["单品","100%纯牛肉"]},
+  {n:"高达吉士双牛堡",role:"主食",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":22.5,"随便吃吃":22.5,"晚餐":22.5,"宵夜":22.5},t:["单品","100%纯牛肉","人气"]},
+  {n:"麦香鱼",role:"主食",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":22,"随便吃吃":22,"晚餐":22,"宵夜":22},sc:"主食",t:["单品","麦香鱼系列"]},
+  {n:"麦香鱼套餐",role:"套餐",c:["巨无霸牛鱼肉堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":33,"随便吃吃":33,"晚餐":33,"宵夜":33},o:{"午餐":46.5,"随便吃吃":46.5,"晚餐":46.5,"宵夜":46.5},t:["套餐","麦香鱼系列"],combo:1,def:["麦香鱼","中薯条","可乐中杯"]},
+  {n:"培根安格斯厚牛堡",role:"主食",c:["安格斯MAX厚牛堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":34.5,"随便吃吃":34.5,"晚餐":34.5,"宵夜":34.5},sc:"主食",t:["单品","100%安格斯牛肉"]},
+  {n:"培根安格斯厚牛堡三件套",role:"套餐",c:["安格斯MAX厚牛堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":45.5,"随便吃吃":45.5,"晚餐":45.5,"宵夜":45.5},o:{"午餐":59,"随便吃吃":59,"晚餐":59,"宵夜":59},t:["套餐","100%安格斯牛肉"],combo:1,def:["培根安格斯厚牛堡","中薯条","可乐中杯"]},
+  {n:"培根安格斯厚牛堡四件套",role:"套餐",c:["安格斯MAX厚牛堡"],dp:["午餐","随便吃吃","晚餐"],p:{"午餐":37,"随便吃吃":37,"晚餐":37},o:{"午餐":66.5,"随便吃吃":66.5,"晚餐":66.5},t:["麦金卡"],combo:1,def:["培根安格斯厚牛堡","中薯条","麦乐鸡4块","可乐中杯"]},
+  {n:"芝士安格斯厚牛堡",role:"主食",c:["安格斯MAX厚牛堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":31.5,"随便吃吃":31.5,"晚餐":31.5,"宵夜":31.5},sc:"主食",t:["单品","100%安格斯牛肉"]},
+  {n:"芝士安格斯厚牛堡三件套",role:"套餐",c:["安格斯MAX厚牛堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":42.5,"随便吃吃":42.5,"晚餐":42.5,"宵夜":42.5},o:{"午餐":56,"随便吃吃":56,"晚餐":56,"宵夜":56},t:["套餐","100%安格斯牛肉"],combo:1,def:["芝士安格斯厚牛堡","中薯条","可乐中杯"]},
+  {n:"芝士安格斯厚牛堡四件套",role:"套餐",c:["安格斯MAX厚牛堡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":37,"随便吃吃":37,"晚餐":37,"宵夜":37},o:{"午餐":66.5,"随便吃吃":66.5,"晚餐":66.5,"宵夜":66.5},t:["麦金卡"],combo:1,def:["芝士安格斯厚牛堡","中薯条","麦乐鸡4块","可乐中杯"]},
+  {n:"薄皮焦香V翅",role:"小食",c:["炸鸡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":15.5,"随便吃吃":15.5,"晚餐":15.5,"宵夜":15.5},sc:"小食",t:["单品","人气"]},
+  {n:"那么大鸡排（椒盐风味）",role:"小食",c:["炸鸡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":14,"随便吃吃":14,"晚餐":14,"宵夜":14},sc:"小食",t:["单品"]},
+  {n:"麦乐鸡",role:"小食",c:["炸鸡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":14.5,"随便吃吃":14.5,"晚餐":14.5,"宵夜":14.5},t:["单品","人气"]},
+  {n:"麦乐鸡套餐",role:"套餐",c:["炸鸡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":25.5,"随便吃吃":25.5,"晚餐":25.5,"宵夜":25.5},o:{"午餐":39,"随便吃吃":39,"晚餐":39,"宵夜":39},t:["套餐","立省10.5元起"],combo:1,def:["麦乐鸡5块","中薯条","可乐中杯"]},
+  {n:"麦辣鸡翅",role:"小食",c:["炸鸡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":14.5,"随便吃吃":14.5,"晚餐":14.5,"宵夜":14.5},sc:"小食",t:["单品","黄金酥脆","鲜嫩多汁"]},
+  {n:"麦辣鸡翅4块套餐",role:"套餐",c:["炸鸡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":36.5,"随便吃吃":36.5,"晚餐":36.5,"宵夜":36.5},o:{"午餐":50,"随便吃吃":50,"晚餐":50,"宵夜":50},t:["套餐","立省10.5元起"],combo:1,def:["麦辣鸡翅4块","中薯条","可乐中杯"]},
+  {n:"麦麦脆汁鸡1块",role:"小食",c:["炸鸡"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":15,"随便吃吃":15,"晚餐":15,"宵夜":15},t:["单品"]},
+  {n:"圆筒冰淇淋",role:"甜品",c:["小食甜品/其他"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":5,"午餐":5,"随便吃吃":5,"晚餐":5,"宵夜":5},sc:"小食",t:["冰淇淋"]},
+  {n:"心形薯饼5块",role:"小食",c:["小食甜品/其他"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":15.5,"随便吃吃":15.5,"晚餐":15.5,"宵夜":15.5},t:["上新","口口酥脆","含一份蘸酱"]},
+  {n:"新地",role:"甜品",c:["小食甜品/其他"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":12,"午餐":12,"随便吃吃":12,"晚餐":12,"宵夜":12},t:["冰淇淋"]},
+  {n:"月下相思扭扭薯",role:"小食",c:["小食甜品/其他"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":16,"随便吃吃":16,"晚餐":16,"宵夜":16},t:["上新","口口酥脆","薯香十足"]},
+  {n:"泷愿成真麦旋风——大米风味",role:"甜品",c:["小食甜品/其他"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":15.5,"午餐":15.5,"随便吃吃":15.5,"晚餐":15.5,"宵夜":15.5},t:["上新","快乐旋开吃"]},
+  {n:"派",role:"甜品",c:["小食甜品/其他"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":8.5,"午餐":8.5,"随便吃吃":8.5,"晚餐":8.5,"宵夜":8.5},t:["派","第二份优惠"]},
+  {n:"灰焰圆筒",role:"甜品",c:["小食甜品/其他"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":5,"午餐":5,"随便吃吃":5,"晚餐":5,"宵夜":5},t:["上新","灰焰"]},
+  {n:"玉米杯",role:"小食",c:["小食甜品/其他"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":13,"午餐":13,"随便吃吃":13,"晚餐":13,"宵夜":13},t:["小食"]},
+  {n:"玫瑰红糖糍粑风味派",role:"甜品",c:["小食甜品/其他"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":10,"随便吃吃":10,"晚餐":10,"宵夜":5},o:{"宵夜":10},t:["上新","玫瑰花香"]},
+  {n:"经典麦旋风",role:"甜品",c:["小食甜品/其他"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":14.5,"午餐":14.5,"随便吃吃":14.5,"晚餐":14.5,"宵夜":14.5},t:["冰淇淋"]},
+  {n:"脆薯饼",role:"小食",c:["小食甜品/其他"],dp:["早餐","午餐","随便吃吃","晚餐"],p:{"早餐":8.5,"午餐":8.5,"随便吃吃":8.5,"晚餐":8.5},sc:"小食",t:["小食"]},
+  {n:"苹果片",role:"小食",c:["小食甜品/其他"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":7,"随便吃吃":7,"晚餐":7,"宵夜":7},sc:"小食",t:["小食"]},
+  {n:"薯条",role:"小食",c:["小食甜品/其他"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":14.5,"随便吃吃":14.5,"晚餐":14.5,"宵夜":14.5},t:["小食"]},
+  {n:"马苏里拉拉丝芝士条",role:"小食",c:["小食甜品/其他"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":16,"随便吃吃":16,"晚餐":16,"宵夜":11},o:{"宵夜":16},t:["上新","趁热拉丝","奶香醇厚"]},
+  {n:"汉堡开心乐园餐",role:"套餐",c:["开心乐园"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":23.5,"随便吃吃":23.5,"晚餐":23.5,"宵夜":23.5},t:["童年童款"],combo:1,def:["汉堡包","迷你薯条","小杯玉米杯","100%苹果汁","海绵宝宝×航海王系列玩具"]},
+  {n:"鱼排堡开心乐园餐",role:"套餐",c:["开心乐园"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":24,"随便吃吃":24,"晚餐":24,"宵夜":24},t:["童年童款"],combo:1,def:["鱼排堡","迷你薯条","小杯玉米杯","100%苹果汁","海绵宝宝×航海王系列玩具"]},
+  {n:"咖啡阿芙佳朵",role:"饮品",c:["麦咖啡™"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":15,"午餐":15,"随便吃吃":15,"晚餐":15,"宵夜":15},sc:"饮品",t:["麦咖啡™咖啡","冰淇淋"]},
+  {n:"浓浓燕麦黑巧（冰/热）",role:"饮品",c:["麦咖啡™"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":15.9,"午餐":23,"随便吃吃":23,"晚餐":23,"宵夜":15.9},o:{"早餐":23,"宵夜":23},t:["限定特惠","浓浓黑巧"]},
+  {n:"浓浓黑巧（冰/热）",role:"饮品",c:["麦咖啡™"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":13.9,"午餐":21,"随便吃吃":21,"晚餐":21,"宵夜":13.9},o:{"早餐":21,"宵夜":21},t:["限定特惠","浓浓黑巧"]},
+  {n:"燕麦奶",role:"饮品",c:["麦咖啡™"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":21,"午餐":21,"随便吃吃":21,"晚餐":21,"宵夜":21},t:["其他"]},
+  {n:"燕麦奶铁",role:"饮品",c:["麦咖啡™"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":9.9,"午餐":9.9,"随便吃吃":9.9,"晚餐":9.9,"宵夜":9.9},o:{"早餐":23,"午餐":23,"随便吃吃":23,"晚餐":23,"宵夜":23},t:["麦咖啡™咖啡"]},
+  {n:"牛奶",role:"饮品",c:["麦咖啡™"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":19,"午餐":19,"随便吃吃":19,"晚餐":19,"宵夜":19},sc:"饮品",t:["其他","热饮"]},
+  {n:"鲜萃咖啡",role:"饮品",c:["麦咖啡™"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":9.5,"午餐":9.5,"随便吃吃":9.5,"晚餐":9.5,"宵夜":9.5},t:["麦咖啡™咖啡","鲜萃咖啡","热饮"]},
+  {n:"“堡”你欢乐套餐",role:"套餐",c:["500大卡套餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":28,"随便吃吃":28,"晚餐":28,"宵夜":28},o:{"午餐":43,"随便吃吃":43,"晚餐":43,"宵夜":43},t:["粉丝之选"],combo:1,def:["汉堡包","麦乐鸡4块","苹果片一袋(60g)","无糖可口可乐中杯"]},
+  {n:"“苹”水相“鱼”套餐",role:"套餐",c:["500大卡套餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":36,"随便吃吃":36,"晚餐":36,"宵夜":36},o:{"午餐":53.5,"随便吃吃":53.5,"晚餐":53.5,"宵夜":53.5},t:["粉丝之选"],combo:1,def:["麦香鱼","小杯玉米杯","苹果片一袋(60g)","锡兰红茶"]},
+  {n:"“苹板”支撑Pro套餐",role:"套餐",c:["500大卡套餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":39.5,"随便吃吃":39.5,"晚餐":39.5,"宵夜":39.5},o:{"午餐":54,"随便吃吃":54,"晚餐":54,"宵夜":54},combo:1,def:["板烧鸡腿堡","小杯玉米杯","苹果片一袋(60g)","无糖可口可乐中杯"]},
+  {n:"“辣”么快乐套餐",role:"套餐",c:["500大卡套餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":24,"随便吃吃":24,"晚餐":24,"宵夜":24},o:{"午餐":36.5,"随便吃吃":36.5,"晚餐":36.5,"宵夜":36.5},combo:1,def:["麦辣鸡翅2块","麦乐鸡4块","无糖可口可乐中杯"]},
+  {n:"牛气满满套餐",role:"套餐",c:["500大卡套餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":34,"随便吃吃":34,"晚餐":34,"宵夜":34},o:{"午餐":47.5,"随便吃吃":47.5,"晚餐":47.5,"宵夜":47.5},combo:1,def:["培根蔬萃双层牛堡","小杯玉米杯","无糖可口可乐中杯"]},
+  {n:"酥脆无双套餐",role:"套餐",c:["500大卡套餐"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":20.5,"随便吃吃":20.5,"晚餐":20.5,"宵夜":20.5},combo:1,def:["麦麦脆汁鸡-琵琶腿","迷你薯条","无糖可口可乐中杯"]},
+  {n:"100% 苹果汁(盒装)",role:"饮品",c:["饮品"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":12,"午餐":12,"随便吃吃":12,"晚餐":12,"宵夜":12},sc:"饮品",t:["冷饮"]},
+  {n:"【美汁源】“多汁柠柠”",role:"饮品",c:["饮品"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":12,"午餐":12,"随便吃吃":12,"晚餐":12,"宵夜":12},t:["上新","清爽上新"]},
+  {n:"【美汁源】“黄金橙橙”",role:"饮品",c:["饮品"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":13,"午餐":13,"随便吃吃":13,"晚餐":13,"宵夜":13},sc:"饮品",t:["冷饮"]},
+  {n:"举杯邀月柚桂茶",role:"饮品",c:["饮品"],dp:["午餐","随便吃吃","晚餐","宵夜"],p:{"午餐":13,"随便吃吃":13,"晚餐":13,"宵夜":13},t:["上新","第二份半价","馥郁香气"]},
+  {n:"可乐",role:"饮品",c:["饮品"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":9.5,"午餐":9.5,"随便吃吃":9.5,"晚餐":9.5,"宵夜":9.5},t:["冷饮"]},
+  {n:"怡泉+C",role:"饮品",c:["饮品"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":11.5,"午餐":11.5,"随便吃吃":11.5,"晚餐":11.5,"宵夜":11.5},t:["冷饮"]},
+  {n:"锡兰红茶",role:"饮品",c:["饮品"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":11.5,"午餐":11.5,"随便吃吃":11.5,"晚餐":11.5,"宵夜":11.5},sc:"饮品",t:["热饮"]},
+  {n:"阳光柠檬红茶",role:"饮品",c:["饮品"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":9.5,"午餐":9.5,"随便吃吃":9.5,"晚餐":9.5,"宵夜":9.5},t:["冷饮"]},
+  {n:"雪碧",role:"饮品",c:["饮品"],dp:["早餐","午餐","随便吃吃","晚餐","宵夜"],p:{"早餐":9.5,"午餐":9.5,"随便吃吃":9.5,"晚餐":9.5,"宵夜":9.5},t:["冷饮"]},
+  {n:"龙焰美味四件套",role:"套餐",c:["人气热卖"],dp:["宵夜"],p:{"宵夜":29},o:{"宵夜":58},combo:1,def:["龙焰鸡腿堡","中薯条","麦乐鸡4块","可乐中杯"]},
+  {n:"学生专享汉堡小食随心选",role:"套餐",c:["鸡肉汉堡/卷"],dp:["宵夜"],p:{"宵夜":28},t:["套餐"],combo:1,def:["中薯条"]},
+  {n:"学生专享饮品随心选",role:"套餐",c:["饮品"],dp:["宵夜"],p:{"宵夜":10},t:["冷饮"],combo:1,def:["可乐中杯"]}
+];
+const ROUNDS = {
+  "大脆鸡扒麦满分组合":[
+    {name:"大脆鸡扒麦满分",cat:"主食",min:1,max:1,l:0},
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:1}
+  ],
+  "图林根香肠早安营养卷组合":[
+    {name:"图林根香肠早安营养卷",cat:"主食",min:1,max:1,l:2},
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:3}
+  ],
+  "火腿扒早安营养卷组合":[
+    {name:"火腿扒早安营养卷",cat:"主食",min:1,max:1,l:4},
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:3}
+  ],
+  "双层原味板烧鸡腿麦满分组合":[
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:3},
+    {name:"双层原味板烧鸡腿麦满分",cat:"主食",min:1,max:1,l:5}
+  ],
+  "猪柳炒双蛋堡组合":[
+    {name:"猪柳炒双蛋堡",cat:"主食",min:1,max:1,l:6},
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:3}
+  ],
+  "图林根香肠早安营养卷套餐":[
+    {name:"图林根香肠早安营养卷",cat:"主食",min:1,max:1,l:2},
+    {name:"选择早餐小食",cat:"小食",min:1,max:1,l:7},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "原味板烧鸡腿炒双蛋堡组合":[
+    {name:"原味板烧鸡腿炒双蛋堡",cat:"主食",min:1,max:1,l:9},
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:3}
+  ],
+  "火腿扒早安营养卷套餐":[
+    {name:"火腿扒早安营养卷",cat:"主食",min:1,max:1,l:4},
+    {name:"选择早餐小食",cat:"小食",min:1,max:1,l:7},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "猪柳麦满分组合":[
+    {name:"猪柳麦满分",cat:"主食",min:1,max:1,l:10},
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:3}
+  ],
+  "原味板烧鸡腿炒双蛋堡套餐":[
+    {name:"原味板烧鸡腿炒双蛋堡",cat:"主食",min:1,max:1,l:9},
+    {name:"选择早餐套餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "猪柳炒双蛋堡套餐":[
+    {name:"猪柳炒双蛋堡",cat:"主食",min:1,max:1,l:6},
+    {name:"选择早餐套餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "东南亚风味椰香鸡扒堡组合":[
+    {name:"东南亚风味椰香鸡扒堡",cat:"主食",min:1,max:1,l:12},
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:3}
+  ],
+  "东南亚风味椰香鸡扒堡套餐":[
+    {name:"东南亚风味椰香鸡扒堡",cat:"主食",min:1,max:1,l:12},
+    {name:"选择早餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "北非蛋风味猪柳蛋麦满分套餐":[
+    {name:"北非蛋风味猪柳蛋麦满分",cat:"主食",min:1,max:1,l:13},
+    {name:"选择早餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "北非蛋风味脆鸡排麦满分套餐":[
+    {name:"北非蛋风味脆鸡排麦满分",cat:"主食",min:1,max:1,l:14},
+    {name:"选择早餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "北非蛋风味猪柳蛋麦满分组合":[
+    {name:"北非蛋风味猪柳蛋麦满分",cat:"主食",min:1,max:1,l:13},
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:3}
+  ],
+  "枫糖风味厚松饼猪柳堡组合":[
+    {name:"枫糖风味厚松饼猪柳堡",cat:"主食",min:1,max:1,l:15},
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:3}
+  ],
+  "枫糖风味厚松饼猪柳蛋堡组合":[
+    {name:"枫糖风味厚松饼猪柳蛋堡",cat:"主食",min:1,max:1,l:16},
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:3}
+  ],
+  "吉士蛋麦满分组合":[
+    {name:"吉士蛋麦满分",cat:"主食",min:1,max:1,l:17},
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:18}
+  ],
+  "脆香油条组合":[
+    {name:"脆香油条",cat:"小食",min:1,max:1,l:19},
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:3}
+  ],
+  "吉士蛋麦满分套餐":[
+    {name:"吉士蛋麦满分",cat:"主食",min:1,max:1,l:17},
+    {name:"选择早餐套餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "大脆鸡扒麦满分套餐":[
+    {name:"大脆鸡扒麦满分",cat:"主食",min:1,max:1,l:0},
+    {name:"选择早餐套餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "北非蛋风味麦满分套餐":[
+    {name:"北非蛋风味麦满分",cat:"主食",min:1,max:1,l:20},
+    {name:"选择早餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "原味板烧鸡腿麦满分组合":[
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:3},
+    {name:"原味板烧鸡腿麦满分",cat:"主食",min:1,max:1,l:21}
+  ],
+  "猪柳蛋麦满分组合":[
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:3},
+    {name:"猪柳蛋麦满分",cat:"主食",min:1,max:1,l:22}
+  ],
+  "北非蛋风味脆鸡排麦满分组合":[
+    {name:"北非蛋风味脆鸡排麦满分",cat:"主食",min:1,max:1,l:14},
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:3}
+  ],
+  "芝芝火腿扒堡套餐":[
+    {name:"芝芝火腿扒堡",cat:"主食",min:1,max:1,l:23},
+    {name:"选择早餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "厚松饼猪柳蛋堡三件套":[
+    {name:"选择主食",cat:"主食",min:1,max:1,l:16},
+    {name:"选择早餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "北非蛋风味麦满分组合":[
+    {name:"北非蛋风味麦满分",cat:"主食",min:1,max:1,l:20},
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:3}
+  ],
+  "芝芝火腿扒堡组合":[
+    {name:"芝芝火腿扒堡",cat:"主食",min:1,max:1,l:23},
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:3}
+  ],
+  "精选麦满分套餐":[
+    {name:"猪柳蛋麦满分",cat:"主食",min:1,max:1,l:22},
+    {name:"选择早餐套餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "一早现磨 超值二件套":[
+    {name:"选择早餐主食",cat:"主食",min:1,max:1,l:24},
+    {name:"选择麦咖啡饮品",cat:"饮品",min:1,max:1,l:25}
+  ],
+  "枫糖风味厚松饼猪柳堡套餐":[
+    {name:"枫糖风味厚松饼猪柳堡",cat:"主食",min:1,max:1,l:15},
+    {name:"选择早餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "脆香油条豆浆组合":[
+    {name:"脆香油条",cat:"小食",min:2,max:2,l:19},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:26}
+  ],
+  "枫糖风味厚松饼猪柳蛋堡套餐":[
+    {name:"枫糖风味厚松饼猪柳蛋堡",cat:"主食",min:1,max:1,l:16},
+    {name:"选择早餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "火腿扒麦满分套餐":[
+    {name:"火腿扒麦满分",cat:"主食",min:1,max:1,l:27},
+    {name:"选择早餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "火腿扒麦满分组合":[
+    {name:"火腿扒麦满分",cat:"主食",min:1,max:1,l:27},
+    {name:"选择早餐组合饮料",cat:"饮品",min:1,max:1,l:1}
+  ],
+  "双层原味板烧鸡腿麦满分套餐":[
+    {name:"双层原味板烧鸡腿麦满分",cat:"主食",min:1,max:1,l:5},
+    {name:"选择早餐套餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "猪柳蛋麦满分套餐":[
+    {name:"猪柳蛋麦满分",cat:"主食",min:1,max:1,l:22},
+    {name:"选择早餐套餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "原味板烧鸡腿麦满分套餐":[
+    {name:"原味板烧鸡腿麦满分",cat:"主食",min:1,max:1,l:21},
+    {name:"选择早餐套餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "猪柳麦满分套餐":[
+    {name:"猪柳麦满分",cat:"主食",min:1,max:1,l:10},
+    {name:"选择早餐套餐小食",cat:"小食",min:1,max:1,l:11},
+    {name:"选择早餐套餐饮料",cat:"饮品",min:1,max:1,l:8}
+  ],
+  "麦辣鸡腿汉堡三件套":[
+    {name:"麦辣鸡腿汉堡",cat:"主食",min:1,max:1,l:28},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "全明星双人分享餐八件套":[
+    {name:"选择汉堡",cat:"主食",min:1,max:1,l:28},
+    {name:"选择主食",cat:"主食",min:1,max:1,l:31},
+    {name:"选择小食",cat:"小食",min:1,max:1,l:32},
+    {name:"选择小食",cat:"小食",min:1,max:1,l:33},
+    {name:"选择小食",cat:"小食",min:2,max:2,l:34},
+    {name:"选择套餐内饮料",cat:"饮品",min:2,max:2,l:35}
+  ],
+  "“我就喜欢”鸡薯双全盒":[
+    {name:"5块心形薯饼(不含酱)",cat:"小食",min:1,max:1,l:36},
+    {name:"韩式辣椒黄油风味酱",cat:"非食品",min:1,max:1,l:37},
+    {name:"5块麦乐鸡",cat:"小食",min:1,max:1,l:38}
+  ],
+  "龙焰芝士棒鸡腿堡三件套":[
+    {name:"龙焰芝士棒鸡腿堡",cat:"主食",min:1,max:1,l:39},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "龙焰鸡腿堡三件套":[
+    {name:"龙焰鸡腿堡",cat:"主食",min:1,max:1,l:40},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "麦香鱼套餐":[
+    {name:"麦香鱼",cat:"主食",min:1,max:1,l:41},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "板烧鸡腿堡三件套":[
+    {name:"板烧鸡腿堡",cat:"主食",min:1,max:1,l:42},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "双层吉士汉堡套餐":[
+    {name:"双层吉士汉堡",cat:"主食",min:1,max:1,l:43},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "人气超值四件套随心选":[
+    {name:"选择汉堡",cat:"主食",min:1,max:1,l:44},
+    {name:"小食",cat:"小食",min:1,max:1,l:45},
+    {name:"小食",cat:"小食",min:1,max:1,l:46},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:47}
+  ],
+  "巨无霸三件套":[
+    {name:"新升级巨无霸",cat:"主食",min:1,max:1,l:48},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "吉士汉堡包套餐":[
+    {name:"吉士汉堡包",cat:"主食",min:1,max:1,l:49},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "鱼牛汉堡四件套随心选":[
+    {name:"选择汉堡",cat:"主食",min:1,max:1,l:50},
+    {name:"小食",cat:"小食",min:1,max:1,l:45},
+    {name:"小食",cat:"小食",min:1,max:1,l:46},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:35}
+  ],
+  "麦辣鸡翅4块套餐":[
+    {name:"麦辣鸡翅-4块",cat:"小食",min:1,max:1,l:51},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "麦香鸡套餐":[
+    {name:"麦香鸡",cat:"小食",min:1,max:1,l:52},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "培根蔬萃双层牛堡三件套":[
+    {name:"培根蔬萃双层牛堡",cat:"主食",min:1,max:1,l:53},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "安格斯厚牛堡四件套随心选":[
+    {name:"选择安格斯厚牛堡",cat:"主食",min:1,max:1,l:54},
+    {name:"小食",cat:"小食",min:1,max:1,l:45},
+    {name:"小食",cat:"小食",min:1,max:1,l:46},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:35}
+  ],
+  "双层深海鳕鱼堡三件套":[
+    {name:"选择双层深海鳕鱼堡",cat:"主食",min:1,max:1,l:55},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "龙焰鸡腿堡四件套":[
+    {name:"龙焰鸡腿堡",cat:"主食",min:1,max:1,l:40},
+    {name:"小食",cat:"小食",min:1,max:1,l:45},
+    {name:"小食",cat:"小食",min:1,max:1,l:46},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:47}
+  ],
+  "BFF四宫格小食盘":[
+    {name:"选择小食",cat:"小食",min:3,max:3,l:56},
+    {name:"选择小食",cat:"小食",min:1,max:1,l:57}
+  ],
+  "龙焰芝士棒鸡腿堡四件套":[
+    {name:"龙焰芝士棒鸡腿堡",cat:"主食",min:1,max:1,l:39},
+    {name:"小食",cat:"小食",min:1,max:1,l:45},
+    {name:"小食",cat:"小食",min:1,max:1,l:46},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:47}
+  ],
+  "麦乐鸡套餐":[
+    {name:"麦乐鸡5块",cat:"小食",min:1,max:1,l:58},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "板烧鸡腿堡四件套":[
+    {name:"板烧鸡腿堡",cat:"主食",min:1,max:1,l:42},
+    {name:"小食",cat:"小食",min:1,max:1,l:45},
+    {name:"小食",cat:"小食",min:1,max:1,l:46},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:47}
+  ],
+  "人气经典随心配":[
+    {name:"蓝区",cat:"主食",min:1,max:1,l:59},
+    {name:"粉区",cat:"饮品",min:1,max:1,l:60}
+  ],
+  "酥脆无双套餐":[
+    {name:"选择炸鸡",cat:"小食",min:1,max:1,l:61},
+    {name:"迷你薯条",cat:"小食",min:1,max:1,l:62},
+    {name:"选择饮料",cat:"饮品",min:1,max:1,l:63}
+  ],
+  "大堡口福三件套":[
+    {name:"选择主食",cat:"主食",min:1,max:1,l:64},
+    {name:"选择小食",cat:"小食",min:1,max:1,l:65},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:66}
+  ],
+  "“堡”你欢乐套餐":[
+    {name:"汉堡包",cat:"主食",min:1,max:1,l:67},
+    {name:"麦乐鸡4块",cat:"小食",min:1,max:1,l:68},
+    {name:"苹果片一袋(60g)",cat:"小食",min:1,max:1,l:69},
+    {name:"选择饮料",cat:"饮品",min:1,max:1,l:63}
+  ],
+  "“苹”水相“鱼”套餐":[
+    {name:"麦香鱼",cat:"主食",min:1,max:1,l:41},
+    {name:"小杯玉米杯",cat:"小食",min:1,max:1,l:70},
+    {name:"苹果片一袋(60g)",cat:"小食",min:1,max:1,l:69},
+    {name:"选择饮料",cat:"饮品",min:1,max:1,l:71}
+  ],
+  "精选超值随心配":[
+    {name:"蓝区",cat:"小食",min:1,max:1,l:72},
+    {name:"粉区",cat:"饮品",min:1,max:1,l:73}
+  ],
+  "“辣”么快乐套餐":[
+    {name:"麦辣鸡翅-2块",cat:"小食",min:1,max:1,l:74},
+    {name:"麦乐鸡4块",cat:"小食",min:1,max:1,l:68},
+    {name:"选择饮料",cat:"饮品",min:1,max:1,l:63}
+  ],
+  "巨无霸四件套":[
+    {name:"巨无霸",cat:"主食",min:1,max:1,l:48},
+    {name:"小食",cat:"小食",min:1,max:1,l:45},
+    {name:"小食",cat:"小食",min:1,max:1,l:46},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:35}
+  ],
+  "不素之霸双层牛堡四件套":[
+    {name:"不素之霸双层牛堡",cat:"主食",min:1,max:1,l:75},
+    {name:"小食",cat:"小食",min:1,max:1,l:45},
+    {name:"小食",cat:"小食",min:1,max:1,l:46},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:35}
+  ],
+  "培根蔬萃双层牛堡四件套":[
+    {name:"培根蔬萃双层牛堡",cat:"主食",min:1,max:1,l:53},
+    {name:"小食",cat:"小食",min:1,max:1,l:45},
+    {name:"小食",cat:"小食",min:1,max:1,l:46},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:35}
+  ],
+  "芝士安格斯厚牛堡四件套":[
+    {name:"芝士安格斯厚牛堡",cat:"主食",min:1,max:1,l:76},
+    {name:"小食",cat:"小食",min:1,max:1,l:45},
+    {name:"小食",cat:"小食",min:1,max:1,l:46},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:35}
+  ],
+  "不素之霸双层牛堡三件套":[
+    {name:"不素之霸双层牛堡",cat:"主食",min:1,max:1,l:75},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "培根安格斯厚牛堡四件套":[
+    {name:"培根安格斯厚牛堡",cat:"主食",min:1,max:1,l:77},
+    {name:"小食",cat:"小食",min:1,max:1,l:45},
+    {name:"小食",cat:"小食",min:1,max:1,l:46},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:35}
+  ],
+  "堡堡随心拼（7件任选）":[
+    {name:"主食任意选",cat:"主食",min:2,max:2,l:78},
+    {name:"选择随心配小食",cat:"小食",min:3,max:3,l:79},
+    {name:"选择套餐内饮料",cat:"饮品",min:2,max:2,l:80}
+  ],
+  "精选单人餐三件套":[
+    {name:"主食任意选",cat:"主食",min:1,max:1,l:81},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "鱼排堡开心乐园餐":[
+    {name:"鱼排堡",cat:"主食",min:1,max:1,l:82},
+    {name:"迷你薯条",cat:"小食",min:1,max:1,l:62},
+    {name:"选择开心乐园餐小食",cat:"小食",min:1,max:1,l:83},
+    {name:"选择开心乐园餐饮料",cat:"饮品",min:1,max:1,l:84},
+    {name:"海绵宝宝×航海王系列玩具",cat:"非食品",min:1,max:1,l:85}
+  ],
+  "汉堡开心乐园餐":[
+    {name:"汉堡包",cat:"主食",min:1,max:1,l:67},
+    {name:"迷你薯条",cat:"小食",min:1,max:1,l:62},
+    {name:"选择开心乐园餐小食",cat:"小食",min:1,max:1,l:83},
+    {name:"选择开心乐园餐饮料",cat:"饮品",min:1,max:1,l:84},
+    {name:"海绵宝宝×航海王系列玩具",cat:"非食品",min:1,max:1,l:85}
+  ],
+  "“苹板”支撑Pro套餐":[
+    {name:"新升级板烧鸡腿堡",cat:"主食",min:1,max:1,l:42},
+    {name:"小杯玉米杯",cat:"小食",min:1,max:1,l:70},
+    {name:"苹果片一袋(60g)",cat:"小食",min:1,max:1,l:69},
+    {name:"选择饮料",cat:"饮品",min:1,max:1,l:86}
+  ],
+  "牛气满满套餐":[
+    {name:"培根蔬萃双层牛堡",cat:"主食",min:1,max:1,l:53},
+    {name:"小杯玉米杯",cat:"小食",min:1,max:1,l:70},
+    {name:"选择饮料",cat:"饮品",min:1,max:1,l:86}
+  ],
+  "双层深海鳕鱼堡四件套":[
+    {name:"选择双层深海鳕鱼堡",cat:"主食",min:1,max:1,l:55},
+    {name:"小食",cat:"小食",min:1,max:1,l:45},
+    {name:"小食",cat:"小食",min:1,max:1,l:46},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:35}
+  ],
+  "BFF四宫格小食盘双人餐":[
+    {name:"麦辣鸡腿汉堡",cat:"主食",min:1,max:1,l:28},
+    {name:"板烧鸡腿堡",cat:"主食",min:1,max:1,l:42},
+    {name:"中薯条",cat:"小食",min:1,max:1,l:87},
+    {name:"麦乐鸡-5块",cat:"小食",min:1,max:1,l:88},
+    {name:"选择小食盘随心选",cat:"小食",min:2,max:2,l:89},
+    {name:"选择套餐内饮料",cat:"饮品",min:2,max:2,l:90}
+  ],
+  "麦辣鸡腿堡四件套":[
+    {name:"麦辣鸡腿汉堡",cat:"主食",min:1,max:1,l:28},
+    {name:"小食",cat:"小食",min:1,max:1,l:45},
+    {name:"小食",cat:"小食",min:1,max:1,l:46},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:47}
+  ],
+  "培根安格斯厚牛堡三件套":[
+    {name:"培根安格斯厚牛堡",cat:"主食",min:1,max:1,l:77},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "芝士安格斯厚牛堡三件套":[
+    {name:"芝士安格斯厚牛堡",cat:"主食",min:1,max:1,l:76},
+    {name:"选择套餐内小食",cat:"小食",min:1,max:1,l:29},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:30}
+  ],
+  "龙焰美味四件套":[
+    {name:"选择主食",cat:"主食",min:1,max:1,l:91},
+    {name:"小食",cat:"小食",min:1,max:1,l:45},
+    {name:"小食",cat:"小食",min:1,max:1,l:46},
+    {name:"选择套餐内饮料",cat:"饮品",min:1,max:1,l:47}
+  ],
+  "学生专享饮品随心选":[
+    {name:"选择饮品",cat:"饮品",min:1,max:1,l:92}
+  ],
+  "学生专享汉堡小食随心选":[
+    {name:"选择主食/小食",cat:"小食",min:2,max:2,l:93}
+  ]
+};
+const MODS = {
+  "东南亚风味椰香鸡扒堡":[{g:"配料",min:0,max:3,values:[["吉士",0,true],["生菜",0,true]]}],
+  "芝芝火腿扒堡":[{g:"配料",min:0,max:3,values:[["吉士",0,true],["生菜",0,true]]}],
+  "枫糖风味厚松饼猪柳堡":[{g:"配料",min:0,max:3,values:[["吉士",0,true],["生菜",0,true]]}],
+  "枫糖风味厚松饼猪柳蛋堡":[{g:"配料",min:0,max:3,values:[["吉士",0,true],["生菜",0,true]]}],
+  "北非蛋风味猪柳蛋麦满分":[{g:"配料",min:0,max:3,values:[["吉士",0,true],["生菜",0,true]]}],
+  "北非蛋风味脆鸡排麦满分":[{g:"配料",min:0,max:3,values:[["吉士",0,true],["生菜",0,true]]}],
+  "北非蛋风味麦满分":[{g:"配料",min:0,max:3,values:[["吉士",0,true],["生菜",0,true]]}],
+  "原味板烧鸡腿麦满分":[{g:"配料",min:0,max:3,values:[["吉士",0,true],["生菜",0,true]]}],
+  "双层原味板烧鸡腿麦满分":[{g:"配料",min:0,max:3,values:[["吉士",0,true],["生菜",0,true]]}],
+  "双层猪柳蛋麦满分":[{g:"配料",min:0,max:3,values:[["吉士",0,true],["生菜",0,true]]}],
+  "吉士蛋麦满分":[{g:"配料",min:0,max:3,values:[["吉士",0,true],["生菜",0,true]]}],
+  "大脆鸡扒麦满分":[{g:"配料",min:0,max:3,values:[["吉士",0,true],["生菜",0,true]]}],
+  "火腿扒麦满分":[{g:"配料",min:0,max:3,values:[["吉士",0,true],["生菜",0,true]]}],
+  "猪柳蛋麦满分":[{g:"配料",min:0,max:3,values:[["吉士",0,true],["生菜",0,true]]}],
+  "猪柳麦满分":[{g:"配料",min:0,max:3,values:[["吉士",0,true],["生菜",0,true]]}],
+  "原味板烧鸡腿炒双蛋堡":[{g:"配料",min:0,max:3,values:[["吉士",0,true],["生菜",0,true]]}],
+  "猪柳炒双蛋堡":[{g:"配料",min:0,max:3,values:[["吉士",0,true],["生菜",0,true]]}],
+  "麦咖啡™热奶铁中杯":[{g:"可选加料",min:0,max:1,values:[["换燕麦奶",2,false]]}],
+  "麦咖啡™奶铁":[{g:"可选加料",min:0,max:1,values:[["换燕麦奶",2,false]]}],
+  "板烧鸡腿堡":[{g:"配料",min:0,max:3,values:[["吉士",0,true],["生菜",0,true]]}],
+  "鸡肉堡单品精选":[{g:"配料",min:0,max:3,values:[["吉士",0,true],["生菜",0,true]]}],
+  "麦辣鸡腿汉堡":[{g:"配料",min:0,max:3,values:[["吉士",0,true],["生菜",0,true]]}],
+  "龙焰芝士棒鸡腿堡":[{g:"配料",min:0,max:3,values:[["吉士",0,true],["生菜",0,true]]}],
+  "龙焰鸡腿堡":[{g:"配料",min:0,max:3,values:[["吉士",0,true],["生菜",0,true]]}],
+  "不素之霸双层牛堡":[{g:"配料",min:0,max:3,values:[["吉士",0,true],["生菜",0,true]]}],
+  "双层吉士汉堡":[{g:"配料",min:0,max:3,values:[["吉士",0,true],["生菜",0,true]]}],
+  "双层深海鳕鱼堡":[{g:"配料",min:0,max:3,values:[["吉士",0,true],["生菜",0,true]]}],
+  "培根蔬萃双层牛堡":[{g:"配料",min:0,max:3,values:[["吉士",0,true],["生菜",0,true]]}],
+  "牛肉堡单品精选":[{g:"配料",min:0,max:3,values:[["吉士",0,true],["生菜",0,true]]}],
+  "高达吉士双牛堡":[{g:"配料",min:0,max:3,values:[["吉士",0,true],["生菜",0,true]]}],
+  "培根安格斯厚牛堡":[{g:"配料",min:0,max:3,values:[["吉士",0,true],["生菜",0,true]]}],
+  "芝士安格斯厚牛堡":[{g:"配料",min:0,max:3,values:[["吉士",0,true],["生菜",0,true]]}],
+  "浓浓燕麦黑巧（冰/热）":[{g:"可选加料",min:0,max:1,values:[["换燕麦奶",2,false]]}],
+  "浓浓黑巧（冰/热）":[{g:"可选加料",min:0,max:1,values:[["换燕麦奶",2,false]]}],
+  "燕麦奶":[{g:"可选加料",min:0,max:1,values:[["换燕麦奶",2,false]]}],
+  "燕麦奶铁":[{g:"可选加料",min:0,max:1,values:[["换燕麦奶",2,false]]}],
+  "【美汁源】“多汁柠柠”":[{g:"冰量",min:1,max:1,values:[["标准",0,true],["去冰",0,false],["多冰",0,false],["少冰",0,false]]}],
+  "【美汁源】“黄金橙橙”":[{g:"冰量",min:1,max:1,values:[["标准",0,true],["去冰",0,false],["多冰",0,false],["少冰",0,false]]}],
+  "可乐":[{g:"冰量",min:1,max:1,values:[["标准",0,true],["去冰",0,false],["多冰",0,false],["少冰",0,false]]}],
+  "怡泉+C":[{g:"冰量",min:1,max:1,values:[["标准",0,true],["去冰",0,false],["多冰",0,false],["少冰",0,false]]}],
+  "锡兰红茶":[{g:"冰量",min:1,max:1,values:[["标准",0,true],["去冰",0,false],["多冰",0,false],["少冰",0,false]]}],
+  "阳光柠檬红茶":[{g:"冰量",min:1,max:1,values:[["标准",0,true],["去冰",0,false],["多冰",0,false],["少冰",0,false]]}],
+  "雪碧":[{g:"冰量",min:1,max:1,values:[["标准",0,true],["去冰",0,false],["多冰",0,false],["少冰",0,false]]}]
+};
+
+const canModify = name => !!MODS[name];
+/* 价格/原价随餐段变化，取当前餐段；缺失时回退到首个已知餐段 */
+const priceOf = m => { const p = m.p; if(!p) return 0;
+  return (p[state.daypart] != null) ? p[state.daypart] : +Object.values(p)[0]; };
+const origOf  = m => (m.o && m.o[state.daypart]) || 0;
+
+/* ══════════════════════════════════════════════════════════════
+   一·B 目标场景预设（13 个）与历史订单（脱敏样本）
+   GOALS 由 scripts/mcd_goal.py 的 GOALS 搬运而来（唯一来源，勿在此另写一套）；
+   HISTORY 来自官方 order-list 导出后**自动脱敏**的样本，逐项热量由
+   scripts/mcd_import.py 同一套 Matcher 预解析——匹配不上者省略 kcal，
+   页面一律标「热量未知」，绝不按 0 计入合计（PRD §12 红线）。
+   ══════════════════════════════════════════════════════════════ */
+
+/* 13 个目标场景预设 —— 与 scripts/mcd_goal.py 的 GOALS 同源搬运，勿在此另写一套 */
+const GOALS = {
+  "cut":{label:"减脂",group:"热量与体型",tier:"轻量",sort:"cut",short:"蛋白密度优先 · 剔甜品 · 小食≤1",desc:"目标：热量偏低 + 蛋白相对高 + 钠偏低，控制小食与甜品",tol:0.12,snack:1,dessert:false,minp:15},
+  "bulk":{label:"增重",group:"热量与体型",tier:"吃饱",sort:"bulk",short:"热量盈余 · 蛋白碳水双高 · 小食≤2",desc:"目标：热量盈余 + 蛋白与碳水双高，可加小食与饮品",tol:0.12,snack:2,dessert:true,minp:20},
+  "post":{label:"练后餐",group:"热量与体型",tier:"标准",sort:"post",short:"蛋白总量优先 · 必含主食回补碳水",desc:"目标：蛋白优先 + 必含主食回补碳水，练后尽快补充",tol:0.12,snack:1,dessert:false,staple:true,minp:20},
+  "cheat":{label:"放纵餐",group:"热量与体型",tier:"吃饱",sort:"cheat",short:"热量上浮 · 允许甜品 · 性价比排序",desc:"目标：热量上浮、允许甜品，偶尔放松一次",tol:0.15,snack:2,dessert:true},
+  "low-sodium":{label:"低钠控盐",group:"单一营养素管控",tier:"轻量",sort:"low-sodium",short:"钠硬上限（默认≤1000mg）· 钠升序",desc:"目标：整组钠不超上限，钠越低越靠前",tol:0.12,snack:1,dessert:false,lim:{"sodium_mg":1000}},
+  "high-protein":{label:"高蛋白增肌",group:"单一营养素管控",tier:"标准",sort:"high-protein",short:"蛋白密度优先 · 兼顾蛋白总量",desc:"目标：蛋白密度优先（日常增肌版），兼顾蛋白总量",tol:0.12,snack:1,dessert:false,minp:25},
+  "low-carb":{label:"低糖低碳水",group:"单一营养素管控",tier:"轻量",sort:"low-carb",short:"碳水硬上限（默认≤60g）· 碳水升序",desc:"目标：整组碳水不超上限，碳水越低越靠前",tol:0.12,snack:1,dessert:false,lim:{"carb":60}},
+  "low-fat":{label:"低脂清淡",group:"单一营养素管控",tier:"轻量",sort:"low-fat",short:"脂肪硬上限（默认≤30g）· 脂肪升序",desc:"目标：整组脂肪不超上限，脂肪越低越靠前",tol:0.12,snack:1,dessert:false,lim:{"fat":30}},
+  "vegetarian":{label:"素食/蛋奶素",group:"结构 / 人群 / 场景",tier:"轻量",sort:"near",short:"关键词排除肉类/水产（蛋奶可食）",desc:"目标：排除肉类/水产（蛋奶可食），关键词粗筛",tol:0.12,snack:3,dessert:true,snackcombo:true,ex:["鸡","牛堡","双牛","安格斯","巨无霸","猪","鱼","鳕","肉","虾","蟹","培根","火腿","翅","板烧","麦辣","脆汁","不素之霸","深海","肠","烟肉","汉堡"]},
+  "kids":{label:"儿童/小份量",group:"结构 / 人群 / 场景",tier:"轻量",sort:"small",short:"热量下浮 ×0.85 · 单组≤2 件",desc:"目标：热量下浮、份量小，单组最多 2 件",tol:0.15,scale:0.85,snack:1,dessert:true,items:2},
+  "daily-budget":{label:"热量预算日控",group:"结构 / 人群 / 场景",tier:"标准",sort:"budget",short:"按当日剩余预算 · 用满不超",desc:"目标：按当日剩余预算配餐，用满但不超预算",rf:0.7,rt:1,snack:2,dessert:true,budgetParam:"budget"},
+  "allergen":{label:"过敏原规避",group:"结构 / 人群 / 场景",tier:"标准",sort:"near",short:"按过敏原展开关键词排除（粗筛）",desc:"目标：按过敏原关键词排除，粗筛仅作提示",tol:0.12,snack:2,dessert:true,param:"allergens"},
+  "value":{label:"性价比/省钱",group:"结构 / 人群 / 场景",tier:"标准",sort:"value",short:"价格硬上限 · 价格升序",desc:"目标：价格优先（省钱），兼顾热量贴近",tol:0.12,snack:1,dessert:true}
+};
+const GOAL_ORDER = ["cut","bulk","post","cheat","low-sodium","high-protein","low-carb","low-fat","vegetarian","kids","daily-budget","allergen","value"];
+const GOAL_GROUPS = [["热量与体型",["cut","bulk","post","cheat"]],["单一营养素管控",["low-sodium","high-protein","low-carb","low-fat"]],["结构 / 人群 / 场景",["vegetarian","kids","daily-budget","allergen","value"]]];
+/* 过敏原 → 关键词展开（粗筛；菜单无配料/过敏原表，必须带告警） */
+const ALLERGENS = {
+  "乳制品":["奶","芝士","吉士","冰淇淋","新地","麦旋风","圆筒","阿芙佳朵","卡布奇诺","拿铁","拉丝"],
+  "坚果":["花生","坚果","杏仁","榛"],
+  "大豆":["豆浆","豆腐","毛豆"],
+  "奶":["奶","芝士","吉士","冰淇淋","新地","麦旋风","圆筒","阿芙佳朵","卡布奇诺","拉丝"],
+  "小麦":["堡","麦满分","卷","派","油条","松饼","华夫"],
+  "海鲜":["鱼","鳕","虾","蟹"],
+  "甲壳类":["虾","蟹"],
+  "花生":["花生"],
+  "蛋":["蛋"],
+  "鱼":["鱼","鳕"],
+  "麸质":["堡","麦满分","卷","派","油条","松饼","华夫"]
+};
+/* 甜品关键词（category-rules.json）—— 不允许甜品的场景按此从「小食」池剔除 */
+const DESSERT_KW = ["新地","冰淇淋","圆筒","麦旋风","雪冰","派"];
+
+
+/* 历史订单（官方 order-list 导出后自动脱敏：无 orderId/storeCode/storeName/beCode，门店代称化）
+   逐项热量由 scripts/mcd_import.py 同一套 Matcher 预解析；匹配不上者 kcal 省略 → 页面标「热量未知」 */
+const HISTORY = {
+  meta:{source:"order-list（官方历史订单查询）· 已自动脱敏",deidentifiedAt:"2026-10-10 02:22:03",orderCount:2,itemCount:7,unknownCount:1,overStandard:1},
+  orders:[
+    {time:"2026-03-20 18:32:42",store:"门店A",daypart:"晚餐",amount:69.9,status:"订单已完成",items:[{n:"德克萨斯风味三层肉霸堡",st:"unknown"},{n:"脆脆薯条",st:"hit",k:279,p:4,na:540,m:"脆脆薯条"},{n:"可乐中杯",st:"hit",k:147,p:0,na:0,m:"可乐中杯"}]},
+    {time:"2025-10-11 13:26:14",store:"门店A",daypart:"午餐",amount:55.5,status:"订单已完成",items:[{n:"麦麦脆汁鸡-琵琶腿",st:"hit",k:328,p:21,na:905,m:"麦麦脆汁鸡-琵琶腿"},{n:"大薯条",st:"hit",k:379,p:6,na:216,m:"大薯条"},{n:"【美汁源】“黄金橙橙”",st:"hit",k:165,p:0,na:53,m:"【美汁源】“黄金橙橙”"},{n:"奥利奥麦旋风",st:"hit",k:266,p:5,na:116,m:"奥利奥麦旋风"}]}
+  ]
+};
+
+/* ══════════════════════════════════════════════════════════════
+   二、状态与工具
+   ══════════════════════════════════════════════════════════════ */
+const state = {
+  screen:"menu", daypart:"午餐", service:"到店取餐", cat:"",
+  cart:[], lastTotal:0, sp:{item:null, qty:1, sel:{}, mods:{}, showMod:false},
+  /* 目标场景（F8）：goal=null 即纯档位模式（默认，行为与旧版一致）；gparams 放场景入参 */
+  goal:null, gparams:{}, histImported:false
+};
+const $ = s => document.querySelector(s);
+const root = document.documentElement;
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const nowStr = () => new Date().toLocaleString("zh-CN",{timeZone:"Asia/Shanghai",hour12:false});
+const item = n => MENU.find(m=>m.n===n);
+const isNonFood = n => ZERO.has(n);
+/* 零热量项（玩具/单卖蘸酱）返回 0 而不是 null —— 否则整份乐园餐会被判成「热量未知」 */
+const baseKcal = n => ZERO.has(n) ? 0 : (NUTRI[n] ? NUTRI[n].kcal : null);
+const yuan = v => "¥" + v.toFixed(2);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function log(tool, desc, sys){
+  const el = document.createElement("div");
+  el.className = "log" + (sys?" sys":"");
+  el.innerHTML = `<div class="tool">${esc(tool)}</div><div class="desc">${esc(desc)}</div><div class="time">${nowStr()}</div>`;
+  const list = $("#logList");
+  list.prepend(el);
+  while(list.children.length > 40) list.lastElementChild.remove();   /* 防无限增长 */
+}
+function setSeg(id, opts, cur, cb){
+  const el = $(id); el.innerHTML = "";
+  opts.forEach(o=>{
+    const b = document.createElement("button");
+    b.type = "button"; b.textContent = o;
+    b.setAttribute("aria-pressed", String(o===cur));
+    if(o===cur) b.className = "active";
+    b.onclick = ()=> cb(o);
+    el.appendChild(b);
+  });
+}
+/* 只在文本变化时写 DOM —— 每秒一次的时钟不再是布局抖动源 */
+function setText(el, txt){ if(el.textContent !== txt) el.textContent = txt; }
+function tick(){
+  const d = new Date();
+  const t = d.toLocaleString("zh-CN",{timeZone:"Asia/Shanghai",hour:"2-digit",minute:"2-digit",hour12:false});
+  setText($("#statusTime"), t);
+  setText($("#clockTime"), t);
+  setText($("#clock"), "北京时间 " + nowStr());
+}
+tick(); setInterval(tick, 1000);
+
+/* 数字滚动（fmt 返回 HTML 片段，仅由内部数值拼装，不含用户输入）
+   兜底：若页面切到后台导致 rAF 不触发，用定时器保证终值一定落地 */
+function roll(el, to, fmt){
+  const from = Number(el.dataset.v || 0);
+  clearTimeout(el._rollT);
+  if(from === to || reduced){ el.innerHTML = fmt(to); el.dataset.v = to; return; }
+  const t0 = performance.now(), dur = 520;
+  const step = now=>{
+    const p = Math.min(1, (now - t0) / dur);
+    const v = Math.round(from + (to - from) * (1 - Math.pow(1 - p, 4)));
+    el.innerHTML = fmt(v); el.dataset.v = v;
+    if(p < 1) requestAnimationFrame(step);
+    else { el.innerHTML = fmt(to); el.dataset.v = to; }
+  };
+  requestAnimationFrame(step);
+  el._rollT = setTimeout(()=>{ el.innerHTML = fmt(to); el.dataset.v = to; }, dur + 80);
+}
+
+/* 餐段识别（F2）：宵夜单列 22:14–04:45 */
+function detectDaypart(){
+  const s = new Date().toLocaleString("en-US",{timeZone:"Asia/Shanghai",hour:"2-digit",minute:"2-digit",hour12:false});
+  const [h,m] = s.split(":").map(Number); const t = h*60+m;
+  if(t>=360 && t<=629) return "早餐";
+  if(t>=630 && t<=929) return "午餐";
+  if(t>=930 && t<=1079) return "随便吃吃";
+  if(t>=1334 || t<360) return "宵夜";      /* 22:14 起，跨零点至 05:59 均按宵夜 */
+  return "晚餐";
+}
+
+/* ══════════════════════════════════════════════════════════════
+   三、热量色阶：把「本单热量 ÷ 标准档」映射成色相
+   0.30→252(冷青/不足) · 0.88→158(绿/合理) · 1.12→88(琥珀) · 1.70→25(赤/偏高)
+   ══════════════════════════════════════════════════════════════ */
+const HEAT_STOPS = [[0.30,252],[0.88,158],[1.12,88],[1.70,25]];
+function heatHue(r){
+  const a = HEAT_STOPS;
+  const x = Math.min(Math.max(r, a[0][0]), a[a.length-1][0]);
+  for(let i=0;i<a.length-1;i++){
+    const [x0,y0] = a[i], [x1,y1] = a[i+1];
+    if(x <= x1){ const t = (x1-x0) ? (x-x0)/(x1-x0) : 0; return y0 + (y1-y0)*t; }
+  }
+  return 25;
+}
+function applyHeat(){
+  const t = TIERS[state.daypart];
+  const r = cartKcal().total / (t.标准 || 1);
+  root.style.setProperty("--heat-h", heatHue(r).toFixed(1));
+}
+
+/* ══════════════════════════════════════════════════════════════
+   四、Toast（撤销优先于确认弹窗）
+   ══════════════════════════════════════════════════════════════ */
+let toastTimer = null;
+function hideToast(){ const el = $("#toast"); el.classList.remove("show"); }
+function toast(msg, action){
+  const el = $("#toast");
+  el.innerHTML = `<span>${esc(msg)}</span>`;
+  if(action){
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "toast-act"; b.textContent = action.label;
+    b.onclick = ()=>{ action.fn(); hideToast(); };
+    el.appendChild(b);
+  }
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(hideToast, action ? 7000 : 3200);
+}
+
+/* 加入购物车的抛物线飞行 */
+function flyToCart(btn){
+  const icon = $("#cartIcon");
+  if(reduced){ icon.classList.add("pulse"); setTimeout(()=>icon.classList.remove("pulse"), 420); return; }
+  const s = btn.getBoundingClientRect(), t = icon.getBoundingClientRect();
+  const dot = document.createElement("div"); dot.className = "fly";
+  const inner = document.createElement("i"); dot.appendChild(inner);
+  document.body.appendChild(dot);
+  const x0 = s.left + s.width/2, y0 = s.top + s.height/2;
+  const dx = (t.left + t.width/2) - x0, dy = (t.top + t.height/2) - y0;
+  dot.style.transform = `translate3d(${x0-6}px, ${y0-6}px, 0)`;
+  const aX = inner.animate([{transform:"translateX(0)"},{transform:`translateX(${dx}px)`}],
+                           {duration:600, easing:"linear", fill:"forwards"});
+  const aY = dot.animate([{transform:`translate3d(${x0-6}px, ${y0-6}px, 0) scale(1)`},
+                          {transform:`translate3d(${x0-6}px, ${y0-6+dy}px, 0) scale(.35)`}],
+                         {duration:600, easing:"cubic-bezier(.55,0,1,.45)", fill:"forwards"});
+  Promise.allSettled([aX.finished, aY.finished]).then(()=>{
+    dot.remove();
+    icon.classList.add("pulse");
+    setTimeout(()=> icon.classList.remove("pulse"), 440);
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   五、菜单渲染
+   ══════════════════════════════════════════════════════════════ */
+const availItems = () => MENU.filter(m=>m.dp.includes(state.daypart));
+function catsOfDay(){
+  const have = new Set(availItems().flatMap(m=>m.c));
+  return (CATS[state.daypart] || []).filter(c=>have.has(c));
+}
+/* 默认分类优先级：切换餐段后原分类不可售时，按此顺序挑第一个「有得选」的分类。
+   直接取列表首项会落坑——「鲜煮咖啡」跨时段挂在「早餐」分类下，
+   切到晚餐时「早餐」只剩 1 项，看起来像空分类。 */
+function countByCat(list){
+  const m = {};
+  list.forEach(x=> x.c.forEach(c=> m[c] = (m[c] || 0) + 1));
+  return m;
+}
+/* 「人气热卖」是其他分类的镜像聚合，不适合做默认落点 */
+function pickCat(cats, counts){
+  const hit = cats.find(c => c !== "人气热卖" && (counts[c] || 0) >= 2);
+  return hit || cats.reduce((a,c)=> (counts[c] || 0) > (counts[a] || 0) ? c : a, cats[0]);
+}
+/* forcePick：餐段切换时重挑默认分类；用户手点分类时保留其选择 */
+function renderRail(forcePick){
+  const avail = availItems();
+  const cats = catsOfDay();
+  const counts = countByCat(avail);
+  if(forcePick || !cats.includes(state.cat)) state.cat = pickCat(cats, counts);
+  const rail = $("#rail"); rail.innerHTML = "";
+  cats.forEach(c=>{
+    const n = counts[c] || 0;
+    const b = document.createElement("button");
+    b.type = "button";
+    b.innerHTML = `<span>${esc(c)}</span><span class="cnt">${n}</span>`;
+    if(c === state.cat) b.setAttribute("aria-current","true");
+    else b.removeAttribute("aria-current");
+    b.onclick = ()=> renderMenu(c);
+    rail.appendChild(b);
+  });
+}
+/* 分类间用 ↑↓ 键移动（roving 的轻量版：保持可 Tab 到，方向键快速切换） */
+$("#rail").addEventListener("keydown", e=>{
+  const btns = [...$("#rail").querySelectorAll("button")];
+  const i = btns.indexOf(document.activeElement);
+  if(i < 0) return;
+  const map = {ArrowDown:1, ArrowRight:1, ArrowUp:-1, ArrowLeft:-1};
+  if(!(e.key in map)) return;
+  e.preventDefault();
+  const idx = (i + map[e.key] + btns.length) % btns.length;
+  btns[idx].click();                                  /* 切分类 → renderRail 会重建按钮 */
+  const fresh = [...$("#rail").querySelectorAll("button")][idx];
+  (fresh || btns[idx]).focus();                       /* 重建后必须把焦点找回来，否则掉到 body */
+});
+const ROLE_ICON = {"套餐":"🍱","主食":"🍔","小食":"🍟","甜品":"🍦","饮品":"🥤"};
+function renderMenu(cat){
+  if(cat) state.cat = cat;
+  renderRail();
+  const list = availItems().filter(m=>m.c.includes(state.cat));
+  const box = $("#items"); box.innerHTML = "";
+  if(!list.length){
+    box.innerHTML = `<div class="empty"><span class="e-ico">🍽️</span>当前餐段该分类暂无可售餐品，换一个餐段或分类看看。</div>`;
+    return;
+  }
+  /* 场景上下文：命中的商品打「场景推荐」，被关键词排除的打「场景排除」 */
+  const P = state.goal ? goalPlan() : null;
+  const hits = goalHitNames();
+  list.forEach((m,i)=>{
+    const isCombo = m.role === "套餐";
+    const rs = roundsOf(m.n);
+    const baseNames = rs ? defaultNames(m.n) : (m.def || [m.n]);
+    const nu = nutriOf(baseNames);
+    const rg = rs ? comboRange(m.n) : null;
+    const excluded = P && P.ex.some(w=> (baseNames.join("") + m.n).includes(w));
+    const el = document.createElement("div");
+    el.className = "item" + (excluded ? " dim" : "");
+    el.style.setProperty("--i", Math.min(i,8));
+    el.innerHTML = `
+      <div class="thumb" aria-hidden="true">${ROLE_ICON[m.role] || "🍽️"}</div>
+      <div class="info">
+        <div class="n">${esc(m.n)}${canModify(m.n) ? '<i class="spec-tag-sm">可特调</i>' : ""}</div>
+        <div class="tagrow">
+          ${isCombo ? `<span class="tag combo">套餐 · ${rs ? `${rs.length} 轮可选` : "组成未知"}</span>` : ""}
+          ${(m.t||[]).slice(0,2).map(t=>`<span class="tag">${esc(t)}</span>`).join("")}
+          ${nu.unknownN === 0 ? `<span class="tag kcal">默认约 ${nu.kcal} 千卡</span>`
+            : (nu.kcal > 0 ? `<span class="tag kcal partial">默认 ≥ ${nu.kcal} 千卡</span>`
+                           : `<span class="tag unknown">热量未知</span>`)}
+          ${excluded ? `<span class="tag bad">场景排除</span>`
+            : (hits && hits.has(m.n) ? `<span class="tag ok">场景推荐</span>` : "")}
+        </div>
+        <div class="desc">${
+          rs ? `默认搭配：${esc(baseNames.join(" + "))}${rg && rg.lo !== rg.hi ? ` · 全换轻量可降到 ${rg.lo} 千卡` : "（各轮可换，含差价）"}`
+          : isCombo ? "套餐组成未采集，热量按未知计（不按 0 计入合计）"
+          : nu.unknownN === 0 ? `${nu.p}g 蛋白 · 脂肪 ${nu.f}g · 碳水 ${nu.c}g · 钠 ${nu.na}mg`
+          : "营养表未收录该商品，热量未知"
+        }</div>
+        <div class="priceline">
+          <div class="price">¥${priceOf(m).toFixed(2)}${origOf(m)?`<span class="orig">¥${origOf(m).toFixed(2)}</span>`:""}</div>
+          <button class="add" type="button" aria-label="将 ${esc(m.n)} 加入购物车">＋</button>
+        </div>
+      </div>`;
+    const add = el.querySelector(".add");
+    add.onclick = ()=> onAddClick(m.n, add);
+    box.appendChild(el);
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   六、商品详情（按官方输出规范）
+   ══════════════════════════════════════════════════════════════ */
+function roundsOf(name){ return ROUNDS[name] || null; }
+/* 选项列表走共享池：269 个轮次里只有 94 个不同的列表，直接内联会重复约 5 倍 */
+const choicesOf = r => LISTS[r.l] || [];
+const defIdxOf  = r => { const i = choicesOf(r).findIndex(c=>c[2]); return i >= 0 ? i : 0; };
+function defaultSel(name){
+  const rs = roundsOf(name), sel = {};
+  if(rs) rs.forEach((r,i)=>{ sel[i] = defIdxOf(r); });
+  return sel;
+}
+function selNames(name, sel){
+  const rs = roundsOf(name);
+  return rs ? rs.map((r,i)=>{ const cs = choicesOf(r); return (cs[sel[i] ?? 0] || cs[0])[0]; }) : [name];
+}
+function defaultNames(name){
+  const rs = roundsOf(name);
+  if(rs) return rs.map(r=> choicesOf(r)[defIdxOf(r)][0]);
+  const m = item(name);
+  return (m && m.def) ? m.def : [name];
+}
+function specDiff(name, sel){
+  const rs = roundsOf(name);
+  return rs ? rs.reduce((a,r,i)=>{ const cs = choicesOf(r); return a + ((cs[sel[i] ?? 0] || cs[0])[1] || 0); }, 0) : 0;
+}
+/* 一组轮次里「每一项都已知」时，能算出这组的热量区间；
+   known < total 说明该组还有没收录的选项，这时的区间只是「已收录项」的区间，必须标出来 */
+function rangeOf(r){
+  const cs = choicesOf(r), known = cs.map(c=> baseKcal(c[0])).filter(k=> k !== null);
+  if(!known.length) return null;
+  return {min: Math.min(...known), max: Math.max(...known), known: known.length, total: cs.length,
+          partial: known.length < cs.length};
+}
+/* 整份搭配的热量区间：每轮取最小/最大相加（各轮独立，可行）
+   lo/hi 只覆盖「有数据的选项」，所以只在每轮都有数据时才是完整区间 */
+function comboRange(name){
+  const rs = roundsOf(name); if(!rs) return null;
+  let lo = 0, hi = 0, unknownRounds = 0;
+  rs.forEach(r=>{
+    const rg = rangeOf(r);
+    if(!rg) { unknownRounds++; return; }
+    lo += rg.min; hi += rg.max;
+  });
+  return {lo, hi, unknownRounds};
+}
+function modTargets(name, names){
+  const rs = roundsOf(name);
+  return rs ? names.filter(canModify) : (canModify(name) ? [name] : []);
+}
+function modState(sp, target, gi){
+  const k = target + "#" + gi;
+  if(!sp.mods[k]) sp.mods[k] = (MODS[target][gi].values).map(v=> v[2] === true);
+  return sp.mods[k];
+}
+function iterMods(targets, fn){ targets.forEach(t=> (MODS[t] || []).forEach((g,gi)=> fn(t, g, gi))); }
+function modsPriceOf(sp, targets){
+  let sum = 0;
+  iterMods(targets, (t,g,gi)=> g.values.forEach((v,vi)=>{ if(modState(sp,t,gi)[vi]) sum += (v[1] || 0); }));
+  return sum;
+}
+function modsNoteOf(sp, targets){
+  const parts = [];
+  iterMods(targets, (t,g,gi)=>{
+    const st = modState(sp,t,gi);
+    const prefix = targets.length > 1 ? `${t} ` : "";
+    if(g.min === 1 && g.max === 1){
+      const idx = st.findIndex(Boolean);
+      if(idx > 0) parts.push(prefix + g.values[idx][0]);
+    }else{
+      const removed = g.values.filter((v,vi)=> v[2] === true && !st[vi]).map(v=>v[0]);
+      if(removed.length) parts.push(prefix + "不要" + removed.join("/"));
+      g.values.filter((v,vi)=> v[2] !== true && st[vi])
+             .forEach(v=> parts.push(prefix + (v[1] ? `加${v[0]}(+¥${v[1].toFixed(1)})` : `加${v[0]}`)));
+    }
+  });
+  return parts;
+}
+function nutriOf(names){
+  const acc = {kcal:0,p:0,f:0,c:0,na:0}; let unknown = 0, zero = 0;
+  names.forEach(n=>{
+    if(ZERO.has(n)){ zero++; return; }          /* 玩具/蘸酱：0 千卡，不算未知 */
+    const b = NUTRI[n]; if(!b){ unknown++; return; }
+    acc.kcal+=b.kcal; acc.p+=b.p; acc.f+=b.f; acc.c+=b.c; acc.na+=b.na;
+  });
+  return {...acc, unknown: unknown > 0, unknownN: unknown, zeroN: zero};
+}
+function onAddClick(name, btn){
+  const m = item(name);
+  if(!(roundsOf(name) || canModify(name))){
+    pushCart(name, 1, {names:[name], note:[], unitPrice:priceOf(m), kcal:baseKcal(name), combo:null});
+    log("skill:cart", `直接加入购物车：${name}`, true);
+    if(btn){
+      flyToCart(btn);
+      const old = btn.textContent;
+      btn.textContent = "✓"; btn.classList.add("done");
+      setTimeout(()=>{ btn.textContent = old; btn.classList.remove("done"); }, 700);
+    }
+    return;
+  }
+  state.sp = {item:name, qty:1, sel:defaultSel(name), mods:{}, showMod:false};
+  renderSpec();
+  openSheet("#sheetSpec");
+}
+function renderSpec(){
+  const {item:name, qty, sel, showMod} = state.sp, m = item(name);
+  const rs = roundsOf(name);
+  const names = selNames(name, sel);
+  const nu = nutriOf(names);
+  const targets = modTargets(name, names);
+  const unitPrice = priceOf(m) + specDiff(name, sel) + modsPriceOf(state.sp, targets);
+  const defNu = nutriOf(defaultNames(name));
+  const delta = nu.kcal - defNu.kcal;
+  $("#spTitle").innerHTML = esc(name) + (targets.length ? '<span class="spec-tag">可特调</span>' : '');
+  $("#spSub").innerHTML = `¥${unitPrice.toFixed(2)}${origOf(m) ? `<span class="orig">¥${origOf(m).toFixed(2)}</span>` : ""}` +
+    ` · 约 <b>${nu.kcal}</b> 千卡${nu.unknownN ? `（另有 ${nu.unknownN} 项未收录）` : ""}`;
+
+  let html = `<div class="sp-nutri">
+    <span>热量 <b>${nu.kcal} 千卡</b></span><span>蛋白 <b>${nu.p}g</b></span>
+    <span>脂肪 <b>${nu.f}g</b></span><span>碳水 <b>${nu.c}g</b></span>
+    <span>钠 <b>${nu.na}mg</b></span>
+  </div>`;
+
+  if(rs){
+    /* 搭配概览：换品前就能看到「这组可选范围」和「加入后本单落在哪」。
+       ★ 含未收录项时，合计只是**下限**，一律写 ≥ —— 否则会出现
+         「当前 606 千卡」却低于「最轻 614 千卡」这种自相矛盾。 */
+    const rg = comboRange(name);
+    const tier = TIERS[state.daypart][state.tier()];
+    const cart = cartKcal(), willTotal = cart.total + nu.kcal * qty;
+    const lower = (n) => (n > 0 ? "≥ " : "") + n;
+    const vd = willTotal > tier * 1.12 ? ["偏高", "up"]
+             : willTotal < tier * 0.88 ? ["偏少", "warn"] : ["合适", "ok"];
+    const bothKnown = nu.unknownN === 0 && defNu.unknownN === 0;
+    html += `<div class="sp-sum">
+      <div class="ss-row"><span class="ss-k">当前搭配</span>
+        <span class="ss-v">${nu.unknownN ? "≥ " : ""}<b>${nu.kcal}</b>千卡</span>
+        ${!bothKnown ? `<span class="ss-d same">含未收录项</span>`
+          : delta === 0 ? `<span class="ss-d same">即默认搭配</span>`
+          : `<span class="ss-d ${delta < 0 ? "down" : "up"}">较默认 ${delta < 0 ? "−" : "+"}${Math.abs(delta)}</span>`}
+      </div>
+      ${rg && rg.lo !== rg.hi && rg.unknownRounds === 0 ? `<div class="ss-row sub"><span class="ss-k">各轮换到最轻 / 最重</span>
+        <span class="ss-v">${rg.lo} – ${rg.hi} 千卡</span>
+        ${(rg.lo !== rg.hi) ? `<span class="ss-d same">仅含已收录项</span>` : ""}</div>` : ""}
+      <div class="ss-row sub"><span class="ss-k">加入后本单约</span>
+        <span class="ss-v">${(cart.partial || nu.unknownN) ? "≥ " : ""}${willTotal} 千卡</span>
+        <span class="ss-d ${vd[1]}">${vd[0]} · ${state.tier()}档 ${tier}</span></div>
+      ${nu.unknownN ? `<div class="ss-note">${nu.unknownN} 项营养表未收录，未计入热量；换用已收录的选项即可得到完整估算。</div>` : ""}
+      ${nu.zeroN ? `<div class="ss-note">含 ${nu.zeroN} 项非食品（玩具/酱料），按 0 千卡计。</div>` : ""}
+    </div>`;
+
+    rs.forEach((r,i)=>{
+      const cs = choicesOf(r), on = sel[i] ?? 0, rng = rangeOf(r);
+      /* 组内还有没收录的选项时，区间只覆盖已收录项，必须写明，避免被当成完整区间 */
+      const rngTx = !rng ? "热量未知"
+        : (rng.partial ? "已收录 " : "") +
+          (rng.min === rng.max ? `${rng.min} 千卡` : `${rng.min}–${rng.max} 千卡`);
+      const head = `<span class="r-idx" aria-hidden="true">${i + 1}</span>
+        <span class="r-name">${esc(r.name)}</span>
+        ${r.cat ? `<span class="r-cat">${esc(r.cat)}</span>` : ""}
+        <span class="r-req">${r.min > 0 ? "必选" : "可选"} · ${r.max > 1 ? `最多 ${r.max} 项` : "单选"}</span>
+        <span class="r-range"${rng && rng.partial ? ` title="该组还有 ${rng.total - rng.known} 项未收录，区间仅含已收录项"` : ""}>${rngTx}</span>`;
+
+      /* 只有一个选项的轮次不是「选择」，直接说明含什么，省掉一个假按钮 */
+      if(cs.length === 1){
+        const c = cs[0], k = baseKcal(c[0]);
+        html += `<div class="round fixed"><div class="round-h">${head}</div>
+          <div class="r-fixed"><span>含 <b>${esc(c[0])}</b></span>
+            <span class="fx-k">${isNonFood(c[0]) ? "非食品 · 不计热量" : (k === null ? "热量未知" : k + " 千卡")}</span>
+          </div></div>`;
+        return;
+      }
+
+      const kDef = baseKcal(cs[defIdxOf(r)][0]);
+      const knowns = cs.map(c=> baseKcal(c[0])).filter(k=> k !== null);
+      const best = knowns.length >= 2 ? Math.min(...knowns) : null;
+      const showBest = cs.length >= 3 && best !== null && best < Math.max(...knowns);
+      let usedBest = false;
+
+      html += `<div class="round"><div class="round-h">${head}</div>
+        <div class="chips${cs.length > 12 ? " scroll" : ""}">${cs.map((c,ci)=>{
+          const isOn = on === ci, k = baseKcal(c[0]), zero = isNonFood(c[0]);
+          const diff = c[1] ? `${c[1] > 0 ? "+" : "−"}¥${Math.abs(c[1]).toFixed(1)}` : "";
+          const dk = (k !== null && kDef !== null && k !== kDef) ? k - kDef : 0;
+          const isBest = showBest && !usedBest && k === best && (usedBest = true);
+          const kLbl = zero ? "非食品" : (k === null ? "热量未知" : k + " 千卡");
+          return `<button type="button" class="chip ${isOn ? "active" : ""}${zero ? " zero" : (k === null ? " unknown" : "")}"
+            data-r="${i}" data-c="${ci}" aria-pressed="${isOn}"
+            title="${esc(c[0])} · ${kLbl}${diff ? " · " + diff : ""}">
+            <span class="c-n">${esc(c[0])}${canModify(c[0]) ? '<i class="spec-tag-sm">可特调</i>' : ""}${isBest ? '<span class="c-best">本组最低</span>' : ""}</span>
+            <small>${kLbl}${diff ? " · " + diff : ""}${dk ? ` <span class="c-d ${dk < 0 ? "down" : "up"}">${dk < 0 ? "↓" : "↑"}${Math.abs(dk)}</span>` : ""}</small>
+          </button>`;
+        }).join("")}</div></div>`;
+    });
+    html += `<div class="default-line">默认搭配：<b>${esc(defaultNames(name).join(" + "))}</b>
+      ${defNu.kcal > 0 ? `· 约 ${defNu.kcal} 千卡${defNu.unknownN ? "（未含未收录项）" : ""}` : "· 热量未知"}</div>`;
+  }
+
+  if(targets.length){
+    html += `<div class="mod-block">
+      <button type="button" class="mod-toggle" id="btnMod" aria-expanded="${showMod}">${showMod ? "收起特调 ▲" : "查看特调 ▼"}
+        <i class="spec-tag-sm">${esc(targets.join("、"))}</i></button>
+      <p class="hint-note">按官方规范：详情页不主动展开特调项，需用户主动查看。取消勾选即传「不要」状态；加料的增量热量无官方数据，不计入估算。</p>
+      ${showMod ? targets.map(t=> (MODS[t] || []).map((g,gi)=>`
+        <div class="mod-group">
+          <div class="og-title">${targets.length > 1 ? `<span class="r-name">${esc(t)}</span> · ` : ""}${esc(g.g)}
+            <b>（${g.min === 1 ? "必选其一" : (g.max > 1 ? `可选，最多 ${g.max} 项` : "可选")}）</b></div>
+          <div class="chips">${g.values.map((v,vi)=>{
+            const on = modState(state.sp, t, gi)[vi];
+            return `<button type="button" class="chip sm ${on ? "active" : ""}" data-t="${esc(t)}" data-g="${gi}" data-v="${vi}"
+              aria-pressed="${on}">${esc(v[0])}${v[1] ? `<small>+¥${v[1].toFixed(1)}</small>` : ""}</button>`;
+          }).join("")}</div>
+        </div>`).join("")).join("") : ""}
+    </div>`;
+  }
+  const body = $("#spBody");
+  const keepScroll = body.scrollTop;
+  body.innerHTML = html;
+  body.scrollTop = keepScroll;
+
+  body.querySelectorAll(".chip[data-c]").forEach(b=> b.onclick = ()=>{
+    state.sp.sel[+b.dataset.r] = +b.dataset.c; renderSpec();
+  });
+  body.querySelectorAll(".chip[data-v]").forEach(b=> b.onclick = ()=>{
+    const t = b.dataset.t, g = +b.dataset.g, v = +b.dataset.v, group = MODS[t][g];
+    const st = modState(state.sp, t, g);
+    if(group.min === 1 && group.max === 1) state.sp.mods[t + "#" + g] = group.values.map((_,i)=> i === v);
+    else st[v] = !st[v];
+    renderSpec();
+  });
+  const bm = $("#btnMod");
+  if(bm) bm.onclick = ()=>{ state.sp.showMod = !state.sp.showMod; renderSpec(); };
+  $("#spQty").textContent = qty;
+  $("#spAdd").textContent = `加入购物车 ${yuan(unitPrice * qty)}`;
+}
+$("#spMinus").onclick = ()=>{ state.sp.qty = Math.max(1, state.sp.qty-1); renderSpec(); };
+$("#spPlus").onclick  = ()=>{ state.sp.qty = Math.min(20, state.sp.qty+1); renderSpec(); };
+$("#spClose").onclick = ()=> closeSheet("#sheetSpec");
+$("#spAdd").onclick = ()=>{
+  const {item:name, qty, sel} = state.sp, m = item(name);
+  const rs = roundsOf(name);
+  const names = selNames(name, sel);
+  const nu = nutriOf(names);
+  const targets = modTargets(name, names);
+  const note = modsNoteOf(state.sp, targets);
+  const fullyKnown = nu.unknownN === 0;
+  pushCart(name, qty, {
+    names, combo: rs ? names.join(" + ") : null, note,
+    unitPrice: priceOf(m) + specDiff(name, sel) + modsPriceOf(state.sp, targets),
+    kcal: (fullyKnown || nu.kcal > 0) ? nu.kcal : null,
+    partial: !fullyKnown && nu.kcal > 0
+  });
+  log("query-meal-detail", rs ? `读取「${name}」组成与选配：${names.join(" + ")}`
+                              : `读取「${name}」特调项${note.length ? "：" + note.join("、") : ""}`, false);
+  closeSheet("#sheetSpec");
+  const icon = $("#cartIcon");
+  icon.classList.add("pulse");
+  setTimeout(()=> icon.classList.remove("pulse"), 440);
+  toast(`已加入：${name}${qty > 1 ? ` ×${qty}` : ""}`);
+};
+
+/* ══════════════════════════════════════════════════════════════
+   七、购物车
+   ══════════════════════════════════════════════════════════════ */
+function pushCart(name, qty, cfg){
+  const key = [name, (cfg.names || []).join(">"), (cfg.note || []).join(">")].join("|");
+  const found = state.cart.find(l=> l.key === key);
+  if(found) found.qty += qty;
+  else state.cart.push({key, name, qty, unitPrice:cfg.unitPrice, kcal:cfg.kcal,
+                        partial: !!cfg.partial, note:cfg.note || [], combo:cfg.combo || null});
+  renderCart(); renderHeat();
+}
+const cartQty   = () => state.cart.reduce((a,l)=>a+l.qty,0);
+const cartPrice = () => state.cart.reduce((a,l)=>a+l.unitPrice*l.qty,0);
+function cartKcal(){
+  /* partial：套餐里有些选项营养表没收录 —— 此时合计只是**下限**，界面必须标 ≥ */
+  let total = 0, unknown = 0, partial = 0;
+  state.cart.forEach(l=>{
+    if(l.kcal === null){ unknown += l.qty; return; }
+    total += l.kcal * l.qty;
+    if(l.partial) partial += l.qty;
+  });
+  return {total, unknown, partial};
+}
+const lineNote = l => [l.combo ? `套餐：${l.combo}` : null, ...(l.note || [])].filter(Boolean);
+
+function renderCart(){
+  const n = cartQty(), price = cartPrice(), k = cartKcal();
+  /* 有场景时用场景档位与目标，无场景时沿用「按购物车热量反推档位」的旧口径 */
+  const P = goalPlan(), tier = P.target;
+  $("#cartBadge").hidden = !n;
+  $("#cartBadge").textContent = n;
+  $("#cartIcon").classList.toggle("empty", !n);
+  roll($("#cartTotal"), price, v=>yuan(v));
+  const kc = $("#cartKcal");
+  kc.className = "ckcal" + (k.total > P.hi ? " warn" : "");
+  kc.innerHTML = `<span class="dot"></span>本单${k.partial ? "≥ " : "约 "}${k.total} 千卡` +
+                 (n ? (state.goal ? ` · ${P.label}/${P.tier}档 ${tier}` : ` · ${P.tier}档 ${tier}`) : "") +
+                 (k.unknown ? ` · ${k.unknown} 件未知` : "") +
+                 (k.partial ? ` · ${k.partial} 件含未收录` : "");
+  $("#btnCheckout").disabled = !n;
+
+  const body = $("#ctBody");
+  if(!n){
+    body.innerHTML = `<div class="empty"><span class="e-ico">🧺</span>购物车还是空的。<br>在左侧菜单点任意一个「＋」，热量会立刻出现在右侧仪表上。</div>`;
+    return;
+  }
+  body.innerHTML = "";
+  state.cart.forEach(l=>{
+    const line = document.createElement("div"); line.className = "cart-line";
+    const uk = l.kcal;
+    line.innerHTML = `
+      <div class="cl-info">
+        <div class="cl-name">${esc(l.name)}</div>
+        ${lineNote(l).length?`<div class="cl-note">${esc(lineNote(l).join(" · "))}</div>`:""}
+        <div class="cl-price">${yuan(l.unitPrice*l.qty)}<span>${uk===null?"热量未知":(l.partial?"≥":"")+(uk*l.qty)+" 千卡"}</span></div>
+      </div>
+      <div class="stepper">
+        <button type="button" class="minus" aria-label="减少 ${esc(l.name)}">−</button>
+        <span class="q">${l.qty}</span>
+        <button type="button" class="plus" aria-label="增加 ${esc(l.name)}">＋</button>
+      </div>`;
+    line.querySelector(".minus").onclick = ()=>{
+      l.qty--; if(l.qty<=0) state.cart = state.cart.filter(x=>x!==l);
+      renderCart(); renderHeat();
+    };
+    line.querySelector(".plus").onclick = ()=>{ l.qty++; renderCart(); renderHeat(); };
+    body.appendChild(line);
+  });
+}
+$("#cartIcon").onclick = ()=>{
+  if(cartQty()) openSheet("#sheetCart");
+  else toast("购物车还是空的，先去菜单里加一份吧");
+};
+/* 清空 → 撤销：比二次确认更轻，也更不容易误点 */
+$("#ctClear").onclick = ()=>{
+  if(!cartQty()){ closeSheet("#sheetCart"); return; }
+  const backup = state.cart;
+  state.cart = []; renderCart(); renderHeat();
+  log("skill:cart", "清空购物车", true);
+  closeSheet("#sheetCart");
+  toast("已清空购物车", {label:"撤销", fn(){
+    state.cart = backup; renderCart(); renderHeat();
+    log("skill:cart", "撤销清空，购物车已恢复", true);
+  }});
+};
+$("#sheetMask").onclick = ()=>{ closeSheet("#sheetCart"); closeSheet("#sheetSpec"); };
+
+let lastFocus = null;
+function openSheet(sel){
+  lastFocus = document.activeElement;
+  const el = $(sel);
+  el.removeAttribute("inert"); el.classList.add("show");
+  $("#sheetMask").classList.add("show");
+  requestAnimationFrame(()=>{
+    const f = el.querySelector("[data-autofocus]") || el.querySelector("button");
+    if(f) f.focus({preventScroll:true});
+  });
+}
+function closeSheet(sel){
+  const el = $(sel);
+  if(!el.classList.contains("show")) return;
+  el.classList.remove("show"); el.setAttribute("inert","");
+  if(!$("#sheetSpec").classList.contains("show") && !$("#sheetCart").classList.contains("show"))
+    $("#sheetMask").classList.remove("show");
+  if(lastFocus && document.contains(lastFocus)) lastFocus.focus({preventScroll:true});
+}
+document.addEventListener("keydown", e=>{
+  if(e.key !== "Escape") return;
+  if($("#dlg").open) return;                       /* dialog 自带 Esc */
+  if($("#sheetSpec").classList.contains("show")) closeSheet("#sheetSpec");
+  else if($("#sheetCart").classList.contains("show")) closeSheet("#sheetCart");
+});
+
+/* ══════════════════════════════════════════════════════════════
+   八、结算与提交
+   ══════════════════════════════════════════════════════════════ */
+state.tier = ()=> {
+  const k = cartKcal().total, t = TIERS[state.daypart];
+  if(k > t.标准*1.12) return "标准";               /* 偏高时对齐标准档做替换 */
+  let best = "标准", d = Infinity;
+  Object.keys(t).forEach(x=>{ const dd = Math.abs(t[x]-k); if(dd<d){ d=dd; best=x; } });
+  return best;
+};
+function renderCheckout(){
+  const k = cartKcal(), sub = cartPrice();
+  /* 口径：满 30 减 5 与满 40 免配送费均以「优惠前商品小计 sub」判定（模拟口径）。
+     若按实付判定，sub=42 时优惠后 37 将不满足免配送门槛，两种口径都合理，此处取前者并在 UI 标注门槛。 */
+  const useCoupon = sub >= 30, cut = useCoupon ? 5 : 0;
+  const delivery = state.service === "外送" ? (sub >= 40 ? 0 : 9) : 0;
+  const total = Math.max(sub - cut + delivery, 0);
+  const t = TIERS[state.daypart], tierNow = state.tier();
+  const verdict = k.total > t.标准*1.12 ? `<span style="color:var(--bad)">偏高，超出标准档 ${k.total-t.标准} 千卡</span>`
+    : k.total < t.轻量*0.88 ? `<span style="color:var(--info)">偏低，距轻量档还差 ${t.轻量-k.total} 千卡</span>`
+    : `<span style="color:var(--ok)">处于${tierNow}档合理区间</span>`;
+
+  $("#coBody").innerHTML = `
+    <div class="co-sec">
+      <div class="co-h"><span class="num">01</span>取餐方式与门店</div>
+      <div class="kv"><span>${esc(state.service)}</span><b>${state.service==="外送"?"上海市浦东新区世纪大道 100 号 8F（模拟）":"热麦餐厅 · 陆家嘴中心店"}</b></div>
+      <div class="kv"><span>预计${state.service==="外送"?"送达":"取餐"}</span><b>${state.service==="外送"?"32 分钟":"12 分钟"}</b></div>
+    </div>
+    <div class="co-sec">
+      <div class="co-h"><span class="num">02</span>餐品清单<button type="button" class="link" id="coEdit">修改</button></div>
+      ${state.cart.map(l=>{
+        const uk = l.kcal;
+        return `<div class="co-line"><span>${esc(l.name)}${lineNote(l).length?`<div class="l-note">${esc(lineNote(l).join(" · "))}</div>`:""}</span>
+          <span class="r">x${l.qty} · ${yuan(l.unitPrice*l.qty)}<div class="l-note">${uk===null?"热量未知":(uk*l.qty)+" 千卡"}</div></span></div>`;
+      }).join("") || `<div class="empty">购物车为空，请返回菜单加购。</div>`}
+    </div>
+    <div class="co-sec">
+      <div class="co-h"><span class="num">03</span>优惠与餐具</div>
+      <div class="kv"><span>优惠券（满 30 减 5）</span><b style="color:${useCoupon?"var(--ok)":"var(--ink-4)"}">${useCoupon?"-¥5.00":"不可用"}</b></div>
+      <div class="kv"><span>餐具份数</span><b>1 份（按需提供）</b></div>
+    </div>
+    <div class="co-sec">
+      <div class="co-h"><span class="num">04</span>备注</div>
+      <label class="sr-only" for="coRemark">订单备注</label>
+      <textarea class="remarks" id="coRemark" placeholder="如：可乐去冰、不要餐巾纸（选填）"></textarea>
+    </div>
+    <div class="co-sec">
+      <div class="co-h"><span class="num">05</span>金额明细</div>
+      <div class="kv"><span>商品小计</span><b>${yuan(sub)}</b></div>
+      <div class="kv ${cut?"discount":""}"><span>优惠</span><b>${cut?"-¥"+cut.toFixed(2):"¥0.00"}</b></div>
+      ${state.service==="外送"?`<div class="kv"><span>配送费${delivery?`（满 40 免配送费）`:""}</span><b>${delivery?"¥"+delivery.toFixed(2):"免配送费"}</b></div>`:""}
+      <div class="kv total"><span>应付金额</span><b>${yuan(total)}</b></div>
+    </div>
+    <div class="co-sec">
+      <div class="co-h"><span class="num">06</span>本单热量估算</div>
+      <div class="kv"><span>本单合计</span><b>${k.total} 千卡${k.unknown?`（另有 ${k.unknown} 件热量未知）`:""}</b></div>
+      <div class="kv"><span>当前餐段档位</span><b>${state.daypart} · 轻量 ${t.轻量} / 标准 ${t.标准} / 吃饱 ${t.吃饱}</b></div>
+      <div class="kv"><span>结论</span><b>${verdict}</b></div>
+    </div>`;
+  $("#coEdit").onclick = ()=> goScreen("menu");
+  roll($("#coTotal"), total, v=>yuan(v));
+  const ch = $("#coHeat");
+  ch.className = "co-heat" + (k.total > t.标准*1.12 ? " warn" : "");
+  ch.innerHTML = `<span class="dot"></span>本单约 <b>${k.total}</b> 千卡`;
+  state.lastTotal = total;
+}
+$("#btnSubmit").onclick = ()=>{
+  if(!cartQty()){ toast("购物车为空，无法提交"); return; }
+  renderCheckout();                                 /* 兜底：确保 lastTotal 是最新的 */
+  const k = cartKcal(), t = TIERS[state.daypart];
+  log("calculate-price", `报价：${yuan(state.lastTotal)}（${state.service}，含优惠与配送费）`, false);
+  $("#mItems").innerHTML = state.cart.map(l=>
+    `<div><span>${esc(l.name)} x${l.qty}</span><span>${yuan(l.unitPrice*l.qty)}</span></div>`).join("");
+  $("#mTotal").textContent = yuan(state.lastTotal);
+  $("#mHeat").innerHTML = `本单约 <b>${k.total} 千卡</b>（${state.daypart} · ${state.tier()}档目标 ${t[state.tier()]}，区间 ${Math.round(t[state.tier()]*0.88)}–${Math.round(t[state.tier()]*1.12)}）` +
+    (k.total > t.标准*1.12 ? `<br><span style="color:var(--bad)">已超出标准档，可在右侧查看替换建议。</span>` : "");
+  $("#mPay").hidden = true; $("#mConfirm").hidden = false;
+  $("#mTitle").textContent = "确认提交订单";
+  $("#mSub").textContent = "提交后不可修改，请核对餐品与金额";
+  $("#dlg").showModal();
+};
+$("#mCancel").onclick = ()=>{ $("#dlg").close(); log("skill:order", "用户取消，未调用 create-order", true); };
+$("#mConfirm").onclick = ()=>{
+  log("create-order", "用户明确确认，创建订单并返回支付链接（模拟）", false);
+  $("#mTitle").textContent = "订单已创建";
+  $("#mSub").textContent = "请在下单后 15 分钟内完成支付";
+  $("#payLink").textContent = "https://pay.example-mock.cn/order/" + Date.now();
+  $("#mPay").hidden = false; $("#mConfirm").hidden = true;
+  $("#mCancel").textContent = "关闭";
+};
+/* 点遮罩关闭（dialog 内边距区域即 dialog 本身） */
+$("#dlg").addEventListener("click", e=>{ if(e.target.id === "dlg") $("#dlg").close(); });
+$("#dlg").addEventListener("close", ()=>{ $("#mCancel").textContent = "再想想"; });
+
+/* ══════════════════════════════════════════════════════════════
+   九、热量面板（仪表）
+   ══════════════════════════════════════════════════════════════ */
+function renderHeat(){
+  const k = cartKcal(), t = TIERS[state.daypart], P = goalPlan();
+  applyHeat();
+  roll($("#heatTotal"), k.total, v=> v + "<small>千卡</small>");
+  const v = $("#heatVerdict");
+  if(!cartQty()){ v.className = "verdict idle"; v.textContent = "未选餐"; }
+  /* 有场景时以**场景区间**判定，无场景时保持原口径（标准档上限 / 轻量档下限） */
+  else if(state.goal){
+    if(k.total > P.hi){ v.className = "verdict high"; v.textContent = `超场景 ${k.total - P.hi}`; }
+    else if(k.total < P.lo){ v.className = "verdict low"; v.textContent = `低于场景 ${P.lo - k.total}`; }
+    else{ v.className = "verdict ok"; v.textContent = `符合「${P.label}」`; }
+  }
+  else if(k.total > t.标准*1.12){ v.className = "verdict high"; v.textContent = `偏高 ${k.total-t.标准}`; }
+  else if(k.total < t.轻量*0.88){ v.className = "verdict low"; v.textContent = `偏低 ${t.轻量-k.total}`; }
+  else{ v.className = "verdict ok"; v.textContent = "合理区间"; }
+
+  /* 仪表：区间带画「当前生效的目标区间」——无场景=档位 ±12%，有场景=场景路径区间 */
+  const max = t.吃饱 * 1.25;
+  const pct = val => Math.min(100, Math.max(0, val / max * 100));
+  const tierNow = P.tier, bandLo = state.goal ? P.lo : P.target*0.88, bandHi = state.goal ? P.hi : P.target*1.12;
+  $("#gFill").style.width = pct(k.total) + "%";
+  $("#gNeedle").style.left = pct(k.total) + "%";
+  $("#gLabel").textContent = k.total ? k.total + " 千卡" : "";
+  $("#gBand").style.left  = pct(bandLo) + "%";
+  $("#gBand").style.width = (pct(bandHi) - pct(bandLo)) + "%";
+  $("#gScale").innerHTML = ["轻量","标准","吃饱"].map(x=>
+    `<span class="${x===tierNow?"on":""}" style="left:${pct(t[x])}%">${x} ${t[x]}</span>`).join("");
+  $("#gauge").setAttribute("aria-label", state.goal
+    ? `热量档位仪表：当前 ${k.total} 千卡，「${P.label}」目标区间 ${P.lo}–${P.hi} 千卡`
+    : `热量档位仪表：当前 ${k.total} 千卡，目标档位 ${tierNow} ${P.target} 千卡`);
+
+  const tb = $("#heatTable tbody"), tf = $("#heatTable tfoot");
+  if(!cartQty()){
+    tb.innerHTML = `<tr><td colspan="3" style="color:var(--ink-4)">尚未选择餐品</td></tr>`;
+    tf.innerHTML = "";
+  }else{
+    tb.innerHTML = state.cart.map(l=>{
+      const uk = l.kcal;
+      return `<tr><td class="name">${esc(l.name)}${lineNote(l).length?`<em>${esc(lineNote(l).join(" · "))}</em>`:""}</td>
+        <td class="num">${l.qty}</td>
+        <td class="num ${uk===null?"unknown":""}">${uk===null?"未知":(l.partial?"≥ ":"")+uk*l.qty}</td></tr>`;
+    }).join("");
+    tf.innerHTML = `<tr><td>合计${k.unknown?`（另有 ${k.unknown} 件热量未知）`:""}${k.partial?`（${k.partial} 件含未收录，按已收录项计）`:""}</td><td class="num"></td><td class="num">${k.partial?"≥ ":""}${k.total}</td></tr>`;
+  }
+  renderReco();
+}
+
+/* ══════════════════════════════════════════════════════════════
+   十、替换建议（组合枚举按餐段缓存）
+   ══════════════════════════════════════════════════════════════ */
+const comboCache = new Map();
+function enumCombos(){
+  if(comboCache.has(state.daypart)) return comboCache.get(state.daypart);
+  const dp = state.daypart;
+  /* 主食位只取单品成品；套餐不进主食位（避免与小食饮品重复计算）；非食品与热量未知一律剔除 */
+  const av = MENU.filter(m=>m.dp.includes(dp) && m.role!=="套餐" && baseKcal(m.n)!==null);
+  const mains = av.filter(m=>m.role==="主食"), snacks = av.filter(m=>m.role==="小食"),
+        desserts = av.filter(m=>m.role==="甜品"), drinks = av.filter(m=>m.role==="饮品");
+  const sum = arr => arr.reduce((a,m)=>{ const b = NUTRI[m.n];
+    return {kcal:a.kcal+b.kcal, p:a.p+b.p, f:a.f+b.f, c:a.c+b.c, na:a.na+b.na, price:a.price+priceOf(m)};
+  },{kcal:0,p:0,f:0,c:0,na:0,price:0});
+  const out = [];
+  if(dp==="随便吃吃"){
+    const pool = [...snacks, ...desserts];
+    const sets = pool.map(s=>[s]);
+    for(let i=0;i<pool.length;i++) for(let j=i+1;j<pool.length;j++) sets.push([pool[i],pool[j]]);
+    sets.forEach(s=>{ out.push({items:s, ...sum(s)}); if(s.length<3) drinks.forEach(d=> out.push({items:[...s,d], ...sum([...s,d])})); });
+    drinks.forEach(d=> out.push({items:[d], ...sum([d])}));
+  }else{
+    /* 与引擎对齐：甜品归入「小食」池，参与正餐组合（主食 + 0~1 小食/甜品 + 0~1 饮品） */
+    const snackPool = [...snacks, ...desserts];
+    mains.forEach(m=>{
+      const bases = [[m]];
+      snackPool.forEach(s=> bases.push([m,s]));
+      bases.forEach(b=>{ out.push({items:b, ...sum(b)}); drinks.forEach(d=> out.push({items:[...b,d], ...sum([...b,d])})); });
+    });
+  }
+  comboCache.set(dp, out);
+  return out;
+}
+function renderReco(){
+  const k = cartKcal(), t = TIERS[state.daypart];
+  const panel = $("#panelReco");
+  const needRepl = cartQty() && k.total > t.标准*1.12;
+  if(!needRepl){ panel.hidden = true; return; }
+  panel.hidden = false;
+  const target = t.标准;
+  let list = enumCombos().filter(c=>c.kcal>=target*0.88 && c.kcal<=target*1.12);
+  list.sort((a,b)=> Math.abs(a.kcal-target)-Math.abs(b.kcal-target));
+  list = list.slice(0,3);
+  const g = $("#recoGrid");
+  if(!list.length){ g.innerHTML = `<div class="empty">标准档内暂无合适替换组合，建议换餐段或档位。</div>`; return; }
+  g.innerHTML = "";
+  list.forEach((c,i)=>{
+    const diff = c.kcal - k.total;
+    const el = document.createElement("div"); el.className = "reco";
+    el.style.animation = reduced ? "none" : `item-in var(--dur-3) var(--e-out-quart) ${i*60}ms both`;
+    el.innerHTML = `
+      <div class="r-items">${esc(c.items.map(m=>m.n).join(" + "))}</div>
+      <div class="r-kcal">${c.kcal}<small>千卡 / 目标 ${target}</small></div>
+      <div class="r-delta ${diff<0?"down":"up"}">${diff<0?`▼ 少 ${Math.abs(diff)} 千卡`:`▲ 多 ${diff} 千卡`}</div>
+      <div class="r-nutri">蛋白 ${c.p}g · 脂肪 ${c.f}g · 碳水 ${c.c}g · 钠 ${c.na}mg</div>
+      <div class="r-foot"><span class="r-price">${yuan(c.price)}</span>
+        <button type="button" class="use">换这一份</button></div>`;
+    el.querySelector(".use").onclick = ()=>{
+      state.cart = c.items.map(m=>({
+        key:"reco|"+m.n, name:m.n, qty:1, unitPrice:priceOf(m), kcal:NUTRI[m.n] ? NUTRI[m.n].kcal : null,
+        combo:null, note:["替换方案"],
+      }));
+      log("skill:replace", `按标准档替换购物车：${c.items.map(m=>m.n).join(" + ")}（少 ${Math.abs(diff)} 千卡）`, true);
+      renderCart(); renderHeat();
+      toast(`已替换为 ${c.items.map(m=>m.n).join(" + ")}，约 ${c.kcal} 千卡`);
+    };
+    g.appendChild(el);
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   十·B、目标场景预设（F8 · 13 个场景）
+
+   与 scripts/mcd_goal.py 的 resolve_plan / filter_pools / combo_allowed /
+   totals_allowed 以及 mcd_combo.recommend 同口径实现。唯一来源是那份 Python，
+   这里是它在页面上的等价复刻——改规则请改 Python，再同步这里。
+   ══════════════════════════════════════════════════════════════ */
+
+/* 场景入参解析：空串/非数字一律视为「未填」（用场景默认值） */
+const num = v => (v === "" || v == null || isNaN(+v)) ? null : +v;
+
+/* 把「餐段 × 目标场景 × 场景入参」解析成一份可执行的推荐计划。
+   与 goalPlan 无关的旧行为（未选场景）保持原样：档位仍由购物车热量反推。 */
+function goalPlan(){
+  const T = TIERS[state.daypart], P = state.gparams || {};
+  const g = state.goal ? GOALS[state.goal] : null;
+  if(!g){
+    const tier = state.tier(), target = T[tier];
+    return {goal:null, label:null, tier, target, lo:target*0.88, hi:target*1.12,
+            ex:[], lim:{}, maxItems:null, dessert:true, snacks:2, staple:false,
+            snackCombo:false, sort:"near", warning:null, minp:0, plan_txt:""};
+  }
+  /* 目标档位与目标热量：场景自带档位；儿童再 ×0.85；预算场景直接用剩余预算 */
+  const tier = g.tier;
+  let target = T[tier];
+  if(g.scale) target = Math.round(target * g.scale);
+  if(g.budgetParam){ const v = num(P[g.budgetParam]); if(v) target = Math.round(v); }
+
+  /* 区间：显式 rf/rt 优先，否则 ±tol */
+  let lo, hi;
+  if(g.rf != null || g.rt != null){
+    lo = target * (g.rf != null ? g.rf : 0.88);
+    hi = target * (g.rt != null ? g.rt : 1.12);
+  }else{
+    const tol = g.tol != null ? g.tol : 0.12;
+    lo = target * (1 - tol); hi = target * (1 + tol);
+  }
+
+  /* 硬上限：场景默认 + 入参覆盖；0 或空 = 关闭该上限 */
+  const lim = Object.assign({}, g.lim || {});
+  const ovr = {sodium_mg:P.sodium_max, carb:P.carb_max, fat:P.fat_max, price:P.price_max, kcal_max:P.budget};
+  Object.keys(ovr).forEach(k=>{ if(ovr[k] !== undefined && ovr[k] !== "") lim[k] = num(ovr[k]); });
+  Object.keys(lim).forEach(k=>{ if(!(lim[k] > 0)) delete lim[k]; });
+  if(lim.kcal_max){ hi = Math.min(hi, lim.kcal_max); lo = Math.min(lo, hi * 0.95); }
+
+  /* 关键词排除（素食 = 场景自带；过敏原 = 按入参展开） */
+  let ex = (g.ex || []).slice(), warning = null;
+  if(g.param === "allergens"){
+    const ns = P.allergens || [];
+    ns.forEach(a=> ex.push(...(ALLERGENS[a] || [a])));
+    if(ns.length) warning = "过敏原为关键词粗筛（菜单无配料/过敏原表），结果不完整，务必以门店配料与员工确认为准。";
+  }
+  if(g.ex) warning = "素食为关键词粗筛（菜单无配料表），可能遗漏隐性动物成分，请自行确认。";
+
+  const lim_txt = [];
+  if(lim.sodium_mg) lim_txt.push(`钠≤${Math.round(lim.sodium_mg)}mg`);
+  if(lim.carb)      lim_txt.push(`碳水≤${Math.round(lim.carb)}g`);
+  if(lim.fat)       lim_txt.push(`脂肪≤${Math.round(lim.fat)}g`);
+  if(lim.price)     lim_txt.push(`价格≤¥${lim.price.toFixed(1)}`);
+  if(lim.kcal_max)  lim_txt.push(`热量≤${Math.round(lim.kcal_max)}kcal`);
+
+  return {goal:state.goal, label:g.label, tier, target, lo:Math.round(lo), hi:Math.round(hi),
+          ex:[...new Set(ex)], lim, maxItems:(num(P.max_items) || g.items || null),
+          dessert:!!g.dessert, snacks:g.snack != null ? g.snack : 2, staple:!!g.staple,
+          snackCombo:!!g.snackcombo, sort:g.sort || "near", warning, minp:g.minp || 0,
+          lim_txt, short:g.short, desc:g.desc};
+}
+
+/* 场景入参是否影响结果：用于「生效约束」里区分默认值与用户覆盖 */
+const gpOverridden = (k, def) => { const v = num(state.gparams[k]); return v != null && v !== def; };
+
+/* —— 场景评分器（逐字对齐 mcd_goal.GOAL_SCORERS）——
+   统一返回可比较数组，按字典序取小。dens = 每 100 kcal 的蛋白克数。 */
+const dens   = t => t.p / Math.max(t.kcal, 1) * 100;
+const gapOf  = (t, c) => Math.abs(t.kcal - c.target);
+const SCORERS = {
+  near:          (t,c)=> [gapOf(t,c), t.kcal],
+  cut:           (t,c)=> [-dens(t), gapOf(t,c) + Math.max(0, t.kcal - c.target)*2, t.na],
+  bulk:          (t,c)=> [gapOf(t,c) + Math.max(0, c.target - t.kcal)*2, -(t.p + t.c*0.5), t.price],
+  post:          (t,c)=> [-t.p, gapOf(t,c), -t.c],
+  cheat:         (t,c)=> [gapOf(t,c), t.price],
+  "low-sodium":  (t,c)=> [t.na, gapOf(t,c)],
+  "high-protein":(t,c)=> [-dens(t), -t.p, gapOf(t,c)],
+  "low-carb":    (t,c)=> [t.c, gapOf(t,c)],
+  "low-fat":     (t,c)=> [t.f, gapOf(t,c)],
+  small:         (t,c)=> [t.kcal, t.price],
+  budget:        (t,c)=> [gapOf(t,c), -t.p],
+  value:         (t,c)=> [t.price, gapOf(t,c)],
+};
+function cmpScore(a, b){
+  const n = Math.min(a.length, b.length);
+  for(let i=0;i<n;i++){ if(a[i] !== b[i]) return a[i] < b[i] ? -1 : 1; }
+  return a.length - b.length;
+}
+
+/* —— 场景组合枚举（对齐 mcd_combo.recommend）——
+   候选池取 MENU 的 `sc` 字段，那是**引擎自己判定**的品类（见 build_demo_menu.scene_cats）：
+   菜单里的 role 只是 UI 展示分组，与引擎池实测不同（午餐 8/8/7 vs 11/6/6）；
+   引擎还会因「规格未写明」的歧义（薯条/可乐/雪碧…）直接不发候选——禁止猜测。
+   甜品已被引擎并入「小食」池；!allow_dessert 时按 DESSERT_KW 从小食池剔掉。 */
+function sceneScene(dp){
+  const P = goalPlan();
+  let av = MENU.filter(m=> m.dp.includes(dp) && m.sc && baseKcal(m.n) !== null);
+  if(P.ex.length) av = av.filter(m=> !P.ex.some(w=> m.n.includes(w)));
+  let snacks = av.filter(m=> m.sc === "小食");
+  if(!P.dessert) snacks = snacks.filter(m=> !DESSERT_KW.some(w=> m.n.includes(w)));
+  /* R4 剪枝：热量非负，单项 > hi 者不可能进入任何档内组合 */
+  const cut = arr => arr.filter(m=> (NUTRI[m.n] ? NUTRI[m.n].kcal : 0) <= P.hi);
+  return {staple:cut(av.filter(m=> m.sc === "主食")), snacks:cut(snacks), drinks:cut(av.filter(m=> m.sc === "饮品"))};
+}
+const scSum = arr => arr.reduce((a,m)=>{
+  const b = NUTRI[m.n];
+  return {kcal:a.kcal+b.kcal, p:a.p+b.p, f:a.f+b.f, c:a.c+b.c, na:a.na+b.na, price:a.price+priceOf(m)};
+},{kcal:0,p:0,f:0,c:0,na:0,price:0});
+
+const sceneCache = new Map();
+function sceneCombos(){
+  const P = goalPlan(), dp = state.daypart;
+  const key = [dp, P.goal, P.target, P.lo, P.hi, P.maxItems, P.dessert, P.snacks, P.staple,
+               P.snackCombo, JSON.stringify(P.lim), P.ex.join(",")].join("|");
+  if(sceneCache.has(key)) return sceneCache.get(key);
+  const {staple, snacks, drinks} = sceneScene(dp);
+  const combos = [];
+  if(dp === "随便吃吃"){
+    snacks.forEach(s=>{ combos.push([s]); drinks.forEach(d=> combos.push([s,d])); });
+    drinks.forEach(d=> combos.push([d]));
+    for(let i=0;i<snacks.length;i++) for(let j=i+1;j<snacks.length;j++){
+      combos.push([snacks[i], snacks[j]]);
+      drinks.forEach(d=> combos.push([snacks[i], snacks[j], d]));
+    }
+  }else{
+    staple.forEach(st=>{
+      combos.push([st]);
+      snacks.forEach(s=> combos.push([st,s]));
+      drinks.forEach(d=> combos.push([st,d]));
+      snacks.forEach(s=> drinks.forEach(d=> combos.push([st,s,d])));
+      if(P.snacks >= 2)
+        for(let i=0;i<snacks.length;i++) for(let j=i+1;j<snacks.length;j++)
+          combos.push([st, snacks[i], snacks[j]]);
+    });
+    if(!P.staple && P.snacks >= 1){
+      snacks.forEach(s=>{ combos.push([s]); drinks.forEach(d=> combos.push([s,d])); });
+      drinks.forEach(d=> combos.push([d]));
+      if(P.snackCombo && P.snacks >= 2)
+        for(let i=0;i<snacks.length;i++) for(let j=i+1;j<snacks.length;j++){
+          combos.push([snacks[i], snacks[j]]);
+          drinks.forEach(d=> combos.push([snacks[i], snacks[j], d]));
+          if(P.snacks >= 3)
+            for(let k=j+1;k<snacks.length;k++){
+              combos.push([snacks[i], snacks[j], snacks[k]]);
+              drinks.forEach(d=> combos.push([snacks[i], snacks[j], snacks[k], d]));
+            }
+        }
+    }
+  }
+  /* 组合级件数上限 → 去重 → 档位筛选（不放宽）→ 整组硬上限 */
+  const seen = new Set(), inRange = [];
+  combos.forEach(c=>{
+    if(P.maxItems && c.length > P.maxItems) return;
+    const k = c.map(x=> x.n).sort().join("|");
+    if(seen.has(k)) return;
+    seen.add(k);
+    const t = scSum(c);
+    if(t.kcal < P.lo || t.kcal > P.hi) return;
+    const L = P.lim;
+    if(L.sodium_mg && t.na > L.sodium_mg) return;
+    if(L.carb && t.c > L.carb) return;
+    if(L.fat && t.f > L.fat) return;
+    if(L.price && t.price > L.price) return;
+    if(L.kcal_max && t.kcal > L.kcal_max) return;
+    inRange.push({items:c, t});
+  });
+  const sc = SCORERS[P.sort] || SCORERS.near, ctx = {target:P.target};
+  inRange.sort((a,b)=> cmpScore(sc(a.t, ctx), sc(b.t, ctx)));
+  const out = {count:inRange.length, top:inRange.slice(0,4)};
+  sceneCache.set(key, out);
+  return out;
+}
+
+/* —— 渲染：场景选择器 —— */
+function goalNeedParams(id){
+  const g = GOALS[id];
+  return (g.param === "allergens") || ["low-sodium","low-carb","low-fat","daily-budget","value","kids"].includes(id);
+}
+function renderGoalPicker(){
+  const box = $("#goalGroups"); box.innerHTML = "";
+  GOAL_GROUPS.forEach(([gname, keys])=>{
+    const wrap = document.createElement("div"); wrap.className = "goal-g";
+    const t = document.createElement("div"); t.className = "gg-t"; t.textContent = gname;
+    const grid = document.createElement("div"); grid.className = "goal-grid";
+    keys.forEach(k=>{
+      const g = GOALS[k];
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "goaltab";
+      b.setAttribute("aria-pressed", String(state.goal === k));
+      b.title = `${g.desc}　·　推荐档位 ${g.tier}`;
+      b.innerHTML = `<span class="gt-l">${esc(g.label)}</span><span class="gt-rank">${g.tier}</span>`;
+      b.onclick = ()=>{
+        state.goal = (state.goal === k) ? null : k;
+        state.gparams = {};
+        log("skill:goal", state.goal
+          ? `目标场景切换为「${g.label}」：${g.short}`
+          : "目标场景已清除，回到纯档位模式", false);
+        renderGoal(); renderHeat(); renderCart(); renderMenu();
+      };
+      grid.appendChild(b);
+    });
+    wrap.appendChild(t); wrap.appendChild(grid); box.appendChild(wrap);
+  });
+}
+
+/* —— 渲染：场景入参 —— */
+function renderGoalParams(){
+  const box = $("#goalParams");
+  const id = state.goal;
+  if(!id || !goalNeedParams(id)){ box.hidden = true; box.innerHTML = ""; return; }
+  box.hidden = false; box.innerHTML = "";
+  const addNum = (k, label, def, unit) => {
+    const f = document.createElement("div"); f.className = "gp-f";
+    f.innerHTML = `<label for="gp_${k}">${esc(label)}${unit ? `（${unit}）` : ""}</label>
+      <input type="number" id="gp_${k}" min="0" step="1" value="${def}">`;
+    f.querySelector("input").oninput = e=>{
+      state.gparams[k] = e.target.value === "" ? "" : +e.target.value;
+      renderGoalPlan(); renderGoalReco(); renderHeat(); renderMenu();
+    };
+    box.appendChild(f);
+  };
+  if(id === "low-sodium") addNum("sodium_max", "整组钠上限", (GOALS[id].lim||{}).sodium_mg || 1000, "mg");
+  if(id === "low-carb")   addNum("carb_max",   "整组碳水上限", (GOALS[id].lim||{}).carb || 60, "g");
+  if(id === "low-fat")    addNum("fat_max",    "整组脂肪上限", (GOALS[id].lim||{}).fat || 30, "g");
+  if(id === "value")      addNum("price_max",  "整组价格上限", 30, "元");
+  if(id === "daily-budget") addNum("budget",   "当日剩余预算", 600, "kcal");
+  if(id === "kids")       addNum("max_items",  "单组件数上限", (GOALS[id].items || 2), "件");
+  if(id === "allergen"){
+    const f = document.createElement("div"); f.className = "gp-f"; f.style.flexBasis = "100%";
+    f.innerHTML = `<label>过敏原（多选，关键词粗筛）</label><div class="gp-al">${
+      Object.keys(ALLERGENS).map(a=>`<label><input type="checkbox" value="${esc(a)}">${esc(a)}</label>`).join("")
+    }</div>`;
+    f.querySelectorAll("input").forEach(c=>{
+      c.onchange = ()=>{
+        state.gparams.allergens = [...f.querySelectorAll("input:checked")].map(x=>x.value);
+        renderGoalPlan(); renderGoalReco(); renderHeat(); renderMenu();
+      };
+    });
+    box.appendChild(f);
+  }
+}
+
+/* —— 渲染：生效计划（档位 / 目标区间 / 硬上限 / 告警）—— */
+function renderGoalPlan(){
+  const box = $("#goalPlan");
+  if(!state.goal){ box.hidden = true; box.innerHTML = ""; return; }
+  box.hidden = false;
+  const P = goalPlan(), L = P.lim, g = GOALS[state.goal];
+  const limItems = [];
+  const push = (k, txt, def) => limItems.push(
+    `<span class="${gpOverridden(k, def) ? "" : "off"}">${txt}${gpOverridden(k, def) ? "（已改）" : ""}</span>`);
+  if(L.sodium_mg) push("sodium_max", `钠≤${Math.round(L.sodium_mg)}mg`, (g.lim||{}).sodium_mg || 1000);
+  if(L.carb)      push("carb_max",   `碳水≤${Math.round(L.carb)}g`, (g.lim||{}).carb || 60);
+  if(L.fat)       push("fat_max",    `脂肪≤${Math.round(L.fat)}g`, (g.lim||{}).fat || 30);
+  if(L.price)     push("price_max",  `价格≤¥${L.price.toFixed(1)}`, null);
+  if(L.kcal_max)  push("budget",     `热量≤${Math.round(L.kcal_max)}kcal`, 600);
+  if(P.maxItems)  limItems.push(`<span class="${gpOverridden("max_items", g.items) ? "" : "off"}">≤${P.maxItems}件</span>`);
+  if(P.ex.length) limItems.push(`<span>排除 ${P.ex.length} 个关键词</span>`);
+  limItems.push(`<span class="${P.dessert ? "" : "off"}">${P.dessert ? "允许甜品" : "已剔甜品"}</span>`);
+  limItems.push(`<span class="off">小食上限 ${P.snacks} 件</span>`);
+
+  const res = sceneCombos();
+  const k = cartKcal(), delta = k.total - P.target;
+  const rel = !cartQty() ? ["未选餐", "warn"]
+    : (k.total > P.hi ? [`超出 ${k.total - P.hi}`, "warn"]
+    : k.total < P.lo ? [`差 ${P.lo - k.total}`, "warn"] : ["在场景区间内", "ok"]);
+
+  box.innerHTML = `
+    <div class="gp-row"><span class="gp-k">场景策略</span><span class="gp-v">${esc(g.short)}</span></div>
+    <div class="gp-row"><span class="gp-k">推荐档位</span><span class="gp-v">${esc(P.tier)}档</span>
+      <span class="gp-d ok">自动切换</span></div>
+    <div class="gp-row"><span class="gp-k">目标热量</span>
+      <span class="gp-v"><b>${P.target}</b>千卡　区间 ${P.lo} – ${P.hi}</span>
+      <span class="gp-d ${rel[1]}">${esc(rel[0])}</span></div>
+    <div class="gp-row sub"><span class="gp-k">排序器</span><span class="gp-v">${esc(P.sort)}</span></div>
+    <div class="gp-lim">${limItems.join("")}</div>
+    ${P.warning ? `<div class="goal-warn">⚠ ${esc(P.warning)}</div>` : ""}`;
+}
+
+/* —— 渲染：场景推荐组合（Top 3–4）—— */
+function renderGoalReco(){
+  const g = $("#goalReco");
+  if(!state.goal){ g.innerHTML = ""; return; }
+  const P = goalPlan(), res = sceneCombos();
+  if(!res.count){
+    g.innerHTML = `<div class="goal-empty">该场景下（${esc(P.tier)}档 ${P.lo}–${P.hi} 千卡${
+      P.lim_txt && P.lim_txt.length ? "，" + P.lim_txt.join("、") : ""}）没有命中组合。<br>
+      按规则**不放宽热量筛选范围**——请换档位、放宽上限或换餐段。</div>`;
+    return;
+  }
+  g.innerHTML = "";
+  res.top.forEach((c,i)=>{
+    const el = document.createElement("div"); el.className = "reco";
+    el.style.animation = reduced ? "none" : `item-in var(--dur-3) var(--e-out-quart) ${i*60}ms both`;
+    el.innerHTML = `
+      <div class="r-items">${esc(c.items.map(m=>m.n).join(" + "))}</div>
+      <div class="r-kcal">${Math.round(c.t.kcal)}<small>千卡 / 目标 ${P.target}｜命中 ${res.count} 组</small></div>
+      <div class="r-delta ${c.t.kcal <= P.target ? "down" : "up"}">${
+        c.t.kcal <= P.target ? `▼ 低于目标 ${Math.round(P.target - c.t.kcal)}` : `▲ 高于目标 ${Math.round(c.t.kcal - P.target)}`}</div>
+      <div class="r-nutri">蛋白 ${Math.round(c.t.p)}g · 脂肪 ${Math.round(c.t.f)}g · 碳水 ${Math.round(c.t.c)}g · 钠 ${Math.round(c.t.na)}mg</div>
+      <div class="r-foot"><span class="r-price">${yuan(c.t.price)}</span>
+        <button type="button" class="use">用这一组</button></div>`;
+    el.querySelector(".use").onclick = ()=>{
+      state.cart = c.items.map(m=>({
+        key:"goal|"+m.n, name:m.n, qty:1, unitPrice:priceOf(m),
+        kcal:NUTRI[m.n] ? NUTRI[m.n].kcal : null, combo:null,
+        note:[`${P.label}场景`],
+      }));
+      log("skill:combo", `按「${P.label}」场景取组合：${c.items.map(m=>m.n).join(" + ")}（${Math.round(c.t.kcal)} 千卡）`, true);
+      renderCart(); renderHeat();
+      toast(`已按「${P.label}」换为 ${c.items.map(m=>m.n).join(" + ")}，约 ${Math.round(c.t.kcal)} 千卡`);
+    };
+    g.appendChild(el);
+  });
+}
+
+function renderGoal(){
+  renderGoalPicker(); renderGoalParams(); renderGoalPlan(); renderGoalReco();
+}
+/* 当前场景下排在前面的商品名集合：给菜单列表打「场景推荐」徽标用 */
+function goalHitNames(){
+  if(!state.goal) return null;
+  const s = new Set();
+  sceneCombos().top.forEach(c=> c.items.forEach(m=> s.add(m.n)));
+  return s;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   十·C、一键导入历史订单并分析热量（F9 / T36）
+
+   与 scripts/mcd_import.py 同口径：脱敏 → 逐单展开套餐 → 匹配营养表 →
+   按 createTime 推断餐段 → 与标准档对比 → 汇总。
+   逐项热量不在此重算（由 mcd_import 的 Matcher 预解析），页面只做聚合。
+   未知项一律标「热量未知」，绝不按 0 计入合计（PRD §12 红线）。
+   ══════════════════════════════════════════════════════════════ */
+function histReview(o){
+  const known = o.items.filter(r=> r.st === "hit");
+  const kcal = known.reduce((a,r)=> a + r.k, 0);
+  const std = (TIERS[o.daypart] || TIERS["午餐"])["标准"];
+  const diff = kcal - std;
+  const unknown = o.items.filter(r=> r.st === "unknown").length;
+  const ambig = o.items.filter(r=> r.st === "ambiguous").length;
+  const level = Math.abs(diff) <= std*0.12 ? "ok" : (diff > 0 ? "high" : "low");
+  const verdict = level === "ok" ? "标准档合适" : (diff > 0 ? `偏高 +${Math.round(diff)}` : `偏低 ${Math.round(diff)}`);
+  return {rows:o.items, kcal, std, diff, level, verdict, unknown, ambig, n:o.items.length};
+}
+function histSummary(revs){
+  const n = revs.length;
+  const avg = n ? revs.reduce((a,r)=> a + r.kcal, 0) / n : 0;
+  const over = revs.filter(r=> r.diff > r.std*0.12).length;
+  const top = n ? revs.reduce((a,r)=> r.kcal > a.kcal ? r : a, revs[0]) : null;
+  const items = revs.reduce((a,r)=> a + r.n, 0);
+  const unk = revs.reduce((a,r)=> a + r.unknown, 0);
+  return {n, avg:Math.round(avg*10)/10, over, top, items, unk,
+          rate: items ? Math.round(unk / items * 1000)/10 : 0};
+}
+function renderHistory(){
+  const list = $("#histList"), sumBox = $("#histSum");
+  if(!state.histImported){
+    sumBox.hidden = true; sumBox.innerHTML = "";
+    list.innerHTML = `<div class="goal-empty">尚未导入。点上方「一键导入历史订单」：<br>
+      先自动脱敏（去 orderId / storeCode / storeName / beCode，门店代称化），
+      再逐单展开套餐 → 匹配营养表 → 按 createTime 推断餐段 → 与标准档对比。</div>`;
+    return;
+  }
+  /* 订单与其复盘结果成对保存，避免后续用 indexOf 反查（排序后就对不上了） */
+  const pairs = HISTORY.orders.map(o=> ({o, r:histReview(o)}));
+  const S = histSummary(pairs.map(p=> p.r));
+  sumBox.hidden = false;
+  sumBox.innerHTML = `
+    <div class="hs-c"><div class="hs-k">订单数</div><div class="hs-v">${S.n}<small>单</small></div></div>
+    <div class="hs-c"><div class="hs-k">平均热量</div><div class="hs-v">${S.avg}<small>千卡</small></div></div>
+    <div class="hs-c ${S.over ? "over" : "ok"}"><div class="hs-k">超标准档</div><div class="hs-v">${S.over}<small>单</small></div></div>
+    <div class="hs-c"><div class="hs-k">最重一单</div><div class="hs-v">${S.top ? S.top.kcal : 0}<small>千卡</small></div></div>
+    <div class="hs-c ${S.unk ? "over" : "ok"}"><div class="hs-k">热量未知项</div><div class="hs-v">${S.unk}<small>项 · ${S.rate}%</small></div></div>`;
+
+  list.innerHTML = "";
+  /* 热量从重到轻，与 mcd_import 的文本报告一致 */
+  pairs.slice().sort((a,b)=> b.r.kcal - a.r.kcal).forEach(({o, r})=>{
+    const el = document.createElement("div"); el.className = "ho";
+    el.innerHTML = `
+      <div class="ho-h">
+        <span class="ho-time">${esc(o.time.slice(0,10))}</span>
+        <span class="ho-store">${esc(o.store)} · ${esc(o.time.slice(11))}</span>
+        <span class="ho-dp">${esc(o.daypart)}</span>
+        <span class="ho-main">
+          <span class="ho-kcal">${r.kcal}<small>千卡${r.unknown ? "（下限）" : ""}</small></span>
+          <span class="ho-v ${r.level}">${esc(r.verdict)}</span>
+        </span>
+      </div>
+      <div class="ho-items">${r.rows.map(it=>{
+        const mk = it.st === "hit" ? `<span class="hi-mk hit">✓</span>` : `<span class="hi-mk unknown">✗</span>`;
+        const kt = it.st === "hit" ? `<span class="hi-k">${it.k} 千卡</span>`
+                 : `<span class="hi-k unknown">热量未知</span>`;
+        return `<div class="ho-i">${mk}<span class="hi-n">${esc(it.n)}</span>${kt}</div>`;
+      }).join("")}</div>
+      <div class="ho-f">
+        <span class="ho-amt">${r.n} 项 · 标准档 ${r.std} 千卡 · 实付 <b>¥${o.amount.toFixed(1)}</b></span>
+        <button type="button" class="ho-rebuy">复购此单</button>
+      </div>`;
+    el.querySelector(".ho-rebuy").onclick = ()=> rebuyOrder(o, r);
+    list.appendChild(el);
+  });
+}
+function rebuyOrder(o, r){
+  let added = 0; const skipped = [];
+  r.rows.forEach(it=>{
+    const m = item(it.n);
+    if(m && it.st === "hit"){
+      pushCart(it.n, 1, {names:[it.n], kcal:NUTRI[it.n] ? NUTRI[it.n].kcal : null,
+                         unitPrice:priceOf(m), note:[`历史订单复购 · ${o.time.slice(0,10)}`]});
+      added++;
+    }else skipped.push(it.n);
+  });
+  log("skill:cart", `复购历史订单（${o.time.slice(0,10)}）：加入 ${added} 项` +
+      (skipped.length ? `，跳过 ${skipped.length} 项（${skipped.join("、")}）` : ""), true);
+  toast(added
+    ? `已加入 ${added} 项${skipped.length ? `，${skipped.length} 项无法加入（菜单无此商品或热量未知）` : ""}`
+    : "这单的商品在当前菜单里都找不到，无法复购");
+}
+function importHistory(){
+  if(state.histImported){ renderHistory(); toast("历史订单已导入，无需重复导入"); return; }
+  const btn = $("#btnImport");
+  btn.disabled = true;
+  log("order-list", "读取历史订单原始响应（含 orderId / storeCode / storeName / beCode 等敏感字段）", false);
+  log("skill:import", "自动脱敏：去除 orderId / storeCode / storeName / beCode，门店按出现顺序代称化为「门店A/B/C」", true);
+  log("skill:import", `落盘脱敏样本 data/history-orders.json（${HISTORY.meta.orderCount} 单，orderId 等敏感字段不落盘）`, true);
+  const revs = HISTORY.orders.map(histReview);
+  revs.forEach((r,i)=>{
+    const o = HISTORY.orders[i];
+    log("skill:import", `复盘第 ${i+1} 单（${o.time} · ${o.daypart}）：展开套餐 → 匹配营养表 → 合计 ${r.kcal} 千卡` +
+        (r.unknown ? `（${r.unknown} 项热量未知，合计仅下限）` : "") +
+        ` → 标准档 ${r.std}，${r.verdict}`, true);
+  });
+  const S = histSummary(revs);
+  log("skill:import", `汇总：${S.n} 单｜平均 ${S.avg} 千卡｜超标准档 ${S.over} 单｜最重 ${S.top ? S.top.kcal : 0} 千卡｜未知项 ${S.unk} 项（${S.rate}%）`, true);
+  state.histImported = true;
+  btn.disabled = false; btn.textContent = "重新导入";
+  renderHistory();
+  toast(`已导入 ${S.n} 单历史订单，平均 ${S.avg} 千卡，超标准档 ${S.over} 单`);
+}
+$("#btnImport").onclick = importHistory;
+
+/* ══════════════════════════════════════════════════════════════
+   十一、导航
+   ══════════════════════════════════════════════════════════════ */
+function goScreen(name){
+  if(state.screen === name) return;
+  state.screen = name;
+  const menu = $("#screenMenu"), co = $("#screenCheckout");
+  menu.hidden = name !== "menu"; co.hidden = name !== "checkout";
+  const target = name === "menu" ? menu : co;
+  target.classList.remove("screen"); void target.offsetWidth; target.classList.add("screen");  /* 重放入场动画 */
+  $("#cartbar").hidden = name !== "menu";
+  $("#coFoot").hidden = name !== "checkout";
+  $("#viewport").scrollTop = 0;
+  if(name === "checkout"){
+    renderCheckout();
+    log("calculate-price", "结算页：计算商品小计、优惠、配送费与应付金额", false);
+  }
+}
+$("#btnCheckout").onclick = ()=>{ closeSheet("#sheetCart"); goScreen("checkout"); };
+
+$("#segService").querySelectorAll("button").forEach(b=>{
+  b.onclick = ()=>{
+    state.service = b.dataset.s;
+    $("#segService").querySelectorAll("button").forEach(x=>{
+      const on = x === b;
+      x.classList.toggle("active", on);
+      x.setAttribute("aria-pressed", String(on));
+    });
+    $("#storeMeta").textContent = state.service==="外送"
+      ? "送至 世纪大道 100 号 8F（模拟） · 满 40 免配送费"
+      : "距你 480m · 营业中 · 取餐预计 12 分钟";
+    log("delivery-query-addresses", state.service==="外送" ? "读取收货地址（模拟）" : "未使用（到店取餐）", state.service!=="外送");
+    if(state.service==="外送") log("delivery-query-stores", "按地址查询可配送门店，取得 storeCode / beCode", false);
+    else log("query-nearby-stores", "查询附近门店，取得 storeCode / beCode", false);
+    if(state.screen==="checkout") renderCheckout();
+  };
+});
+$("#btnChangeStore").onclick = ()=> toast("演示页未实现门店列表（不调用真实接口）");
+
+function setDaypart(dp, silent){
+  state.daypart = dp;
+  setSeg("#segDaypart", Object.keys(TIERS), dp, d=> setDaypart(d));
+  if(!silent) log("now-time-info", `餐段切换为「${dp}」，档位目标与可售菜单已更新`, false);
+  renderRail(true); renderMenu(); renderCart(); renderHeat();
+  /* 场景目标热量与推荐组合都随餐段变化，换餐段要重算场景面板 */
+  if(state.goal) renderGoal();
+  if(state.screen==="checkout") renderCheckout();
+}
+
+/* ══════════════════════════════════════════════════════════════
+   十二、初始化
+   ══════════════════════════════════════════════════════════════ */
+function init(){
+  setDaypart(detectDaypart(), true);
+  log("now-time-info", `按当前北京时间自动识别餐段：${state.daypart}`, false);
+  log("list-nutrition-foods", "拉取营养表（157 项，紧凑格式解析并缓存）", false);
+  log("query-meals", `查询当前门店可售餐品（${state.daypart}时段，共 ${availItems().length} 项）`, false);
+  renderCart(); renderHeat();
+  renderGoal();
+  renderHistory();
+  $("#sheetSpec").setAttribute("inert","");
+  $("#sheetCart").setAttribute("inert","");
+}
+init();
+</script>
+</body>
+</html>

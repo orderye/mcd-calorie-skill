@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-build_demo_menu.py —— 用真实采集快照生成「点餐页.html」的产品数据块。
+build_demo_menu.py —— 用真实采集快照生成「food.html」的产品数据块。
 
 数据来源（全部来自 mcd-mcp 实测，非编造）：
   fixtures/meals.3570190.dinein.breakfast.json    早餐 92 项 (reservationDate=08:00)
@@ -787,7 +787,7 @@ def emit_history():
     return "\n".join(out)
 
 # ────────────────────────── 11. 注入页面 ──────────────────────────
-PAGE = os.path.join(os.path.dirname(BASE), "点餐页.html")
+PAGE = os.path.join(os.path.dirname(BASE), "food.html")
 
 def _block_span(src, name, endname=None):
     """定位 `const NAME = … ;` 的字符区间（含分号）。
@@ -838,7 +838,7 @@ def _strip_lead_comment(text, name):
     return text[m.start():] if m else text
 
 def inject(names):
-    """把生成的数据块写回「点餐页.html」。
+    """把生成的数据块写回「food.html」。
 
     改数据请改脚本后重跑，不要手改页面里的数组——手改下一次注入就被覆盖。
     幂等：同样的数据源，反复 inject 结果逐字节一致。

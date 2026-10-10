@@ -27,7 +27,7 @@
 | 入口 | 地址 |
 |---|---|
 | 演示首页（自动跳转点餐页） | <https://orderye.github.io/mcd-calorie-skill/> |
-| 点餐页直达 | <https://orderye.github.io/mcd-calorie-skill/%E7%82%B9%E9%A4%90%E9%A1%B5.html> |
+| 点餐页直达 | <https://orderye.github.io/mcd-calorie-skill/food.html> |
 
 - 演示页为**单文件静态托管**（GitHub Pages）：CSS / JS / 数据全部内联，无外部依赖，手机浏览器可直接打开交互。
 - 内容为 10 个编号面板的**模拟数据演示**（菜单 / 订单 / 价格均为脱敏模拟），不代表任何真实门店实时状态；接入真实数据请按[第 2 节](#2-快速开始)配置 MCP。
@@ -369,7 +369,9 @@ python skill/tools/eval_match.py
 ├── project-engineering-file.md     # 工程实施记录
 ├── workbuddy.md                    # WorkBuddy 开发对话上下文导出
 ├── 订单热量与套餐推荐 Skill PRD.md  # 产品需求文档
-└── index.html / 点餐页.html         # GitHub Pages 入口（跳转）与点餐演示页（模拟数据）
+├── index.html                      # GitHub Pages 入口（自动跳转 food.html）
+├── food.html                       # 点餐演示页（仪表 / 像素双风格切换 · 模拟数据）
+└── food-pixel.html                 # 独立像素风单文件版（数据冻结 · 可直接托管）
 ```
 
 ### 本地脚本（`skill/scripts/`，Python 3.10+，无第三方依赖）

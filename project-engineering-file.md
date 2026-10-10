@@ -42,7 +42,7 @@
 | `scripts/mcd_catalog.py` | 已完成 | 全量目录聚合 + 营养缺口导出 |
 | `tools/eval_match.py` | 已完成 | 匹配率评测（常见订单集 ≥90%） |
 | `data/*` | 已完成 | alias / category-rules / catalog / nutrition-gaps |
-| `演示页.html` / `点餐页.html` | 已完成 | 交互演示；正餐组合已纳入甜品，与引擎对齐（CR-003） |
+| `演示页.html` / `food.html` | 已完成 | 交互演示；正餐组合已纳入甜品，与引擎对齐（CR-003） |
 | `docs/*` | 已完成 | nutrition-schema / store-chain / order-flow / e2e-run / catalog-collection |
 
 ## 5. 接口约定
