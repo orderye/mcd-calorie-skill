@@ -11,7 +11,7 @@ mcd_import.py — 一键导入历史订单并分析热量（T36）
 
 数据源：order-list（官方历史订单查询，1.0.6/2026-07-16 起可用）。
 其 orderProductList[].comboItemList[] 与 query-order 结构一致，
-展开 / 归一 / 匹配逻辑直接复用 mcd_order.expand_order。
+展开 / 归一 / 匹配逻辑收敛在 mcd_review（复用 mcd_order.expand_order）。
 
 纪律（与 mcd_history.py 一致，不可放松）：
 - 未知项一律标注「热量未知」，绝不按 0 计算（PRD F1 / §9）。
@@ -35,8 +35,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from mcd_nutrition import Matcher, load_nutrition   # noqa: E402
-import mcd_daypart as dp                            # noqa: E402
-from mcd_order import expand_order                # noqa: E402
+from mcd_review import review_order                 # noqa: E402  # 逐单复盘唯一实现
 
 SKILL_ROOT = Path(__file__).resolve().parent.parent
 OUT_DEFAULT = SKILL_ROOT / "data" / "history-orders.json"
@@ -46,14 +45,6 @@ _SENSITIVE_KEYS = ("orderId", "storeCode", "storeName", "beCode", "memberId",
                    "phone", "mobile", "address", "payNo", "tradeNo", "token")
 # 门店代称：按首次出现顺序分配「门店A / 门店B / …」
 _STORE_ALIAS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
-
-def _hhmm(create_time: str) -> str:
-    """'2026-03-20 18:32:42' → '18:32'"""
-    try:
-        return create_time.split()[1][:5]
-    except Exception:
-        return "12:00"
 
 
 # ────────────────────────── 脱敏 ──────────────────────────
@@ -106,51 +97,6 @@ def deidentify(raw: dict) -> dict:
         if raw.get(k) is not None and k != "traceId":
             meta[k] = raw[k]
     return {"_meta": meta, "list": orders}
-
-
-# ────────────────────────── 逐单分析 ──────────────────────────
-
-def review_order(order: dict, matcher: Matcher, user_daypart: str | None = None) -> dict:
-    """复算单笔订单热量（与 mcd_history.review_order 同口径）。"""
-    items, addons = expand_order(order)
-    daypart = user_daypart or dp.resolve_daypart(_hhmm(order.get("createTime", "")), None)
-    standard = dp.tier_target(daypart, "标准")
-    light = dp.tier_target(daypart, "轻量")
-
-    rows, unknown, ambiguous = [], [], []
-    for raw in items:
-        res = matcher.match(raw, allow_defaults=True)
-        if res["status"] == "hit":
-            r = res["record"]
-            rows.append({"name": raw, "status": "hit", "kcal": r["kcal"],
-                         "matched": r["name"], "method": res["method"]})
-        elif res["status"] == "ambiguous":
-            rows.append({"name": raw, "status": "ambiguous",
-                         "candidates": res["candidates"][:4]})
-            ambiguous.append(raw)
-        else:
-            rows.append({"name": raw, "status": "unknown"})
-            unknown.append(raw)
-
-    total = sum(r["kcal"] for r in rows if r["status"] == "hit")
-    diff = total - standard
-    if abs(diff) <= standard * 0.12:
-        verdict = "标准档合适"
-    elif diff > 0:
-        verdict = f"偏高 +{diff:.0f}"
-    else:
-        verdict = f"偏低 {diff:.0f}"
-    return {
-        "createTime": order.get("createTime"),
-        "store": order.get("store"),
-        "daypart": daypart,
-        "standard": standard, "light": light,
-        "itemCount": len(rows), "kcal": total, "diff": diff, "verdict": verdict,
-        "unknown": unknown, "ambiguous": ambiguous,
-        "addons": addons,
-        "amount": order.get("realTotalAmount"),
-        "rows": rows,
-    }
 
 
 # ────────────────────────── 汇总报告 ──────────────────────────

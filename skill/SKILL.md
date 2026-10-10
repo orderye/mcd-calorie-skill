@@ -6,7 +6,7 @@ description: >
   支持 13 个目标场景：减脂、增重、练后餐、放纵餐、低钠控盐、高蛋白增肌、低糖低碳水、
   低脂清淡、素食/蛋奶素、儿童/小份量、热量预算日控、过敏原规避、性价比/省钱。
   不提供医学、减重或疾病相关建议，热量仅为估算参考。
-version: 0.8.0
+version: 0.9.0
 ---
 
 # 订单热量与套餐推荐 Skill
@@ -147,22 +147,26 @@ version: 0.8.0
 - 不使用官方商品图片与商标素材；演示材料标注"模拟"。
 - Token 只在 MCP 客户端配置，不写入对话、日志或演示页。
 - 下单前必须展示金额并得到用户明确确认；本 Skill 不代付。
-- 限流 600 次/分钟：营养表缓存 ≥24h，菜单按 店+餐段 缓存 10min；429 退避重试。
+- 限流 600 次/分钟：营养表缓存 ≥24h，菜单按 店+餐段 缓存 10min；429 退避重试。**机制化**：`scripts/mcd_cache.py`（put/get 带 TTL、`backoff_active/set_backoff` 退避、CLI `list/show/clear`）；重复采集前先查缓存，命中直接复用。
 
 ## 本地脚本
 
 ```
 scripts/mcd_nutrition.py   营养表解析 / 名称归一化 / 四级匹配器（UNKNOWN 保护）
 scripts/mcd_daypart.py     餐段时段解析（门店实测 > 固定兜底）+ 档位表
+scripts/mcd_taxonomy.py    品类归类与排除规则单一来源（category-rules.json 唯一加载点；order/combo/catalog 共用）
 scripts/mcd_goal.py        目标场景策略层（13 场景定义 + 场景评分器 + 硬上限/关键词排除/计划解析）
-scripts/mcd_combo.py       品类三级归类 + 组合枚举 + 档位筛选 + 排序 + 场景推荐
+scripts/mcd_combo.py       组合枚举 + 档位筛选 + 排序 + 场景推荐（品类归类 import mcd_taxonomy）
 scripts/mcd_order.py       订单展开（兼容 productName / name）+ 加料剥离 + 合计与档位对比
+scripts/mcd_review.py      历史订单逐单复盘管线唯一实现（import/history 薄壳共用，勿再复制）
 scripts/mcd_replace.py     替换建议（标准档触发规则）
 scripts/mcd_import.py      一键导入历史订单（order-list 原始响应 → 自动脱敏 → 落盘 → 逐单热量与档位对比）
 scripts/mcd_history.py     历史订单批量复盘（已脱敏样本 → 逐单热量与档位对比）
 scripts/mcd_catalog.py     全量目录聚合（多快照 → catalog.json / nutrition-gaps.json）
 scripts/mcd_spec_evidence.py 菜单规格证据挖掘（套餐默认搭配 → 消解菜单名缺规格的歧义；A 级可补 alias.json#defaults，B/C 级保持歧义）
+scripts/mcd_cache.py       带 TTL 本地缓存机制（营养 24h / 菜单 10min / 429 退避；CLI: list/show/clear）
 tools/eval_match.py        匹配率评测（常见订单集 ≥90% 验收）
+tests/test_engine.py       引擎回归套件（47 断言：nutrition/daypart 边界/goal 硬上限/taxonomy/cache；python3 tests/run_tests.py）
 data/alias.json            别名表 + 有证据默认规格（query-meal-detail isDefault=1）
 data/category-rules.json   品类兜底关键词
 data/catalog.json          全量目录（179 商品：单品 90 / 套餐 SKU 89；套餐组成详情 90 份已采，见 comboDetails）

@@ -43,9 +43,8 @@ FIXTURES = SKILL_ROOT / "fixtures"
 OUT_DEFAULT = SKILL_ROOT / "data" / "catalog.json"
 HISTORY_ORDERS = FIXTURES / "order-list.sample.json"   # 脱敏历史订单（order-list）
 
-# 名称里出现这些词 → 视为套餐/组合（统一维护在 data/category-rules.json#comboHints）
-_RULES = json.loads((SKILL_ROOT / "data" / "category-rules.json").read_text(encoding="utf-8"))
-COMBO_HINTS = tuple(_RULES["comboHints"])
+# 套餐线索词统一从基座模块取（category-rules.json#comboHints 的唯一加载点在 mcd_taxonomy）
+from mcd_taxonomy import COMBO_HINTS       # noqa: E402
 
 IMAGE_KEYS = ("image", "img", "imageUrl", "picUrl", "cover")
 

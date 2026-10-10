@@ -8,7 +8,7 @@
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
 ![MCP](https://img.shields.io/badge/MCP-streamable--http-4B8BBE)
-![Skill](https://img.shields.io/badge/Skill-v0.8.0-FFC72C)
+![Skill](https://img.shields.io/badge/Skill-v0.9.0-FFC72C)
 
 「热麦卡路里」是一套以对话方式运行的 **Agent Skill**：读取一笔麦当劳订单 → 估算整单热量 → 对照所处餐段的热量档位给出结论 → 按餐段、档位或**目标场景**推荐门店当前可售的套餐 → 给出更轻的替换方案 → 在用户确认金额后下单。
 
@@ -30,7 +30,7 @@
 | 点餐页直达 | <https://orderye.github.io/mcd-calorie-skill/food.html> |
 
 - 演示页为**单文件静态托管**（GitHub Pages）：CSS / JS / 数据全部内联，无外部依赖，手机浏览器可直接打开交互。
-- `food.html` 页头可切换**仪表风 / 像素风**双皮肤（选择记忆在浏览器本地）；`food-pixel.html` 为独立纯像素单文件版。
+- `food.html` 页头可切换**仪表风 / 像素风**双皮肤（选择记忆在浏览器本地），是线上演示的**唯一数据源**；`food-pixel.html` 为合并前的冻结独立纯像素单文件版（**数据冻结、不参与后续 inject**，仅作可直接托管的备用演示）。
 - 内容为 10 个编号面板的**模拟数据演示**（菜单 / 订单 / 价格均为脱敏模拟），不代表任何真实门店实时状态；接入真实数据请按[第 2 节](#2-快速开始)配置 MCP。
 
 ---
@@ -398,21 +398,22 @@ python skill/tests/run_tests.py
 
 | 限制 | 现状 | 处理策略 |
 |---|---|---|
-| 营养表覆盖率 | 官方营养表对**当前在售单品覆盖率 44.4%**（单品 40/90，实测门店 3570190；全量含套餐 60/179） | 未收录项标「热量未知」，合计改口「≥ N kcal」；缺口清单见 `data/nutrition-gaps.json` |
+| 营养表覆盖率 | 官方营养表对**当前在售单品覆盖率 44.4%**（单品 40/90，实测门店 3570190；全量含套餐 60/179，**截至 2026-10-10 实测**） | 未收录项标「热量未知」，合计改口「≥ N kcal」；缺口清单见 `data/nutrition-gaps.json` |
 | 名称歧义 | 可乐 / 薯条 / 新地 / 派等缺规格的商品存在多个候选 | 列出候选让用户确认，**不猜规格**；部分规格用有证据的默认值（`isDefault=1`） |
 | 已下架 / 限定品 | 历史订单里可能出现营养表已无记录的商品 | 缺口清单中标 `origin=history-order`，同样走 UNKNOWN 保护 |
 | 素食 / 过敏原识别 | 菜单无配料 / 过敏原表，仅能按名称关键词**粗筛** | 结果不完整，输出带告警，须以门店配料与员工确认为准 |
 | 价格浮动 | 价格随餐段、门店变动 | 推荐候选与报价一律取**当次实时返回**，`catalog.json` 仅作离线兜底 |
 | 接口限流 | 600 次/分钟 | `mcd_cache.py` 机制化：营养表缓存 ≥24h、菜单按「店 + 餐段」缓存 10min，429 指数退避 |
 | 餐段时段 | 各店不同，存在跨零点宵夜段 | 门店实测 `reservationTimeOptions` 优先，固定时段仅作兜底 |
+| 演示页双皮肤 / 冻结版 | `food.html` 内置仪表风 / 像素风切换（数据由 `build_demo_menu.py` 生成，属**模拟数据**，不连 MCP）；`food-pixel.html` 为合并前的冻结独立像素版，**数据冻结、不参与 inject**，定位为可托管备用演示 | 线上以 `food.html` 双风格为唯一数据源；`food-pixel.html` 不再随引擎更新，二者内容会逐渐分化 |
 
 ---
 
 ## 10. 边界与合规
 
 - 热量为**估算参考**，不提供医学 / 减重 / 疾病饮食建议，不给「你应该吃多少」的处方；13 个目标场景同样**不构成减重 / 增肌处方**。
-- 营养表调用失败或为空 → 仅提示稍后重试，**不凭记忆给热量数字**。
-- 不使用官方商品图片与商标素材；演示材料均标注「模拟」。
+- 营养表调用失败或为空 → 仅提示稍后重试，**不凭记忆给热量数字**；演示页中的热量均来自脱敏模拟快照，不代表任何真实门店。
+- 不使用官方商品图片、Logo 与商标素材；`food.html` / `food-pixel.html` 演示页均为**模拟数据**、与麦当劳官方无隶属关系，已标注「模拟」。
 - Token 只在 MCP 客户端配置，不写入对话、日志或演示页。
 - 历史订单**脱敏是硬红线**：`order-list` 原始响应（含 `orderId` / `storeCode` / `storeName` / `beCode`）绝不落盘，只落盘脱敏后样本。
 - 下单前必须展示金额并获得用户明确确认；本 Skill 不代付。
@@ -446,7 +447,7 @@ python skill/tests/run_tests.py
 - 赛事：**麦当劳程序员节创意开发大赛**（[活动仓库](https://github.com/M-China/mcd-developer-innovation-challenge)）
 - 开发工具：**WorkBuddy**（官方合作伙伴），开发对话上下文见 [`workbuddy.md`](workbuddy.md)
 - 底层能力：麦当劳中国官方 MCP [`M-China/mcd-mcp-server`](https://github.com/M-China/mcd-mcp-server)
-- 当前版本：**v0.8.0**（v0.8 营养缺口攻坚：规格证据挖掘 `mcd_spec_evidence.py` + 餐品数据实时更新链路）
+- 当前版本：**v0.9.0**（v0.8 营养缺口攻坚：规格证据挖掘 `mcd_spec_evidence.py` + 餐品数据实时更新链路；演示页 `food.html` 内置仪表 / 像素双风格、像素风合并进主文件，`food-pixel.html` 冻结为独立备用版）
 
 ---
 

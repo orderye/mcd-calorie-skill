@@ -14,7 +14,7 @@
 | 接入的 MCP | 麦当劳中国官方 MCP `mcd-mcp`（`https://mcp.mcd.cn`，Streamable HTTP，Bearer Token 鉴权） |
 | 运行环境 | macOS；本地计算脚本为 Python 3.10+，无第三方依赖 |
 | 版本控制 | Git + GitHub（Public 仓库 `orderye/mcd-calorie-skill`） |
-| 交付形态 | Agent Skill（`skill/`，v0.8.0）+ 单文件 HTML（`food.html` 仪表/像素双风格 + `food-pixel.html` 独立像素版）+ 参赛文档 + `cover/`·`assets/` 品牌资产 |
+| 交付形态 | Agent Skill（`skill/`，v0.9.0）+ 单文件 HTML（`food.html` 仪表/像素双风格 + `food-pixel.html` 独立像素版）+ 参赛文档 + `cover/`·`assets/` 品牌资产 |
 
 ---
 

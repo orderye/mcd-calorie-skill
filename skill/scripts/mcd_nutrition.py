@@ -201,9 +201,12 @@ class Matcher:
             cand_names = sorted({r["name"] for r in cands})
             if allow_defaults and key in self.defaults:
                 dft = self.defaults[key]
-                if dft in cand_names and dft in self.by_key:
+                # defaults 值是菜单原名（如「中杯怡泉+C」），by_key 键是归一化名，
+                # 必须经 normalize_name 归一后再查，否则大小写不一致恒 miss。
+                dft_key = normalize_name(dft)
+                if dft in cand_names and dft_key in self.by_key:
                     return {"status": "hit", "method": "default-evidence",
-                            "record": self.by_key[dft], "candidates": cand_names}
+                            "record": self.by_key[dft_key], "candidates": cand_names}
             return {"status": "ambiguous", "method": "spec-missing",
                     "record": None, "candidates": cand_names}
 

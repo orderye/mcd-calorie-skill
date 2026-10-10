@@ -23,62 +23,17 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from mcd_nutrition import Matcher, load_nutrition, normalize_name          # noqa: E402
 import mcd_daypart as dp                                                    # noqa: E402
 import mcd_goal as goalmod                                                 # noqa: E402
+# 品类归类与排除规则已抽到基座模块 mcd_taxonomy（v0.9），
+# mcd_order 亦从此导入，消除 order→combo 的层级倒置。
+from mcd_taxonomy import (category_from_menu_name, excluded,   # noqa: E402,F401
+                          keyword_category, RULES)
 
 SKILL_ROOT = Path(__file__).resolve().parent.parent
-RULES = json.loads((SKILL_ROOT / "data" / "category-rules.json").read_text(encoding="utf-8"))
 
-# 菜单分类名 → 品类（第一级，权威来源之一）
-_MENU_CAT = []
-for cat, names in RULES["menuCategoryMap"].items():
-    _MENU_CAT.extend((n, cat) for n in names)
-
-
-def _category_from_menu_name(menu_category: str) -> Optional[str]:
-    low = menu_category.replace("\n", "")
-    for frag, cat in _MENU_CAT:
-        if frag in low:
-            return cat
-    return None
-
-
-_NONFOOD_PATTERNS = tuple(RULES.get("excludeNonFoodPatterns") or ())
-_FOOD_HINTS = tuple(RULES.get("foodHintKeywords") or ())
-
-
-def _excluded(name: str) -> Optional[str]:
-    """返回命中的排除词；无则 None。
-
-    两类排除词区别对待（v0.8）：
-    - **组合品词**（套餐/件套/随心选…）：无条件排除——组合品不得进单品候选位（PRD D4）。
-    - **非食品词**（蘸酱/风味酱/山葵酱…）：仅当**不与食物词共存**时才排除。
-      「蘸酱炸鸡」「蘸酱麦麦脆汁鸡」「5块心形薯饼+韩式辣椒黄油风味酱」是含酱的**食物**，
-      名字里有「鸡/薯/块」→ 不排除；否则会把一顿正餐挡在候选外（与
-      build_demo_menu.is_zero 的判据一致）。
-    """
-    for p in RULES["excludeNamePatterns"]:
-        if p in name:
-            return p
-    for p in _NONFOOD_PATTERNS:
-        if p in name and not any(k in name for k in _FOOD_HINTS):
-            return p
-    return None
-
-
-def _keyword_category(name: str) -> Optional[str]:
-    """第三级兜底。顺序：甜品/冰淇淋 → 饮品 → 主食 → 小食。"""
-    for kw in RULES["dessertKeywords"]:
-        if kw in name:
-            return "小食"
-    for kw in RULES["drinkKeywords"]:
-        if kw in name:
-            return "饮品"
-    for kw in RULES["stapleKeywords"]:
-        if kw in name:
-            return "主食"
-    for kw in RULES["snackKeywords"]:
-        if kw in name:
-            return "小食"
-    return None
+# 旧私有名兼容别名（历史上外部曾 from mcd_combo import _keyword_category）
+_keyword_category = keyword_category
+_excluded = excluded
+_category_from_menu_name = category_from_menu_name
 
 
 def load_menu(path: Path) -> tuple[dict, dict]:

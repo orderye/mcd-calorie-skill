@@ -20,7 +20,8 @@ from typing import Optional
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from mcd_nutrition import Matcher, _ADDON_RE, load_nutrition   # noqa: E402
 import mcd_daypart as dp                                       # noqa: E402
-from mcd_combo import _keyword_category                        # noqa: E402
+# 品类关键词归类属基座能力，从 mcd_taxonomy 导入（v0.9 前曾反向依赖 mcd_combo）
+from mcd_taxonomy import keyword_category                      # noqa: E402
 
 
 def _is_addon(name: str) -> bool:
@@ -81,7 +82,7 @@ def estimate(order_path: Path,
     rows, unknown, ambiguous = [], [], []
     for raw in items:
         res = matcher.match(raw, allow_defaults=True)
-        row = {"name": raw, "category": _keyword_category(raw)}
+        row = {"name": raw, "category": keyword_category(raw)}
         if res["status"] == "hit":
             r = res["record"]
             row.update({"status": "hit", "method": res["method"], "matched": r["name"],

@@ -10,3 +10,6 @@ Thumbs.db
 # Python 缓存
 __pycache__/
 *.pyc
+
+# mcd_cache 运行时缓存（含 429 退避状态，不进仓库）
+skill/data/cache/

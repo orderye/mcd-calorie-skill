@@ -1,5 +1,6 @@
 订单热量与套餐推荐 Skill PRD
-版本 v0.8，2026-10-10。依据麦当劳中国官方 MCP 服务（M-China/mcd-mcp-server）的接口文档与真实接口勘察（样本门店 3570190，2026-10-09）编写。参赛作品形态为 Agent Skill。演示页链接待补充。
+版本 v0.9，2026-10-10。依据麦当劳中国官方 MCP 服务（M-China/mcd-mcp-server）的接口文档与真实接口勘察（样本门店 3570190，2026-10-09）编写。参赛作品形态为 Agent Skill。演示页链接待补充。
+修订记录：v0.9 演示页双风格合并（`food.html` 内置仪表/像素切换、`food-pixel.html` 冻结为独立备用版）+ README/PRD/workbuddy 版本边界说明同步。
 修订记录：v0.8 营养缺口攻坚（回应 §12「营养表收录滞后」）。
   ① **实测确认 `list-nutrition-foods` 是官方 MCP 里唯一的营养数据源**——`query-meals` / `query-meal-detail` / `query-order` 的原始响应均无营养字段（query-meal-detail 最深只到 `rounds[].choices[].{code,name,isDefault,diffPrice}`），故「从其他接口自采集热量」这条路不通。
   ② 新增 `scripts/mcd_spec_evidence.py`：利用「同一 code 在 query-meals 与 query-meal-detail 中指向同一商品」，用套餐里的具体命名反推菜单缺失规格，按 A（可补录）/ B（多值·保持歧义）/ C1（疑似错误映射）/ C2（证据冲突）/ D（已解决）五级分类。

@@ -5,7 +5,7 @@ mcd_history.py — 历史订单批量复盘（T35）
 
 数据源：order-list（官方历史订单查询，1.0.6/2026-07-16 起可用）。
 它返回的 `orderProductList[].comboItemList[]` 与 query-order **结构一致**，
-所以展开、归一、匹配逻辑可直接复用 mcd_order，无需另写一套。
+展开、归一、匹配逻辑收敛在 mcd_review（复用 mcd_order.expand_order），无需另写一套。
 
 回答的是 PRD 场景 5：「昨天那单偏高，今天想要更轻的替换方案」——
 先批量算出每单热量与档位差，再挑出偏高单去 mcd_replace 拿替换方案。
@@ -24,60 +24,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from mcd_nutrition import Matcher, load_nutrition   # noqa: E402
-import mcd_daypart as dp                            # noqa: E402
-from mcd_order import expand_order                # noqa: E402
+from mcd_review import review_order                 # noqa: E402  # 逐单复盘唯一实现
 
 SKILL_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_SRC = SKILL_ROOT / "fixtures" / "order-list.sample.json"
-
-
-def _hhmm(create_time: str) -> str:
-    """'2026-03-20 18:32:42' → '18:32'"""
-    try:
-        return create_time.split()[1][:5]
-    except Exception:
-        return "12:00"
-
-
-def review_order(order: dict, matcher: Matcher, user_daypart: str | None = None) -> dict:
-    items, addons = expand_order(order)
-    daypart = user_daypart or dp.resolve_daypart(_hhmm(order.get("createTime", "")), None)
-    standard = dp.tier_target(daypart, "标准")
-    light = dp.tier_target(daypart, "轻量")
-
-    rows, unknown, ambiguous = [], [], []
-    for raw in items:
-        res = matcher.match(raw, allow_defaults=True)
-        if res["status"] == "hit":
-            r = res["record"]
-            rows.append({"name": raw, "status": "hit", "kcal": r["kcal"],
-                         "matched": r["name"], "method": res["method"]})
-        elif res["status"] == "ambiguous":
-            rows.append({"name": raw, "status": "ambiguous", "candidates": res["candidates"][:4]})
-            ambiguous.append(raw)
-        else:
-            rows.append({"name": raw, "status": "unknown"})
-            unknown.append(raw)
-
-    total = sum(r["kcal"] for r in rows if r["status"] == "hit")
-    diff = total - standard
-    if abs(diff) <= standard * 0.12:
-        verdict = "标准档合适"
-    elif diff > 0:
-        verdict = f"偏高 +{diff:.0f}"
-    else:
-        verdict = f"偏低 {diff:.0f}"
-    return {
-        "createTime": order.get("createTime"),
-        "store": order.get("store"),
-        "daypart": daypart,
-        "standard": standard, "light": light,
-        "itemCount": len(rows), "kcal": total, "diff": diff, "verdict": verdict,
-        "unknown": unknown, "ambiguous": ambiguous,
-        "addons": addons,
-        "amount": order.get("realTotalAmount"),
-        "rows": rows,
-    }
 
 
 def main() -> None:
