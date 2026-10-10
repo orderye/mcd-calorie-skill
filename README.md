@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="cover/cover-v2-1600.png" alt="热麦卡路里 · CALORIE ESTIMATOR · AGENT SKILL" width="820">
+  <img src="cover/cover-v3-pixel.png" alt="热麦卡路里 · CALORIE ESTIMATOR · AGENT SKILL" width="820">
 </div>
 
 # 热麦卡路里
